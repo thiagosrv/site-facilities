@@ -273,9 +273,9 @@ function initScrollReveal() {
 
   // Timeline image
   gsap.fromTo('.timeline-main-image',
-    { x: -60, opacity: 0 },
+    { y: 40, opacity: 0 },
     {
-      x: 0, opacity: 1,
+      y: 0, opacity: 1,
       duration: .9,
       ease: 'power3.out',
       scrollTrigger: { trigger: '.timeline-layout', start: 'top 75%' }
@@ -284,9 +284,9 @@ function initScrollReveal() {
 
   // Timeline steps
   gsap.fromTo('.timeline-step',
-    { x: 40, opacity: 0 },
+    { y: 30, opacity: 0 },
     {
-      x: 0, opacity: 1,
+      y: 0, opacity: 1,
       duration: .7,
       stagger: .2,
       ease: 'power3.out',
@@ -311,16 +311,16 @@ function initScrollReveal() {
   const aboutContent = document.querySelector('.about-content');
   if (aboutImg) {
     gsap.fromTo(aboutImg,
-      { x: -50, opacity: 0 },
-      { x: 0, opacity: 1, duration: .9, ease: 'power3.out',
+      { y: 40, opacity: 0 },
+      { y: 0, opacity: 1, duration: .9, ease: 'power3.out',
         scrollTrigger: { trigger: '.about-grid', start: 'top 75%' }
       }
     );
   }
   if (aboutContent) {
     gsap.fromTo(aboutContent,
-      { x: 50, opacity: 0 },
-      { x: 0, opacity: 1, duration: .9, ease: 'power3.out', delay: .15,
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: .9, ease: 'power3.out', delay: .15,
         scrollTrigger: { trigger: '.about-grid', start: 'top 75%' }
       }
     );

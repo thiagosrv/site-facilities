@@ -49,7 +49,7 @@
 
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; font-size: 16px; }
+html { scroll-behavior: smooth; font-size: 16px; overflow-x: hidden; }
 body {
   font-family: var(--font-body);
   color: var(--text-dark);
@@ -1776,7 +1776,25 @@ p  { line-height: 1.75; }
    ============================================= */
 @media (max-width: 768px) {
 
-  /* Nav */
+  /* Nav mobile — logo centralizado, toggle à direita */
+  .nav {
+    display: grid;
+    grid-template-columns: 44px 1fr 44px;
+    align-items: center;
+  }
+  .nav-logo {
+    grid-column: 2;
+    display: flex;
+    justify-content: center;
+  }
+  .nav-toggle {
+    grid-column: 3;
+    display: flex;
+    justify-content: flex-end;
+    margin-left: 0;
+  }
+  .logo-img { height: 60px; }
+
   .nav-menu {
     position: fixed;
     top: 68px; left: 0; right: 0;
@@ -1796,10 +1814,9 @@ p  { line-height: 1.75; }
     transition: opacity var(--t), transform var(--t);
   }
   .nav-menu.open { transform: translateY(0); opacity: 1; pointer-events: all; }
-  .nav-link { font-size: .93rem; padding: 12px 16px; border-radius: var(--radius); }
+  .nav-link { font-size: .93rem; padding: 12px 16px; border-radius: var(--radius); text-align: center; }
 
   .nav-actions { display: none; }
-  .nav-toggle  { display: block; }
 
   /* Hero */
   .hero { padding: 110px 0 60px; }
@@ -1832,6 +1849,7 @@ p  { line-height: 1.75; }
   .timeline-main-image { position: static; }
   .step-content { grid-template-columns: 76px 1fr; }
   .step-image-small img { width: 76px; height: 56px; }
+  .timeline-step, .step-content, .step-text { max-width: 100%; overflow: hidden; word-break: break-word; }
 
   /* Guarantees */
   .guarantees-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1858,6 +1876,7 @@ p  { line-height: 1.75; }
   .form-row     { grid-template-columns: 1fr; }
 
   /* ── Centralização global de textos no mobile ── */
+  h1,
   .section-header,
   .section-title,
   .section-subtitle,
