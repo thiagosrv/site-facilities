@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canal de Ética — PS Proteção | Transparência e Integridade</title>
+  <meta name="description" content="Canal de Ética da PS Proteção: reporte irregularidades de forma confidencial. Nosso compromisso com a transparência e integridade em todas as operações.">
+  <link rel="icon" type="image/png" href="logo-servicos.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js" defer></script>
+  <style>
+    .etica-section { padding: var(--section-py) 0; background: var(--gray-light); }
+    .etica-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 56px;
+      align-items: start;
+    }
+    .etica-info { display: flex; flex-direction: column; gap: 24px; }
+    .etica-info h2 { font-size: clamp(1.4rem,3vw,1.9rem); color: var(--primary-dark); line-height: 1.3; }
+    .etica-info p  { color: var(--gray-text); line-height: 1.8; }
+
+    .etica-pillars { display: flex; flex-direction: column; gap: 16px; margin-top: 8px; }
+    .etica-pillar {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    .pillar-icon {
+      width: 44px; height: 44px; flex-shrink: 0;
+      border-radius: var(--radius);
+      background: var(--primary);
+      display: grid;
+      place-items: center;
+      color: var(--gold);
+    }
+    .pillar-icon svg { width: 20px; height: 20px; }
+    .pillar-text strong { display: block; font-size: .9rem; color: var(--primary-dark); margin-bottom: 4px; }
+    .pillar-text span  { font-size: .83rem; color: var(--gray-text); line-height: 1.6; }
+
+    .etica-form-wrap {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 48px;
+      box-shadow: var(--shadow-md);
+    }
+    .etica-form-wrap h3 { font-size: 1.3rem; color: var(--primary-dark); margin-bottom: 4px; }
+    .etica-form-wrap .form-subtitle { font-size: .9rem; color: var(--gray-text); margin-bottom: 32px; }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+    .form-group label { font-size: .85rem; font-weight: 600; color: var(--primary-dark); }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      border: 1.5px solid #dde2f0;
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-family: var(--font-body);
+      font-size: .92rem;
+      color: var(--text-dark);
+      background: #fafbff;
+      transition: border-color var(--t), box-shadow var(--t);
+      outline: none;
+      width: 100%;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0,15,106,.1);
+    }
+    .form-group textarea { resize: vertical; min-height: 140px; }
+    .anonymity-notice {
+      background: rgba(0,15,106,.06);
+      border-left: 4px solid var(--primary);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .anonymity-notice svg { width: 20px; height: 20px; color: var(--primary); flex-shrink: 0; margin-top: 2px; }
+    .anonymity-notice p { font-size: .85rem; color: var(--primary-dark); line-height: 1.6; margin: 0; }
+    .form-submit {
+      width: 100%;
+      padding: 16px;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background var(--t), transform var(--t);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .form-submit:hover { background: var(--primary-deep); transform: translateY(-1px); }
+    .form-submit svg { width: 18px; height: 18px; }
+
+    .codigo-section {
+      padding: var(--section-py) 0;
+      background: var(--primary-dark);
+    }
+    .codigo-grid {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 24px;
+      margin-top: 48px;
+    }
+    .codigo-card {
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius-lg);
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .codigo-card-icon { color: var(--gold); }
+    .codigo-card-icon svg { width: 32px; height: 32px; }
+    .codigo-card h4 { color: var(--white); font-size: 1rem; }
+    .codigo-card p  { color: rgba(255,255,255,.7); font-size: .9rem; line-height: 1.7; }
+
+    @media (max-width: 900px) {
+      .etica-grid { grid-template-columns: 1fr; }
+      .etica-form-wrap { padding: 32px 24px; }
+      .codigo-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header id="header" class="header">
+  <nav class="nav container">
+    <a href="index.html" class="nav-logo">
+      <img src="logo-servicos.png" alt="PS Proteção" class="logo-img">
+    </a>
+    <ul class="nav-menu" id="nav-menu">
+      <li><a href="index.html"       class="nav-link">Home</a></li>
+      <li><a href="servicos.html"    class="nav-link">Serviços e Soluções</a></li>
+      <li><a href="segmentos.html"   class="nav-link">Segmentos</a></li>
+      <li><a href="sobre.html"       class="nav-link">Quem Somos</a></li>
+      <li><a href="contato.html"     class="nav-link">Entre em Contato</a></li>
+      <li><a href="canal-etica.html" class="nav-link active">Canal de Ética</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="https://protecaotalentos.online" target="_blank" rel="noopener" class="btn btn-outline-gold">
+        <i data-lucide="user-plus"></i>Trabalhe Conosco
+      </a>
+      <a href="https://wa.me/5519982892037" target="_blank" rel="noopener" class="btn btn-gold">
+        <i data-lucide="message-circle"></i>Solicitar Orçamento
+      </a>
+    </div>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menu">
+      <i data-lucide="menu"></i>
+    </button>
+  </nav>
+</header>
+
+<main>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="page-breadcrumb">
+      <a href="index.html">Home</a>
+      <i data-lucide="chevron-right"></i>
+      <span>Canal de Ética</span>
+    </div>
+    <span class="section-tag section-tag-gold"><i data-lucide="shield"></i>Transparência</span>
+    <h1>Canal de Ética</h1>
+    <p>Um espaço seguro e confidencial para colaboradores, clientes e parceiros reportarem irregularidades com total anonimato e proteção.</p>
+  </div>
+</section>
+
+<section class="etica-section">
+  <div class="container">
+    <div class="etica-grid">
+
+      <!-- Info -->
+      <div class="etica-info">
+        <h2>Nosso compromisso com a ética e a transparência</h2>
+        <p>
+          A PS Proteção tem como um de seus valores fundamentais a ética e a integridade em todas as suas relações — com clientes, colaboradores, fornecedores e a comunidade.
+        </p>
+        <p>
+          O Canal de Ética é um canal seguro e confidencial para que qualquer pessoa possa reportar comportamentos contrários aos nossos princípios, sem medo de retaliação.
+        </p>
+
+        <div class="etica-pillars">
+          <div class="etica-pillar">
+            <div class="pillar-icon"><i data-lucide="eye-off"></i></div>
+            <div class="pillar-text">
+              <strong>100% Confidencial</strong>
+              <span>Todas as denúncias são tratadas com total sigilo. A identidade do denunciante é preservada em todas as etapas do processo.</span>
+            </div>
+          </div>
+          <div class="etica-pillar">
+            <div class="pillar-icon"><i data-lucide="shield-check"></i></div>
+            <div class="pillar-text">
+              <strong>Sem retaliação</strong>
+              <span>A PS Proteção garante proteção a quem reporta de boa-fé. Nenhuma medida punitiva será tomada contra o denunciante.</span>
+            </div>
+          </div>
+          <div class="etica-pillar">
+            <div class="pillar-icon"><i data-lucide="check-circle-2"></i></div>
+            <div class="pillar-text">
+              <strong>Investigação independente</strong>
+              <span>Todos os relatos recebidos são analisados com seriedade e imparcialidade por responsável designado pela direção.</span>
+            </div>
+          </div>
+          <div class="etica-pillar">
+            <div class="pillar-icon"><i data-lucide="clock"></i></div>
+            <div class="pillar-text">
+              <strong>Resposta em até 15 dias úteis</strong>
+              <span>Caso informe um e-mail para retorno, você receberá um feedback sobre o andamento da investigação em até 15 dias úteis.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="etica-form-wrap">
+        <h3>Registrar Relato</h3>
+        <p class="form-subtitle">Preencha o formulário abaixo para registrar sua denúncia ou relato.</p>
+
+        <div class="anonymity-notice">
+          <i data-lucide="info"></i>
+          <p><strong>Você pode ser anônimo.</strong> Os campos de identificação são opcionais. Sua denúncia terá o mesmo peso e será investigada da mesma forma, independente de se identificar ou não.</p>
+        </div>
+
+        <form id="ethics-form" novalidate>
+          <div class="form-group">
+            <label for="tipo">Tipo de relato *</label>
+            <select id="tipo" name="tipo" required>
+              <option value="" disabled selected>Selecione o tipo de relato</option>
+              <option>Assédio moral ou sexual</option>
+              <option>Discriminação</option>
+              <option>Desvio de conduta</option>
+              <option>Irregularidade financeira</option>
+              <option>Descumprimento de normas internas</option>
+              <option>Conflito de interesses</option>
+              <option>Má conduta com cliente</option>
+              <option>Outro</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="descricao">Descrição do relato *</label>
+            <textarea id="descricao" name="descricao" placeholder="Descreva com o máximo de detalhes possível o ocorrido: quem, o quê, quando, onde e como. Quanto mais informações, melhor poderemos investigar." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="nome-opt">Seu nome (opcional)</label>
+            <input type="text" id="nome-opt" name="nome-opt" placeholder="Pode deixar em branco para manter anonimato">
+          </div>
+
+          <div class="form-group">
+            <label for="email-opt">E-mail para retorno (opcional)</label>
+            <input type="email" id="email-opt" name="email-opt" placeholder="Para receber feedback da investigação">
+          </div>
+
+          <button type="submit" class="form-submit">
+            <i data-lucide="send"></i>
+            Enviar Relato com Segurança
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Código de Conduta -->
+<section class="codigo-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag section-tag-gold">Nossos princípios</span>
+      <h2 class="section-title section-title-light">Código de Conduta PS Proteção</h2>
+      <p class="section-subtitle section-subtitle-light">Os princípios que guiam o comportamento de todos os colaboradores e parceiros da PS Proteção.</p>
+    </div>
+
+    <div class="codigo-grid">
+
+      <div class="codigo-card">
+        <div class="codigo-card-icon"><i data-lucide="scale"></i></div>
+        <h4>Ética e Integridade</h4>
+        <p>Agimos com honestidade e transparência em todas as relações — com clientes, colaboradores, fornecedores e a sociedade.</p>
+      </div>
+
+      <div class="codigo-card">
+        <div class="codigo-card-icon"><i data-lucide="heart-handshake"></i></div>
+        <h4>Respeito às Pessoas</h4>
+        <p>Valorizamos a dignidade de cada pessoa. Não toleramos assédio, discriminação ou qualquer forma de tratamento desrespeitoso.</p>
+      </div>
+
+      <div class="codigo-card">
+        <div class="codigo-card-icon"><i data-lucide="lock"></i></div>
+        <h4>Confidencialidade</h4>
+        <p>Protegemos as informações de clientes e colaboradores. O uso indevido de dados confidenciais é uma violação grave do nosso código.</p>
+      </div>
+
+      <div class="codigo-card">
+        <div class="codigo-card-icon"><i data-lucide="award"></i></div>
+        <h4>Qualidade e Excelência</h4>
+        <p>Comprometemo-nos a entregar o melhor resultado em cada posto de serviço, mantendo os padrões de qualidade que nos distinguem.</p>
+      </div>
+
+      <div class="codigo-card">
+        <div class="codigo-card-icon"><i data-lucide="users-2"></i></div>
+        <h4>Responsabilidade Social</h4>
+        <p>Atuamos de forma responsável com a comunidade, o meio ambiente e com os trabalhadores — cumprindo todas as obrigações legais e trabalhistas.</p>
+      </div>
+
+      <div class="codigo-card">
+        <div class="codigo-card-icon"><i data-lucide="trending-up"></i></div>
+        <h4>Melhoria Contínua</h4>
+        <p>Buscamos evoluir constantemente nossos processos, nossa equipe e nossos resultados, com foco na criação de valor para todos os stakeholders.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="logo-servicos.png" alt="PS Proteção" class="footer-logo">
+        <p class="footer-desc">Soluções completas em Facilities para empresas na Região Metropolitana de Campinas.</p>
+        <div class="footer-social">
+          <a href="https://wa.me/5519982892037" target="_blank" rel="noopener" aria-label="WhatsApp"><i data-lucide="message-circle"></i></a>
+          <a href="https://share.google/T93Dj9U0KXU4r2ZRx" target="_blank" rel="noopener" aria-label="Google"><i data-lucide="star"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-title">Serviços</h4>
+        <ul class="footer-links">
+          <li><a href="servicos.html">Portaria e Controle de Acesso</a></li>
+          <li><a href="servicos.html">Limpeza e Conservação</a></li>
+          <li><a href="servicos.html">Zeladoria</a></li>
+          <li><a href="servicos.html">Auxiliar Administrativo</a></li>
+          <li><a href="servicos.html">Recepção</a></li>
+          <li><a href="servicos.html">Auxiliar Contábil</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-title">Institucional</h4>
+        <ul class="footer-links">
+          <li><a href="sobre.html">Quem Somos</a></li>
+          <li><a href="segmentos.html">Segmentos</a></li>
+          <li><a href="contato.html">Entre em Contato</a></li>
+          <li><a href="canal-etica.html">Canal de Ética</a></li>
+          <li><a href="https://protecaotalentos.online" target="_blank" rel="noopener">Trabalhe Conosco</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-title">Contato</h4>
+        <div class="footer-contact">
+          <div class="contact-item"><i data-lucide="map-pin"></i><span>Americana, SP · Região Metropolitana de Campinas</span></div>
+          <div class="contact-item"><i data-lucide="phone"></i><a href="tel:+5519982892037">(19) 98289-2037</a></div>
+          <div class="contact-item"><i data-lucide="message-circle"></i><a href="https://wa.me/5519982892037" target="_blank" rel="noopener">WhatsApp Comercial</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 PS Proteção — Serviços e Facilities. Todos os direitos reservados.</p>
+      <p class="footer-region">Americana · Campinas · Região Metropolitana de Campinas · SP</p>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/5519982892037" target="_blank" rel="noopener" class="whatsapp-float" aria-label="WhatsApp">
+  <i data-lucide="message-circle"></i>
+</a>
+<script src="js/main.js" defer></script>
+<script>
+/* ── Canal de Ética: envio real via Web3Forms ── */
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('ethics-form');
+  if (!form) return;
+
+  // ⚠️ COLE AQUI a chave gerada em web3forms.com para rh@psprotecao.com.br
+  const ACCESS_KEY = 'COLE_SUA_CHAVE_AQUI';
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = form.querySelector('.form-submit');
+    const originalHTML = btn.innerHTML;
+
+    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Enviando...';
+    btn.disabled = true;
+
+    const data = new FormData(form);
+    data.append('access_key', ACCESS_KEY);
+    data.append('subject', 'Canal de Ética — PS Proteção');
+    data.append('from_name', 'Canal de Ética PS Proteção');
+
+    try {
+      const res  = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: data });
+      const json = await res.json();
+      if (json.success) {
+        btn.innerHTML = '✓ Relato enviado com sucesso';
+        btn.style.background = '#16a34a';
+        form.reset();
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.style.background = '';
+          btn.disabled = false;
+        }, 6000);
+      } else {
+        throw new Error(json.message || 'Erro desconhecido');
+      }
+    } catch (err) {
+      btn.innerHTML = '✕ Erro ao enviar — tente novamente';
+      btn.style.background = '#dc2626';
+      btn.disabled = false;
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.style.background = '';
+      }, 4000);
+    }
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quem Somos — PS Proteção | Uma história de trabalho sério</title>
+  <meta name="description" content="Fundada em 1998 por Antônio Farias, a PS Proteção é referência em Facilities na Região Metropolitana de Campinas. +27 anos, +3.000 colaboradores, +1.000 clientes.">
+  <link rel="icon" type="image/png" href="logo-servicos.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js" defer></script>
+  <style>
+    /* ── Page layout ── */
+    .sobre-section {
+      padding: var(--section-py) 0;
+    }
+    .sobre-section:nth-child(odd) {
+      background: var(--white);
+    }
+    .sobre-section:nth-child(even) {
+      background: var(--gray-light);
+    }
+
+    /* ── Two-column story layout ── */
+    .story-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 72px;
+      align-items: center;
+    }
+    .story-grid.reverse { direction: rtl; }
+    .story-grid.reverse > * { direction: ltr; }
+
+    .story-text { display: flex; flex-direction: column; gap: 22px; }
+    .story-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-heading);
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+    .story-label::before {
+      content: '';
+      width: 24px; height: 2px;
+      background: var(--gold);
+      border-radius: 2px;
+    }
+    .story-title {
+      font-family: 'Barlow Condensed', var(--font-heading);
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 800;
+      color: var(--primary-dark);
+      line-height: 1.15;
+      letter-spacing: -.01em;
+    }
+    .story-title span { color: var(--primary); }
+    .story-body p {
+      color: var(--gray-text);
+      line-height: 1.85;
+      margin-bottom: 16px;
+      font-size: .97rem;
+    }
+    .story-body p:last-child { margin-bottom: 0; }
+    .story-body strong { color: var(--primary-dark); font-weight: 700; }
+
+    /* ── Manifesto quote ── */
+    .manifesto-box {
+      background: var(--primary-dark);
+      border-left: 4px solid var(--gold);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-top: 8px;
+    }
+    .manifesto-box p {
+      color: rgba(255,255,255,.9) !important;
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.7 !important;
+      margin: 0 !important;
+    }
+
+    /* ── Story image ── */
+    .story-img-wrap {
+      position: relative;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+    .story-img-wrap img {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+      max-height: 520px;
+    }
+    .story-img-badge {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: var(--gold);
+      color: var(--primary-dark);
+      padding: 12px 18px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      box-shadow: 0 4px 20px rgba(0,0,0,.2);
+    }
+    .story-img-badge svg { width: 20px; height: 20px; }
+    .story-img-badge strong { display: block; font-size: 1rem; }
+    .story-img-badge span { font-size: .78rem; font-weight: 500; opacity: .85; }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--gray-mid);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .stat-pill {
+      background: var(--white);
+      padding: 22px 20px;
+      text-align: center;
+    }
+    .stat-pill-num {
+      font-family: 'Barlow Condensed', var(--font-heading);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      display: block;
+      line-height: 1;
+    }
+    .stat-pill-label {
+      font-size: .75rem;
+      color: var(--gray-text);
+      font-family: var(--font-heading);
+      font-weight: 600;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* ── Method chips ── */
+    .method-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .method-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: rgba(0,15,106,.07);
+      border: 1px solid rgba(0,15,106,.14);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-heading);
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: .02em;
+    }
+    .method-chip svg { width: 13px; height: 13px; }
+
+    /* ── MVV cards ── */
+    .mvv-section {
+      padding: var(--section-py) 0;
+      background: var(--primary-dark);
+    }
+    .mvv-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 56px;
+    }
+    .mvv-card {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius-lg);
+      padding: 36px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .mvv-card.highlight {
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+    .mvv-card.highlight .mvv-icon { background: rgba(0,0,0,.12); }
+    .mvv-card.highlight h3 { color: var(--primary-dark); }
+    .mvv-card.highlight p  { color: rgba(0,10,50,.8); }
+    .mvv-icon {
+      width: 52px; height: 52px;
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      background: rgba(254,190,0,.15);
+    }
+    .mvv-icon svg { width: 24px; height: 24px; color: var(--gold); }
+    .mvv-card.highlight .mvv-icon svg { color: var(--primary-dark); }
+    .mvv-card h3 { color: var(--white); font-size: 1.05rem; }
+    .mvv-card p  { color: rgba(255,255,255,.7); font-size: .92rem; line-height: 1.75; }
+
+    /* ── Timeline ── */
+    .history-section {
+      padding: var(--section-py) 0;
+      background: var(--gray-light);
+    }
+    .history-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-top: 56px;
+    }
+    .history-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      display: flex;
+      gap: 20px;
+      box-shadow: var(--shadow-sm);
+      border-left: 4px solid transparent;
+      transition: var(--t);
+    }
+    .history-card:hover { border-left-color: var(--primary); box-shadow: var(--shadow-md); }
+    .history-card.current { border-left-color: var(--gold); }
+    .history-icon {
+      width: 52px; height: 52px; flex-shrink: 0;
+      border-radius: var(--radius);
+      background: var(--primary);
+      display: grid;
+      place-items: center;
+    }
+    .history-icon svg { width: 22px; height: 22px; color: var(--gold); }
+    .history-card.current .history-icon { background: var(--gold); }
+    .history-card.current .history-icon svg { color: var(--primary-dark); }
+    .history-content {}
+    .history-year {
+      font-family: var(--font-heading);
+      font-size: .75rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+    .history-card.current .history-year { color: #b8840a; }
+    .history-content h4 { color: var(--primary-dark); font-size: 1rem; margin-bottom: 8px; }
+    .history-content p  { color: var(--gray-text); font-size: .88rem; line-height: 1.7; }
+
+    /* ── Leadership ── */
+    .leadership-section {
+      padding: var(--section-py) 0;
+      background: var(--white);
+    }
+    .leadership-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+      margin-top: 56px;
+    }
+    .leader-card {
+      background: var(--gray-light);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .leader-img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      object-position: center top;
+      background: var(--gray-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .leader-img-placeholder {
+      width: 100%;
+      height: 240px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .leader-img-placeholder svg { width: 64px; height: 64px; color: rgba(255,255,255,.2); }
+    .leader-info { padding: 28px; }
+    .leader-name {
+      font-family: 'Barlow Condensed', var(--font-heading);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 4px;
+    }
+    .leader-role {
+      font-family: var(--font-heading);
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 14px;
+    }
+    .leader-bio {
+      font-size: .9rem;
+      color: var(--gray-text);
+      line-height: 1.75;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .story-grid { grid-template-columns: 1fr; gap: 40px; }
+      .story-grid.reverse { direction: ltr; }
+      .mvv-grid { grid-template-columns: 1fr; }
+      .history-grid { grid-template-columns: 1fr; }
+      .leadership-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<header id="header" class="header">
+  <nav class="nav container">
+    <a href="index.html" class="nav-logo">
+      <img src="logo-servicos.png" alt="PS Proteção" class="logo-img">
+    </a>
+    <ul class="nav-menu" id="nav-menu">
+      <li><a href="index.html"       class="nav-link">Home</a></li>
+      <li><a href="servicos.html"    class="nav-link">Serviços e Soluções</a></li>
+      <li><a href="segmentos.html"   class="nav-link">Segmentos</a></li>
+      <li><a href="sobre.html"       class="nav-link active">Quem Somos</a></li>
+      <li><a href="contato.html"     class="nav-link">Entre em Contato</a></li>
+      <li><a href="canal-etica.html" class="nav-link">Canal de Ética</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="https://protecaotalentos.online" target="_blank" rel="noopener" class="btn btn-outline-gold">
+        <i data-lucide="user-plus"></i>Trabalhe Conosco
+      </a>
+      <a href="https://wa.me/5519982892037" target="_blank" rel="noopener" class="btn btn-gold">
+        <i data-lucide="message-circle"></i>Solicitar Orçamento
+      </a>
+    </div>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menu">
+      <i data-lucide="menu"></i>
+    </button>
+  </nav>
+</header>
+
+<main>
+
+<!-- Page Hero -->
+<section class="page-hero">
+  <div class="container">
+    <div class="page-breadcrumb">
+      <a href="index.html">Home</a>
+      <i data-lucide="chevron-right"></i>
+      <span>Quem Somos</span>
+    </div>
+    <span class="section-tag section-tag-gold" style="display:inline-flex;margin:0 auto;"><i data-lucide="award"></i>Nossa história</span>
+    <h1 style="text-align:center;">Quem Somos</h1>
+    <p style="text-align:center;">27 anos construindo confiança um posto de cada vez — da fundação familiar ao método de gestão por dados.</p>
+  </div>
+</section>
+
+<!-- ═══ Seção 1: História ═══ -->
+<section class="sobre-section">
+  <div class="container">
+    <div class="story-grid">
+
+      <div class="story-text">
+        <span class="story-label">Fundação · 1998</span>
+        <h2 class="story-title">Uma história de<br><span>trabalho sério</span></h2>
+        <div class="story-body">
+          <p>
+            A <strong>PS Proteção</strong> nasceu em 1998 de um impulso simples e poderoso:
+            <strong>trabalho sério</strong>, proximidade real com o cliente e
+            <strong>zero espaço para falhas em portaria</strong>. Foi assim que
+            <strong>Antônio Farias</strong>, nordestino que escolheu São Paulo para transformar
+            a própria trajetória, plantou as bases do que somos hoje: uma empresa familiar
+            por essência e profissional por método, especializada em terceirização de portaria
+            e serviços de facilities na Região Metropolitana de Campinas (RMC).
+          </p>
+          <p>
+            Ao longo de 27 anos, crescemos com um foco inegociável: <strong>confiabilidade
+            operacional</strong>. Isso significa gente certa, no lugar certo, seguindo processo
+            certo. Treinamos e capacitamos mais de <strong>3.000 colaboradores</strong> e já
+            atendemos <strong>+1.000 clientes</strong>, mantendo relações que atravessam
+            15 anos ou mais — porque parceria de longo prazo não se promete, se sustenta
+            no dia a dia.
+          </p>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-pill">
+            <span class="stat-pill-num">27</span>
+            <span class="stat-pill-label">Anos de mercado</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-pill-num">3k+</span>
+            <span class="stat-pill-label">Colaboradores</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-pill-num">1k+</span>
+            <span class="stat-pill-label">Clientes atendidos</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="story-img-wrap">
+        <img src="historia.jpg" alt="Sede PS Proteção — Rua São Gabriel, Americana SP">
+        <div class="story-img-badge">
+          <i data-lucide="calendar"></i>
+          <div>
+            <strong>Americana · SP</strong>
+            <span>1998</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Seção 2: Gestão ═══ -->
+<section class="sobre-section">
+  <div class="container">
+    <div class="story-grid reverse">
+
+      <div class="story-img-wrap">
+        <img src="psprotecao.png" alt="Operação PS Proteção — gestão por dados" style="object-position: center 30%;">
+        <div class="story-img-badge">
+          <i data-lucide="calendar"></i>
+          <div>
+            <strong>Americana · SP</strong>
+            <span>2026</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="story-text">
+        <span class="story-label">Gestão atual</span>
+        <h2 class="story-title">Gestão por dados,<br><span>entrega com método</span></h2>
+        <div class="story-body">
+          <p>
+            Hoje, sob a liderança de <strong>Adriana Farias</strong>, preservamos os valores
+            familiares que nos trouxeram até aqui e aceleramos a gestão por dados.
+          </p>
+          <p>
+            Em cada posto, operamos com <strong>POPs</strong> (Procedimentos Operacionais Padrão),
+            <strong>SLAs</strong> (Acordos de Nível de Serviço) e <strong>KPIs mensais</strong>
+            que garantem rastreabilidade e melhoria contínua.
+          </p>
+          <p>
+            Nossa equipe trabalha sob supervisão ativa, com checklist e evidências por turno,
+            garantindo conformidade trabalhista, <strong>LGPD</strong> e melhoria contínua.
+            Quando o cenário exige, flexibilizamos escala e cronograma, sem perder
+            governança e previsibilidade.
+          </p>
+        </div>
+
+        <div class="method-chips">
+          <span class="method-chip"><i data-lucide="file-check-2"></i>POPs por posto</span>
+          <span class="method-chip"><i data-lucide="bar-chart-2"></i>KPIs mensais</span>
+          <span class="method-chip"><i data-lucide="shield-check"></i>SLAs contratuais</span>
+          <span class="method-chip"><i data-lucide="eye"></i>Supervisão ativa</span>
+          <span class="method-chip"><i data-lucide="lock"></i>Conformidade LGPD</span>
+          <span class="method-chip"><i data-lucide="clipboard-list"></i>Checklist por turno</span>
+        </div>
+
+        <div class="manifesto-box">
+          <p>
+            PS Proteção é, no fundo, a soma de dois vetores: a história de quem acredita
+            no trabalho, e o método de quem mede o que entrega. É assim que transformamos
+            processo em confiança — um dia de cada vez, um posto de cada vez.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Liderança ═══ -->
+<section class="leadership-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Liderança</span>
+      <h2 class="section-title">As pessoas por trás da PS Proteção</h2>
+      <p class="section-subtitle">Uma empresa familiar que combina a força da tradição com a precisão da gestão moderna.</p>
+    </div>
+    <div class="leadership-grid">
+
+      <div class="leader-card">
+        <div class="leader-img-placeholder">
+          <i data-lucide="user"></i>
+        </div>
+        <div class="leader-info">
+          <div class="leader-name">Antônio Farias</div>
+          <div class="leader-role">Fundador · 1998</div>
+          <p class="leader-bio">
+            Nordestino que escolheu São Paulo para transformar a própria trajetória.
+            Em 1998 fundou a PS Proteção com um princípio claro: trabalho sério e
+            zero espaço para falhas. Construiu as bases de uma empresa que hoje
+            é referência regional em Facilities.
+          </p>
+        </div>
+      </div>
+
+      <div class="leader-card">
+        <div class="leader-img-placeholder">
+          <i data-lucide="user"></i>
+        </div>
+        <div class="leader-info">
+          <div class="leader-name">Adriana Farias</div>
+          <div class="leader-role">Diretora Executiva</div>
+          <p class="leader-bio">
+            Sob sua liderança, a PS Proteção evoluiu de uma operação familiar para
+            uma gestão orientada por dados. Implementou POPs, SLAs e KPIs mensais
+            em todos os postos, mantendo os valores que definem a empresa desde o
+            primeiro dia.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Missão, Visão e Valores ═══ -->
+<section class="mvv-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag section-tag-gold">Nossos princípios</span>
+      <h2 class="section-title section-title-light">Missão, Visão e Valores</h2>
+      <p class="section-subtitle section-subtitle-light">Os pilares que guiam cada decisão e cada posto de serviço da PS Proteção.</p>
+    </div>
+    <div class="mvv-grid">
+      <div class="mvv-card">
+        <div class="mvv-icon"><i data-lucide="target"></i></div>
+        <h3>Missão</h3>
+        <p>Oferecer soluções completas em Facilities que permitam às empresas focar no seu negócio principal, com a tranquilidade de ter operações estruturadas, supervisionadas e entregues com excelência.</p>
+      </div>
+      <div class="mvv-card highlight">
+        <div class="mvv-icon"><i data-lucide="eye"></i></div>
+        <h3>Visão</h3>
+        <p>Ser a parceira de Facilities mais confiável da Região Metropolitana de Campinas, referência em confiabilidade operacional, governança e comprometimento com os resultados dos nossos clientes.</p>
+      </div>
+      <div class="mvv-card">
+        <div class="mvv-icon"><i data-lucide="heart"></i></div>
+        <h3>Valores</h3>
+        <p>Trabalho sério, proximidade com o cliente, conformidade trabalhista, melhoria contínua e respeito às pessoas. Valores que guiam cada colaborador desde o primeiro posto.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Timeline ═══ -->
+<section class="history-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Nossa trajetória</span>
+      <h2 class="section-title">27 anos construídos posto a posto</h2>
+      <p class="section-subtitle">De uma operação local em Americana a referência em Facilities na Região Metropolitana de Campinas.</p>
+    </div>
+
+    <div class="history-grid">
+
+      <div class="history-card">
+        <div class="history-icon"><i data-lucide="flag"></i></div>
+        <div class="history-content">
+          <div class="history-year">1998 — Fundação</div>
+          <h4>A origem em Americana, SP</h4>
+          <p>Antônio Farias funda a PS Proteção com foco em portaria e controle de acesso. O princípio fundador: trabalho sério, proximidade real com o cliente e zero espaço para falhas.</p>
+        </div>
+      </div>
+
+      <div class="history-card">
+        <div class="history-icon"><i data-lucide="trending-up"></i></div>
+        <div class="history-content">
+          <div class="history-year">Anos 2000 — Expansão</div>
+          <h4>Crescimento para a Região Metropolitana</h4>
+          <p>Com a reputação consolidada em Americana, a empresa expande para Campinas e municípios da RMC. O portfólio cresce com limpeza, zeladoria e suporte administrativo.</p>
+        </div>
+      </div>
+
+      <div class="history-card">
+        <div class="history-icon"><i data-lucide="settings-2"></i></div>
+        <div class="history-content">
+          <div class="history-year">Anos 2010 — Estruturação</div>
+          <h4>Profissionalização dos processos</h4>
+          <p>Implementação dos POPs (Procedimentos Operacionais Padrão) em cada posto, estruturação da supervisão ativa e investimento contínuo em treinamento e capacitação.</p>
+        </div>
+      </div>
+
+      <div class="history-card current">
+        <div class="history-icon"><i data-lucide="bar-chart-2"></i></div>
+        <div class="history-content">
+          <div class="history-year">Hoje — Gestão por dados</div>
+          <h4>Método e tecnologia a serviço da operação</h4>
+          <p>Sob a liderança de Adriana Farias, a empresa opera com SLAs, KPIs mensais e conformidade LGPD. +3.000 colaboradores, +1.000 clientes e +30 municípios atendidos.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-inner">
+      <div class="cta-content">
+        <h2>Faça parte da nossa história</h2>
+        <p>Entre em contato e descubra como a PS Proteção pode transformar a gestão de Facilities da sua empresa.</p>
+      </div>
+      <div class="cta-actions">
+        <a href="https://wa.me/5519982892037" target="_blank" rel="noopener" class="btn btn-gold btn-xl">
+          <i data-lucide="message-circle"></i>Falar pelo WhatsApp
+        </a>
+        <a href="https://protecaotalentos.online" target="_blank" rel="noopener" class="btn btn-outline-white btn-xl">
+          <i data-lucide="user-plus"></i>Trabalhe Conosco
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div class="footer-map-bar">
+  <iframe
+    src="https://maps.google.com/maps?q=-22.7301816,-47.30249&hl=pt-BR&z=17&output=embed"
+    width="100%"
+    height="260"
+    style="border:0;display:block;"
+    allowfullscreen=""
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade"
+    title="PS Proteção — Rua São Gabriel 1623, Americana, SP">
+  </iframe>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="logo-servicos.png" alt="PS Proteção" class="footer-logo">
+        <p class="footer-desc">Soluções completas em Facilities para empresas na Região Metropolitana de Campinas.</p>
+        <div class="footer-social">
+          <a href="https://wa.me/5519982892037" target="_blank" rel="noopener" aria-label="WhatsApp">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          </a>
+          <a href="https://www.instagram.com/protecao_seguranca/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="https://web.facebook.com/protecaoeseguranca" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="https://www.linkedin.com/company/ps-protecao" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
+          <a href="https://share.google/T93Dj9U0KXU4r2ZRx" target="_blank" rel="noopener" aria-label="Google Meu Negócio">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-title">Serviços</h4>
+        <ul class="footer-links">
+          <li><a href="servicos.html">Portaria e Controle de Acesso</a></li>
+          <li><a href="servicos.html">Limpeza e Conservação</a></li>
+          <li><a href="servicos.html">Zeladoria</a></li>
+          <li><a href="servicos.html">Auxiliar Administrativo</a></li>
+          <li><a href="servicos.html">Recepção</a></li>
+          <li><a href="servicos.html">Auxiliar Contábil</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-title">Institucional</h4>
+        <ul class="footer-links">
+          <li><a href="sobre.html">Quem Somos</a></li>
+          <li><a href="segmentos.html">Segmentos</a></li>
+          <li><a href="contato.html">Entre em Contato</a></li>
+          <li><a href="canal-etica.html">Canal de Ética</a></li>
+          <li><a href="https://protecaotalentos.online" target="_blank" rel="noopener">Trabalhe Conosco</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-title">Contato</h4>
+        <div class="footer-contact">
+          <div class="contact-item">
+            <i data-lucide="map-pin"></i>
+            <span>Rua São Gabriel, 1623 — Vila Belvedere<br>Americana · SP</span>
+          </div>
+          <div class="contact-item">
+            <i data-lucide="phone"></i>
+            <a href="tel:+551934787799">(19) 3478-7799</a>
+          </div>
+          <div class="contact-item">
+            <i data-lucide="phone-call"></i>
+            <div>
+              <a href="tel:+5519997818615">(19) 99781-8615</a>
+              <span class="contact-label">Emergências</span>
+            </div>
+          </div>
+          <div class="contact-item">
+            <i data-lucide="message-circle"></i>
+            <a href="https://wa.me/5519982892037" target="_blank" rel="noopener">WhatsApp Comercial</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 PS Proteção — Serviços e Facilities. Todos os direitos reservados.</p>
+      <p class="footer-region">Americana · Campinas · Região Metropolitana de Campinas · SP</p>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/5519982892037" target="_blank" rel="noopener" class="whatsapp-float" aria-label="Fale conosco pelo WhatsApp">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+</a>
+
+<script src="js/main.js" defer></script>
+</body>
+</html>

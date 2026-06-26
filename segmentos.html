@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Segmentos Atendidos — PS Proteção | Facilities para Empresas em Campinas</title>
+  <meta name="description" content="PS Proteção atende indústrias, logística, educação, saúde, comércio e construção com soluções completas de Facilities na Região Metropolitana de Campinas.">
+  <link rel="icon" type="image/png" href="logo-servicos.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js" defer></script>
+  <style>
+    .segments-page { padding: var(--section-py) 0; background: var(--gray-light); }
+    .segments-full-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 56px;
+    }
+    .segment-full-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 40px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: var(--shadow-sm);
+      border-top: 4px solid transparent;
+      transition: box-shadow var(--t), transform var(--t), border-color var(--t);
+    }
+    .segment-full-card:hover {
+      box-shadow: var(--shadow-xl);
+      transform: translateY(-4px);
+      border-top-color: var(--gold);
+    }
+    .segment-card-icon {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-deep) 100%);
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      color: var(--gold);
+    }
+    .segment-card-icon svg { width: 30px; height: 30px; }
+    .segment-full-card h3 { font-size: 1.15rem; color: var(--primary-dark); }
+    .segment-full-card p  { font-size: .93rem; color: var(--gray-text); line-height: 1.75; }
+    .segment-services {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .seg-service-tag {
+      background: var(--gray-light);
+      color: var(--primary);
+      font-size: .78rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+    @media (max-width: 1024px) { .segments-full-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 600px)  { .segments-full-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<header id="header" class="header">
+  <nav class="nav container">
+    <a href="index.html" class="nav-logo">
+      <img src="logo-servicos.png" alt="PS Proteção" class="logo-img">
+    </a>
+    <ul class="nav-menu" id="nav-menu">
+      <li><a href="index.html"       class="nav-link">Home</a></li>
+      <li><a href="servicos.html"    class="nav-link">Serviços e Soluções</a></li>
+      <li><a href="segmentos.html"   class="nav-link active">Segmentos</a></li>
+      <li><a href="sobre.html"       class="nav-link">Quem Somos</a></li>
+      <li><a href="contato.html"     class="nav-link">Entre em Contato</a></li>
+      <li><a href="canal-etica.html" class="nav-link">Canal de Ética</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="https://protecaotalentos.online" target="_blank" rel="noopener" class="btn btn-outline-gold">
+        <i data-lucide="user-plus"></i>Trabalhe Conosco
+      </a>
+      <a href="https://wa.me/5519982892037" target="_blank" rel="noopener" class="btn btn-gold">
+        <i data-lucide="message-circle"></i>Solicitar Orçamento
+      </a>
+    </div>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menu">
+      <i data-lucide="menu"></i>
+    </button>
+  </nav>
+</header>
+
+<main>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="page-breadcrumb">
+      <a href="index.html">Home</a>
+      <i data-lucide="chevron-right"></i>
+      <span>Segmentos</span>
+    </div>
+    <span class="section-tag section-tag-gold"><i data-lucide="building-2"></i>Segmentos atendidos</span>
+    <h1>Soluções de Facilities para cada segmento</h1>
+    <p>A PS Proteção entende as necessidades específicas de cada tipo de negócio e adapta as soluções de Facilities para garantir a melhor performance operacional.</p>
+  </div>
+</section>
+
+<section class="segments-page">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Para qual empresa trabalhamos?</span>
+      <h2 class="section-title">Segmentos que atendemos</h2>
+      <p class="section-subtitle">+28 anos de experiência nos permitem compreender as particularidades de cada setor e oferecer soluções de Facilities verdadeiramente eficientes.</p>
+    </div>
+
+    <div class="segments-full-grid">
+
+      <div class="segment-full-card">
+        <div class="segment-card-icon"><i data-lucide="factory"></i></div>
+        <h3>Empresas e Indústrias</h3>
+        <p>Suporte completo para plantas industriais, escritórios corporativos e unidades fabris. Profissionais preparados para ambientes de alta demanda operacional, com controle de acesso rigoroso, higiene e zeladoria contínua.</p>
+        <div class="segment-services">
+          <span class="seg-service-tag">Portaria e Controle de Acesso</span>
+          <span class="seg-service-tag">Limpeza Industrial</span>
+          <span class="seg-service-tag">Zeladoria</span>
+          <span class="seg-service-tag">Auxiliar Administrativo</span>
+        </div>
+      </div>
+
+      <div class="segment-full-card">
+        <div class="segment-card-icon"><i data-lucide="package"></i></div>
+        <h3>Centros de Logística e Distribuição</h3>
+        <p>Operações 24h com exigência máxima de continuidade. A PS Proteção garante cobertura integral, controle de acesso de terceiros e motoristas, limpeza de galpões e suporte operacional sem interrupções.</p>
+        <div class="segment-services">
+          <span class="seg-service-tag">Portaria 24h</span>
+          <span class="seg-service-tag">Controle de Fornecedores</span>
+          <span class="seg-service-tag">Limpeza de Galpões</span>
+          <span class="seg-service-tag">Zeladoria</span>
+        </div>
+      </div>
+
+      <div class="segment-full-card">
+        <div class="segment-card-icon"><i data-lucide="graduation-cap"></i></div>
+        <h3>Instituições de Ensino</h3>
+        <p>Escolas, faculdades e cursos técnicos demandam organização, controle de acesso e um ambiente acolhedor. Fornecemos porteiros, recepcionistas, auxiliares de limpeza e zeladores com perfil adequado para o ambiente educacional.</p>
+        <div class="segment-services">
+          <span class="seg-service-tag">Portaria Escolar</span>
+          <span class="seg-service-tag">Limpeza de Salas</span>
+          <span class="seg-service-tag">Recepção</span>
+          <span class="seg-service-tag">Zeladoria</span>
+        </div>
+      </div>
+
+      <div class="segment-full-card">
+        <div class="segment-card-icon"><i data-lucide="shopping-bag"></i></div>
+        <h3>Comércios e Shoppings</h3>
+        <p>Ambientes de alta circulação exigem profissionais ágeis, bem apresentados e preparados para o atendimento ao público. Oferecemos recepção, controle de acesso, limpeza e zeladoria com agilidade e discrição.</p>
+        <div class="segment-services">
+          <span class="seg-service-tag">Recepção</span>
+          <span class="seg-service-tag">Controle de Acesso</span>
+          <span class="seg-service-tag">Limpeza Contínua</span>
+          <span class="seg-service-tag">Zeladoria</span>
+        </div>
+      </div>
+
+      <div class="segment-full-card">
+        <div class="segment-card-icon"><i data-lucide="hard-hat"></i></div>
+        <h3>Obras e Construções</h3>
+        <p>Controle de acesso de funcionários, prestadores e materiais em canteiros de obra. A PS Proteção oferece porteiros administrativos para organizar o fluxo de entrada e saída e manter o registro operacional da obra.</p>
+        <div class="segment-services">
+          <span class="seg-service-tag">Portaria de Canteiro</span>
+          <span class="seg-service-tag">Controle de Materiais</span>
+          <span class="seg-service-tag">Portaria Administrativa</span>
+        </div>
+      </div>
+
+      <div class="segment-full-card">
+        <div class="segment-card-icon"><i data-lucide="heart-pulse"></i></div>
+        <h3>Estabelecimentos de Saúde</h3>
+        <p>Clínicas, hospitais e laboratórios têm exigências rigorosas de higiene, acesso e organização. Nossos profissionais recebem treinamento específico para o setor de saúde, seguindo protocolos de biossegurança.</p>
+        <div class="segment-services">
+          <span class="seg-service-tag">Recepção Hospitalar</span>
+          <span class="seg-service-tag">Limpeza com Biossegurança</span>
+          <span class="seg-service-tag">Portaria Controlada</span>
+          <span class="seg-service-tag">Zeladoria</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Stats banner -->
+<div class="segments-banner">
+  <div class="container">
+    <p class="segments-label">Por que a PS Proteção?</p>
+    <div class="segments-scroll">
+      <div class="segment-item"><i data-lucide="calendar-check-2"></i><span>+28 Anos de mercado</span></div>
+      <div class="segment-divider"></div>
+      <div class="segment-item"><i data-lucide="users-2"></i><span>+3.000 colaboradores</span></div>
+      <div class="segment-divider"></div>
+      <div class="segment-item"><i data-lucide="building-2"></i><span>+1.000 clientes</span></div>
+      <div class="segment-divider"></div>
+      <div class="segment-item"><i data-lucide="eye"></i><span>Supervisão ativa</span></div>
+      <div class="segment-divider"></div>
+      <div class="segment-item"><i data-lucide="shield-check"></i><span>POP em cada posto</span></div>
+    </div>
+  </div>
+</div>
+
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-inner">
+      <div class="cta-content">
+        <h2>Seu segmento também precisa de Facilities?</h2>
+        <p>Fale com nossa equipe e receba uma proposta personalizada para o seu tipo de operação.</p>
+      </div>
+      <div class="cta-actions">
+        <a href="https://wa.me/5519982892037" target="_blank" rel="noopener" class="btn btn-gold btn-xl">
+          <i data-lucide="message-circle"></i>Falar pelo WhatsApp
+        </a>
+        <a href="contato.html" class="btn btn-outline-white btn-xl">
+          <i data-lucide="mail"></i>Enviar mensagem
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="logo-servicos.png" alt="PS Proteção" class="footer-logo">
+        <p class="footer-desc">Soluções completas em Facilities para empresas na Região Metropolitana de Campinas.</p>
+        <div class="footer-social">
+          <a href="https://wa.me/5519982892037" target="_blank" rel="noopener" aria-label="WhatsApp"><i data-lucide="message-circle"></i></a>
+          <a href="https://share.google/T93Dj9U0KXU4r2ZRx" target="_blank" rel="noopener" aria-label="Google"><i data-lucide="star"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-title">Serviços</h4>
+        <ul class="footer-links">
+          <li><a href="servicos.html">Portaria e Controle de Acesso</a></li>
+          <li><a href="servicos.html">Limpeza e Conservação</a></li>
+          <li><a href="servicos.html">Zeladoria</a></li>
+          <li><a href="servicos.html">Auxiliar Administrativo</a></li>
+          <li><a href="servicos.html">Recepção</a></li>
+          <li><a href="servicos.html">Auxiliar Contábil</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-title">Institucional</h4>
+        <ul class="footer-links">
+          <li><a href="sobre.html">Quem Somos</a></li>
+          <li><a href="segmentos.html">Segmentos</a></li>
+          <li><a href="contato.html">Entre em Contato</a></li>
+          <li><a href="canal-etica.html">Canal de Ética</a></li>
+          <li><a href="https://protecaotalentos.online" target="_blank" rel="noopener">Trabalhe Conosco</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-title">Contato</h4>
+        <div class="footer-contact">
+          <div class="contact-item"><i data-lucide="map-pin"></i><span>Americana, SP · Região Metropolitana de Campinas</span></div>
+          <div class="contact-item"><i data-lucide="phone"></i><a href="tel:+5519982892037">(19) 98289-2037</a></div>
+          <div class="contact-item"><i data-lucide="message-circle"></i><a href="https://wa.me/5519982892037" target="_blank" rel="noopener">WhatsApp Comercial</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 PS Proteção — Serviços e Facilities. Todos os direitos reservados.</p>
+      <p class="footer-region">Americana · Campinas · Região Metropolitana de Campinas · SP</p>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/5519982892037" target="_blank" rel="noopener" class="whatsapp-float" aria-label="WhatsApp">
+  <i data-lucide="message-circle"></i>
+</a>
+<script src="js/main.js" defer></script>
+</body>
+</html>
