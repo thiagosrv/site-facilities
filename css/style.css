@@ -1435,8 +1435,10 @@ p  { line-height: 1.75; }
 
 .cta-inner {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  text-align: center;
+  justify-content: center;
   gap: 48px;
   flex-wrap: wrap;
   position: relative;
@@ -1448,7 +1450,7 @@ p  { line-height: 1.75; }
   font-size: clamp(1.5rem, 3vw, 2.2rem);
   letter-spacing: -.025em;
 }
-.cta-content p  { color: rgba(255,255,255,.6); max-width: 480px; line-height: 1.75; }
+.cta-content p  { color: rgba(255,255,255,.6); max-width: 480px; line-height: 1.75; margin-inline: auto; text-align: center; }
 .cta-actions { display: flex; gap: 12px; flex-wrap: wrap; flex-shrink: 0; }
 
 /* =============================================
@@ -1854,6 +1856,44 @@ p  { line-height: 1.75; }
   /* Contact */
   .contact-grid { grid-template-columns: 1fr; }
   .form-row     { grid-template-columns: 1fr; }
+
+  /* ── Centralização global de textos no mobile ── */
+  .section-header,
+  .section-title,
+  .section-subtitle,
+  .section-tag,
+  .service-card,
+  .service-title,
+  .service-desc,
+  .stat-card,
+  .stat-label,
+  .guarantee-card,
+  .guarantee-card h4,
+  .guarantee-card p,
+  .about-text,
+  .value-item,
+  .testimonial-card blockquote,
+  .testimonial-author,
+  .footer-desc,
+  .contact-info-title,
+  .contact-info-text,
+  .faq-question {
+    text-align: center;
+  }
+
+  .section-tag   { margin-inline: auto; }
+  .value-item    { justify-content: center; }
+  .service-link  { justify-content: center; }
+  .about-values  { align-items: center; }
+
+  /* ── Subtextos -4px no mobile ── */
+  .section-subtitle { font-size: .8rem; }
+  .service-desc     { font-size: .81rem; }
+  .guarantee-card p { font-size: .73rem; }
+  .about-text       { font-size: .85rem; }
+  .hero-subtitle    { font-size: .87rem; }
+  .footer-desc      { font-size: .78rem; }
+  .cta-content p    { font-size: .85rem; }
 }
 
 @media (max-width: 480px) {
