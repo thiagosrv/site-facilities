@@ -479,7 +479,12 @@ p  { line-height: 1.75; }
   gap: 12px;
   margin-bottom: 40px;
 }
-.hero-online { align-self: center; }
+.hero-cta-group {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
 
 .hero-trust {
   display: flex;
