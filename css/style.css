@@ -1804,33 +1804,40 @@ p  { line-height: 1.75; }
   /* Menu dropdown */
   .nav-menu {
     position: fixed;
-    top: 84px; left: 0; right: 0; bottom: 0;
+    top: 84px; left: 0; right: 0;
     flex-direction: column;
     align-items: stretch;
     background: #ffffff;
-    box-shadow: 0 8px 24px rgba(0,0,0,.12);
-    padding: 12px 16px 32px;
-    gap: 4px;
-    border-radius: 0;
+    box-shadow: 0 8px 32px rgba(0,0,0,.15);
+    padding: 8px 16px 24px;
+    gap: 2px;
+    border-radius: 0 0 16px 16px;
     border: none;
     overflow-y: auto;
-    transform: translateX(100%);
-    opacity: 1;
+    z-index: 1001;
+    opacity: 0;
+    transform: translateY(-8px);
     pointer-events: none;
-    transition: transform .28s cubic-bezier(.4,0,.2,1);
+    transition: opacity .22s ease, transform .22s ease;
   }
-  .nav-menu.open { transform: translateX(0); pointer-events: all; }
+  .nav-menu.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+  .nav-menu li { list-style: none; }
   .nav-link {
     font-size: 1rem;
-    padding: 14px 20px;
-    border-radius: var(--radius);
+    font-weight: 500;
+    padding: 14px 16px;
+    border-radius: 10px;
     text-align: left;
     display: block;
-    border-bottom: 1px solid rgba(0,0,0,.05);
-    color: var(--text-dark);
+    color: #1a1a2e;
+    border-bottom: 1px solid rgba(0,0,0,.06);
   }
-  .nav-link:last-child { border-bottom: none; }
-  .nav-link.active { background: var(--primary); color: #fff; }
+  .nav-menu li:last-child .nav-link { border-bottom: none; }
+  .nav-link.active { background: var(--primary); color: #fff; border-bottom-color: transparent; }
 
   /* ─────────────────────────────────────────────
      HERO
@@ -1857,8 +1864,9 @@ p  { line-height: 1.75; }
     padding: 28px 16px;
     gap: 10px;
   }
-  .stat-number { font-size: 2rem; }
-  .stat-label  { font-size: .72rem; }
+  .stat-content { text-align: center; width: 100%; }
+  .stat-number  { font-size: 2rem; text-align: center; justify-content: center; }
+  .stat-label   { font-size: .72rem; text-align: center; }
 
   /* ─────────────────────────────────────────────
      SERVICES
@@ -1866,15 +1874,24 @@ p  { line-height: 1.75; }
   .services-grid { grid-template-columns: 1fr; }
   .service-card  { align-items: center; padding: 28px 24px; }
   .service-icon-wrap { margin-inline: auto; }
-  .segments-scroll { gap: 12px 20px; }
+  .segments-scroll {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 20px;
+    overflow-x: visible;
+  }
+  .segments-scroll .segment-item { justify-content: center; }
+  .segments-scroll .segment-item:last-child { flex-basis: 100%; justify-content: center; }
   .segment-divider { display: none; }
 
   /* ─────────────────────────────────────────────
      TESTIMONIALS / AVALIAÇÕES
   ───────────────────────────────────────────── */
   .testimonials-grid { grid-template-columns: 1fr; }
+  .testimonial-stars { justify-content: center; }
   .google-reviews-inner { flex-direction: column; align-items: center; text-align: center; gap: 12px; }
   .rating-stars { justify-content: center; }
+  .google-reviews-cta { text-align: center; }
 
   /* ─────────────────────────────────────────────
      TIMELINE / IMPLANTAÇÃO
@@ -1921,12 +1938,18 @@ p  { line-height: 1.75; }
   ───────────────────────────────────────────── */
   .footer-grid { grid-template-columns: 1fr; gap: 36px; text-align: center; }
   .footer-bottom { flex-direction: column; text-align: center; gap: 8px; }
-  .footer-brand  { align-items: center; }
+  .footer-brand  { align-items: center; text-align: center; }
   .footer-logo   { margin-inline: auto; }
+  .footer-desc   { text-align: center; }
   .footer-social { justify-content: center; }
   .footer-links  { align-items: center; }
-  .footer-col    { align-items: center; }
-  .footer-contact-item { justify-content: center; }
+  .footer-links a { text-align: center; }
+  .footer-col    { align-items: center; text-align: center; }
+  .footer-title  { text-align: center; }
+  .footer-contact { align-items: center; }
+  .footer-contact .contact-item { justify-content: center; }
+  .footer-contact .contact-item span,
+  .footer-contact .contact-item a { text-align: center; }
 
   /* ─────────────────────────────────────────────
      CONTACT
