@@ -1617,6 +1617,7 @@ p  { line-height: 1.75; }
   margin-bottom: 18px;
   max-width: 700px;
   margin-inline: auto;
+  text-align: center !important;
 }
 .page-hero p  {
   color: rgba(255,255,255,.6);
@@ -2034,4 +2035,38 @@ p  { line-height: 1.75; }
   height: 1px;
   background: linear-gradient(to right, transparent, var(--gray-mid), transparent);
   margin: 0;
+}
+
+/* =============================================
+   PERFORMANCE — GPU compositing hints
+   ============================================= */
+.service-card,
+.testimonial-card,
+.stat-card,
+.guarantee-card,
+.segment-card,
+.btn-gold,
+.btn-primary-blue,
+.btn-wpp {
+  will-change: transform;
+}
+
+/* =============================================
+   ACCESSIBILITY — Reduced motion
+   ============================================= */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .hero-online-dot { animation: none; }
+  .scroll-line     { animation: none; }
 }
