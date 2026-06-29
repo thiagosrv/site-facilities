@@ -233,15 +233,15 @@ function initScrollReveal() {
     }
   );
 
-  // Service cards
-  gsap.fromTo('.service-card',
-    { y: 60, opacity: 0 },
+  // Service image cards (home)
+  gsap.fromTo('.svc-card',
+    { y: 70, opacity: 0, scale: .97 },
     {
-      y: 0, opacity: 1,
+      y: 0, opacity: 1, scale: 1,
       duration: .7,
-      stagger: .1,
+      stagger: { each: .12, ease: 'power1.in' },
       ease: 'power3.out',
-      scrollTrigger: { trigger: '.services-grid', start: 'top 78%' }
+      scrollTrigger: { trigger: '.services-img-grid', start: 'top 80%' }
     }
   );
 
