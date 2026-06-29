@@ -67,29 +67,62 @@ function initMobileMenu() {
   const menu   = document.getElementById('nav-menu');
   if (!toggle || !menu) return;
 
-  toggle.addEventListener('click', () => {
-    const isOpen = menu.classList.toggle('open');
-    toggle.setAttribute('aria-expanded', isOpen);
-    // Swap icon
-    toggle.innerHTML = isOpen
-      ? '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
-      : '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
-  });
+  const MOBILE_BP = 1200;
+  const SVG_MENU  = '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
+  const SVG_CLOSE = '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
 
-  // Close menu on link click
+  // Inline styles = máxima prioridade, imune ao cascade do CSS
+  function applyHidden() {
+    menu.style.opacity       = '0';
+    menu.style.transform     = 'translateY(-8px)';
+    menu.style.pointerEvents = 'none';
+  }
+  function applyVisible() {
+    menu.style.opacity       = '1';
+    menu.style.transform     = 'translateY(0)';
+    menu.style.pointerEvents = 'all';
+  }
+  function clearInline() {
+    menu.style.opacity       = '';
+    menu.style.transform     = '';
+    menu.style.pointerEvents = '';
+  }
+
+  let isOpen = false;
+
+  function openMenu() {
+    isOpen = true;
+    applyVisible();
+    toggle.setAttribute('aria-expanded', 'true');
+    toggle.innerHTML = SVG_CLOSE;
+  }
+  function closeMenu() {
+    isOpen = false;
+    applyHidden();
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.innerHTML = SVG_MENU;
+  }
+
+  // Estado inicial
+  if (window.innerWidth <= MOBILE_BP) applyHidden();
+
+  toggle.addEventListener('click', () => isOpen ? closeMenu() : openMenu());
+
   menu.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', () => {
-      menu.classList.remove('open');
-      toggle.setAttribute('aria-expanded', false);
-      toggle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
-    });
+    link.addEventListener('click', () => closeMenu());
   });
 
-  // Close on outside click
   document.addEventListener('click', (e) => {
-    if (!menu.contains(e.target) && !toggle.contains(e.target)) {
-      menu.classList.remove('open');
-      toggle.setAttribute('aria-expanded', false);
+    if (isOpen && !menu.contains(e.target) && !toggle.contains(e.target)) closeMenu();
+  });
+
+  // Ao redimensionar: limpa inline se desktop, re-esconde se voltou ao mobile
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > MOBILE_BP) {
+      clearInline();
+      isOpen = false;
+    } else if (!isOpen) {
+      applyHidden();
     }
   });
 }

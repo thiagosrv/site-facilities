@@ -1795,15 +1795,8 @@ p  { line-height: 1.75; }
     border: none;
     overflow-y: auto;
     z-index: 1001;
-    opacity: 0;
-    transform: translateY(-8px);
-    pointer-events: none;
     transition: opacity .22s ease, transform .22s ease;
-  }
-  .nav-menu.open {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: all;
+    /* visibilidade controlada exclusivamente via JS inline style */
   }
   .nav-menu li { list-style: none; }
   .nav-link {
