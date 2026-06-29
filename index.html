@@ -20,10 +20,18 @@
   <link rel="icon" type="image/png" sizes="64x64" href="logo-servicos.png">
   <link rel="apple-touch-icon"    href="logo-servicos.png">
 
-  <!-- Google Fonts -->
+  <!-- Preload LCP image -->
+  <link rel="preload" as="image" href="hero.webp">
+
+  <!-- Google Fonts — non-blocking -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
+
+  <!-- CDN preconnect -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://unpkg.com">
 
   <!-- Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
@@ -149,7 +157,7 @@
       <!-- Coluna 2: Card com imagem -->
       <div class="hero-image-wrap">
         <div class="hero-card">
-          <img src="hero.png" alt="Equipe PS Proteção — profissionais de Facilities" class="hero-card-img" width="640" height="480" loading="lazy">
+          <img src="hero.webp" alt="Equipe PS Proteção — profissionais de Facilities" class="hero-card-img" width="640" height="480" fetchpriority="high">
           <div class="hero-card-overlay"></div>
         </div>
         <div class="hero-badge-1">
@@ -444,7 +452,7 @@
 
       <!-- Left: Main Image -->
       <div class="timeline-main-image">
-        <img src="implantacao1.png" alt="Planejamento de operação PS Proteção" class="timeline-cover-img">
+        <img src="implantacao1.webp" alt="Planejamento de operação PS Proteção" class="timeline-cover-img" width="800" height="600" loading="lazy">
         <div class="timeline-image-overlay">
           <div class="timeline-badge">
             <i data-lucide="award"></i>
@@ -463,7 +471,7 @@
           </div>
           <div class="step-content">
             <div class="step-image-small">
-              <img src="implantacao2.png" alt="Diagnóstico do posto de serviço">
+              <img src="implantacao2.webp" alt="Diagnóstico do posto de serviço" width="160" height="120" loading="lazy">
             </div>
             <div class="step-text">
               <h3>Diagnóstico do Posto de Serviço</h3>
@@ -479,7 +487,7 @@
           </div>
           <div class="step-content">
             <div class="step-image-small">
-              <img src="implantacao3.png" alt="Dimensionamento e implantação da equipe">
+              <img src="implantacao3.webp" alt="Dimensionamento e implantação da equipe" width="160" height="120" loading="lazy">
             </div>
             <div class="step-text">
               <h3>Dimensionamento e Implantação da Equipe</h3>
@@ -495,7 +503,7 @@
           </div>
           <div class="step-content">
             <div class="step-image-small">
-              <img src="implantacao4.png" alt="Supervisão e auditoria operacional">
+              <img src="implantacao4.webp" alt="Supervisão e auditoria operacional" width="160" height="120" loading="lazy">
             </div>
             <div class="step-text">
               <h3>Supervisão e Auditoria Operacional</h3>
@@ -510,7 +518,7 @@
           </div>
           <div class="step-content">
             <div class="step-image-small">
-              <img src="implantacao5.png" alt="Relatórios e melhoria contínua">
+              <img src="implantacao5.webp" alt="Relatórios e melhoria contínua" width="160" height="120" loading="lazy">
             </div>
             <div class="step-text">
               <h3>Relatórios e Melhoria Contínua</h3>
@@ -593,7 +601,7 @@
 
       <div class="about-image-side">
         <div class="about-image-wrap">
-          <img src="psprotecao.png" alt="PS Proteção — equipe e estrutura" class="about-img">
+          <img src="psprotecao.webp" alt="PS Proteção — equipe e estrutura" class="about-img" width="600" height="500" loading="lazy">
           <div class="about-image-badge">
             <i data-lucide="trophy"></i>
             <div>
@@ -768,7 +776,7 @@
       </div>
 
       <div class="cities-visual">
-        <img src="psprotecao.png" alt="Equipe PS Proteção — atuação em toda a região" class="cities-img">
+        <img src="psprotecao.webp" alt="Equipe PS Proteção — atuação em toda a região" class="cities-img" width="600" height="500" loading="lazy">
       </div>
 
     </div>
