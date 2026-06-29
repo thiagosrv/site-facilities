@@ -106,14 +106,17 @@ function initMobileMenu() {
   // Estado inicial
   if (window.innerWidth <= MOBILE_BP) applyHidden();
 
-  toggle.addEventListener('click', () => isOpen ? closeMenu() : openMenu());
+  toggle.addEventListener('click', (e) => {
+    e.stopPropagation(); // impede bubbling ao document antes de trocar innerHTML
+    isOpen ? closeMenu() : openMenu();
+  });
 
   menu.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', () => closeMenu());
   });
 
   document.addEventListener('click', (e) => {
-    if (isOpen && !menu.contains(e.target) && !toggle.contains(e.target)) closeMenu();
+    if (isOpen && !menu.contains(e.target)) closeMenu();
   });
 
   // Ao redimensionar: limpa inline se desktop, re-esconde se voltou ao mobile
@@ -128,76 +131,26 @@ function initMobileMenu() {
 }
 
 /* =============================================
-   HERO ANIMATION — Typewriter
+   HERO ANIMATION — Fade simples
    ============================================= */
 function initHeroAnimation() {
-  const heroTag      = document.querySelector('.hero-tag');
-  const heroTitle    = document.querySelector('.hero-title');
-  const heroSubtitle = document.querySelector('.hero-subtitle');
-  const heroActions  = document.querySelector('.hero-actions');
-  const heroTrust    = document.querySelector('.hero-trust');
-  const heroImage    = document.querySelector('.hero-image-wrap');
-  const heroBadge1   = document.querySelector('.hero-badge-1');
-  const heroBadge2   = document.querySelector('.hero-badge-2');
+  const els = [
+    document.querySelector('.hero-tag'),
+    document.querySelector('.hero-title'),
+    document.querySelector('.hero-subtitle'),
+    document.querySelector('.hero-actions'),
+    document.querySelector('.hero-trust'),
+    document.querySelector('.hero-image-wrap'),
+    document.querySelector('.hero-badge-1'),
+  ].filter(Boolean);
 
-  /* ── 1. Split hero title into individual character spans ── */
-  if (heroTitle) {
-    function wrapCharsInNode(node) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        const chars = node.textContent.split('');
-        const frag  = document.createDocumentFragment();
-        chars.forEach(ch => {
-          const s = document.createElement('span');
-          s.className    = 'char';
-          s.textContent  = ch;
-          s.style.opacity = '0.5';
-          frag.appendChild(s);
-        });
-        node.parentNode.replaceChild(frag, node);
-      } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'BR') {
-        // recurse into child nodes (handles <span class="hero-title-accent">)
-        Array.from(node.childNodes).forEach(wrapCharsInNode);
-      }
-    }
-    wrapCharsInNode(heroTitle);
-  }
-
-  /* ── 2. Parallel timeline: image + tag enter first ── */
-  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
-  if (heroImage)    tl.from(heroImage,  { x: 40, opacity: 0, duration: .5 }, 0.05);
-  if (heroBadge2)   tl.from(heroBadge2, { y: -14, opacity: 0, duration: .3 }, 0.3);
-  if (heroBadge1)   tl.from(heroBadge1, { y: 14, opacity: 0, duration: .3 }, 0.4);
-  if (heroTag)      tl.from(heroTag,    { y: 14, opacity: 0, duration: .3 }, 0.1);
-
-  /* ── 3. Hero title: slides in at 50% opacity ── */
-  if (heroTitle) {
-    tl.fromTo(heroTitle,
-      { y: 20, opacity: 0 },
-      { y: 0,  opacity: 1, duration: 0.35, ease: 'power2.out' },
-      0.2
-    );
-
-    /* ── 4. Typewriter: chars animate 0.5 → 1 one by one ── */
-    const chars = heroTitle.querySelectorAll('.char');
-    tl.to(chars, {
-      opacity: 1,
-      duration: 0.006,
-      stagger: { each: 0.014, ease: 'none' },
-      ease: 'none'
-    }, 0.48);
-  }
-
-  /* ── 5. Remaining elements cascade after typing ── */
-  const afterType = chars => {
-    const count = heroTitle ? heroTitle.querySelectorAll('.char').length : 0;
-    return 0.48 + count * 0.014 + 0.06;
-  };
-  const afterDelay = afterType();
-
-  if (heroSubtitle) tl.from(heroSubtitle, { y: 14, opacity: 0, duration: .35 }, afterDelay);
-  if (heroActions)  tl.from(heroActions,  { y: 10, opacity: 0, duration: .35 }, afterDelay + 0.08);
-  if (heroTrust)    tl.from(heroTrust,    { y: 8,  opacity: 0, duration: .35 }, afterDelay + 0.16);
+  gsap.from(els, {
+    opacity: 0,
+    y: 16,
+    duration: 0.5,
+    ease: 'power2.out',
+    stagger: 0.06,
+  });
 }
 
 /* =============================================
