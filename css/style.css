@@ -721,26 +721,34 @@ p  { line-height: 1.75; }
 
 .mvv-card {
   position: relative;
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.05);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,.12);
   border-radius: 20px;
   padding: 44px 36px 40px;
-  transition: border-color .3s ease, background .3s ease;
+  transition: border-color .35s ease, background .35s ease, transform .35s ease, box-shadow .35s ease;
   overflow: hidden;
+  will-change: transform;
 }
 .mvv-card:hover {
-  background: rgba(255,255,255,.07);
-  border-color: rgba(255,255,255,.14);
+  background: rgba(255,255,255,.09);
+  border-color: rgba(255,255,255,.22);
+  transform: translateY(-6px);
+  box-shadow: 0 24px 48px rgba(0,0,0,.35);
 }
 
 .mvv-card-featured {
-  background: rgba(254,190,0,.06);
-  border-color: rgba(254,190,0,.3);
-  border-width: 1px;
+  background: rgba(254,190,0,.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-color: rgba(254,190,0,.35);
+  box-shadow: 0 8px 32px rgba(254,190,0,.08);
 }
 .mvv-card-featured:hover {
-  background: rgba(254,190,0,.1);
-  border-color: rgba(254,190,0,.5);
+  background: rgba(254,190,0,.13);
+  border-color: rgba(254,190,0,.55);
+  box-shadow: 0 24px 48px rgba(254,190,0,.15);
 }
 
 .mvv-number {

@@ -221,6 +221,18 @@ function initScrollReveal() {
     }
   );
 
+  // MVV cards — fade + rise com stagger, card central atrasa ligeiramente
+  gsap.fromTo('.mvv-card',
+    { y: 60, opacity: 0, scale: .96 },
+    {
+      y: 0, opacity: 1, scale: 1,
+      duration: .75,
+      stagger: { each: .18, ease: 'power1.in' },
+      ease: 'power3.out',
+      scrollTrigger: { trigger: '.mvv-grid', start: 'top 78%' }
+    }
+  );
+
   // Service cards
   gsap.fromTo('.service-card',
     { y: 60, opacity: 0 },
