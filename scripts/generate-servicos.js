@@ -431,7 +431,7 @@ function sedeSection() {
       <div class="about-image-side">
         <div class="about-image-wrap">
           <img src="/fachada.webp" alt="Fachada da sede da PS Proteção, em Americana - SP" class="about-img sede-img" width="800" height="600" loading="lazy">
-          <div class="about-image-badge">
+          <div class="about-image-badge badge-sede">
             <i data-lucide="map-pin" aria-hidden="true"></i>
             <div>
               <strong>Americana</strong>
