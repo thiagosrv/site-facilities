@@ -1546,6 +1546,47 @@ p  { line-height: 1.75; }
 }
 .value-item svg { width: 16px; height: 16px; color: var(--primary); flex-shrink: 0; }
 
+/* Selos de processo — micro-cards abaixo da grade da sede */
+.selos-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-top: 56px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(0,15,106,.08);
+}
+.selo-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 22px 12px;
+  background: #F7F8FC;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(0,15,106,.06);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.selo-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.selo-icon {
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: var(--gold-muted);
+  flex-shrink: 0;
+}
+.selo-icon svg { width: 22px; height: 22px; color: var(--primary); }
+.selo-card span {
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1.3;
+  font-family: var(--font-heading);
+}
+@media (max-width: 900px) {
+  .selos-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 40px; padding-top: 32px; }
+}
+
 /* =============================================
    FAQ — Dark premium accordion
    ============================================= */
