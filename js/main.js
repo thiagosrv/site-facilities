@@ -410,18 +410,31 @@ function initScrollReveal() {
    ============================================= */
 function initFAQ() {
   const items = document.querySelectorAll('.faq-item');
-  items.forEach(item => {
+  items.forEach((item, index) => {
     const question = item.querySelector('.faq-question');
+    const answer = item.querySelector('.faq-answer');
     if (!question) return;
+
+    const answerId = answer && !answer.id ? `faq-answer-${index}` : answer?.id;
+    if (answer && answerId) answer.id = answerId;
+    question.setAttribute('aria-expanded', item.classList.contains('open') ? 'true' : 'false');
+    if (answerId) question.setAttribute('aria-controls', answerId);
+    if (answer) answer.setAttribute('role', 'region');
 
     question.addEventListener('click', () => {
       const isOpen = item.classList.contains('open');
 
       // Close all
-      items.forEach(other => other.classList.remove('open'));
+      items.forEach(other => {
+        other.classList.remove('open');
+        other.querySelector('.faq-question')?.setAttribute('aria-expanded', 'false');
+      });
 
       // Open clicked if it was closed
-      if (!isOpen) item.classList.add('open');
+      if (!isOpen) {
+        item.classList.add('open');
+        question.setAttribute('aria-expanded', 'true');
+      }
     });
   });
 }

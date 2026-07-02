@@ -1520,6 +1520,16 @@ p  { line-height: 1.75; }
 }
 .about-text strong { color: var(--text-dark); font-weight: 600; }
 
+/* Variante paisagem — foto de fachada/sede (não força recorte retrato) */
+.sede-img {
+  aspect-ratio: 4/3;
+  max-height: 420px;
+  object-position: center 65%;
+}
+@media (max-width: 900px) {
+  .sede-img { aspect-ratio: 16/10; max-height: none; }
+}
+
 .about-values {
   display: flex;
   flex-direction: column;
@@ -2850,6 +2860,7 @@ p  { line-height: 1.75; }
 .hero-servico-img-frame img {
   width: 100%; height: 100%;
   object-fit: cover;
+  object-position: top center;
   display: block;
 }
 .hero-servico-img-frame::after {
@@ -2880,7 +2891,7 @@ p  { line-height: 1.75; }
 
 @media (max-width: 900px) {
   .hero-servico-grid { grid-template-columns: 1fr; }
-  .hero-servico-img-frame { aspect-ratio: 16/9; order: -1; }
+  .hero-servico-img-frame { aspect-ratio: 4/3; order: -1; }
 }
 
 /* ── Páginas de serviço (SEO Programático) — mobile: texto centralizado, botões "justificados" ── */

@@ -1,4 +1,4 @@
-// Gerador de páginas programáticas de SEO — estrutura por pasta/cidade, URLs limpas via index.html:
+﻿// Gerador de páginas programáticas de SEO — estrutura por pasta/cidade, URLs limpas via index.html:
 //   cidade:   /{cidade}/                              (nova página-índice por cidade)
 //   hub:      /{cidade}/{servico}/                     (ex.: /americana/portaria)
 //   nichada:  /{cidade}/{variacao}/{nicho}/            (ex.: /americana/portaria-condominial/condominios)
@@ -171,7 +171,7 @@ function faqHtml(service, city) {
   return service.faq
     .map(([q, a], i) => `
         <details class="faq-item"${i === 0 ? ' open' : ''}>
-          <summary><span>${fill(q, city)}</span><span class="faq-icon"><i data-lucide="plus"></i></span></summary>
+          <summary><span>${fill(q, city)}</span><span class="faq-icon"><i data-lucide="plus" aria-hidden="true"></i></span></summary>
           <div class="faq-answer">${fill(a, city)}</div>
         </details>`)
     .join('');
@@ -334,11 +334,11 @@ function microHeader(city) {
   return `
 <div class="micro-header">
   <div class="container">
-    <span class="micro-header-city"><i data-lucide="map-pin"></i>${city.name} - São Paulo</span>
+    <span class="micro-header-city"><i data-lucide="map-pin" aria-hidden="true"></i>${city.name} - São Paulo</span>
     <div class="micro-header-links">
-      <a href="${TEL_HREF}"><i data-lucide="phone"></i>${TEL_DISPLAY}</a>
-      <a href="${WPP_HREF}" target="_blank" rel="noopener"><i data-lucide="message-circle"></i>${WPP_DISPLAY}</a>
-      <a href="${EMAIL_HREF}"><i data-lucide="mail"></i>${EMAIL}</a>
+      <a href="${TEL_HREF}"><i data-lucide="phone" aria-hidden="true"></i>${TEL_DISPLAY}</a>
+      <a href="${WPP_HREF}" target="_blank" rel="noopener"><i data-lucide="message-circle" aria-hidden="true"></i>${WPP_DISPLAY}</a>
+      <a href="${EMAIL_HREF}"><i data-lucide="mail" aria-hidden="true"></i>${EMAIL}</a>
     </div>
     <div class="micro-header-social">${socialIconsHTML(12)}
     </div>
@@ -364,17 +364,114 @@ function siteHeader() {
     </ul>
     <div class="nav-actions">
       <a href="https://protecaotalentos.online" target="_blank" rel="noopener" class="btn btn-outline-gold">
-        <i data-lucide="user-plus"></i>Trabalhe Conosco
+        <i data-lucide="user-plus" aria-hidden="true"></i>Trabalhe Conosco
       </a>
       <a href="${WPP_HREF}" target="_blank" rel="noopener" class="btn btn-wpp">
-        <i data-lucide="message-circle"></i>Solicitar Orçamento
+        <i data-lucide="message-circle" aria-hidden="true"></i>Solicitar Orçamento
       </a>
     </div>
     <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menu">
-      <i data-lucide="menu"></i>
+      <i data-lucide="menu" aria-hidden="true"></i>
     </button>
   </nav>
 </header>`;
+}
+
+// Bloco de números institucionais (3.000+ colaboradores, 1.000+ clientes, 28+ anos, 100% supervisão),
+// reaproveitado sem alteração do index.html — exibido logo abaixo da hero em toda página do site.
+function statsSection() {
+  return `
+<section class="stats" id="numeros">
+  <div class="container">
+    <div class="stats-grid">
+
+      <div class="stat-card" data-value="3000" data-suffix="+">
+        <div class="stat-icon"><i data-lucide="users-2"></i></div>
+        <div class="stat-content">
+          <div class="stat-number"><span class="counter">0</span><span>+</span></div>
+          <p class="stat-label">Colaboradores Treinados por Nós</p>
+        </div>
+      </div>
+
+      <div class="stat-card" data-value="1000" data-suffix="+">
+        <div class="stat-icon"><i data-lucide="building-2"></i></div>
+        <div class="stat-content">
+          <div class="stat-number"><span class="counter">0</span><span>+</span></div>
+          <p class="stat-label">Clientes Atendidos</p>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card-gold" data-value="28" data-suffix="+">
+        <div class="stat-icon"><i data-lucide="calendar-check-2"></i></div>
+        <div class="stat-content">
+          <div class="stat-number"><span class="counter">0</span><span>+</span></div>
+          <p class="stat-label">Anos de Experiência no Mercado</p>
+        </div>
+      </div>
+
+      <div class="stat-card" data-value="100" data-suffix="%">
+        <div class="stat-icon"><i data-lucide="shield-check" aria-hidden="true"></i></div>
+        <div class="stat-content">
+          <div class="stat-number"><span class="counter">0</span><span>%</span></div>
+          <p class="stat-label">Supervisão Ativa com Relatórios</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>`;
+}
+
+function sedeSection() {
+  return `
+<section class="about about-sede" id="a-ps-protecao">
+  <div class="container">
+    <div class="about-grid">
+
+      <div class="about-image-side">
+        <div class="about-image-wrap">
+          <img src="/fachada.webp" alt="Fachada da sede da PS Proteção, em Americana - SP" class="about-img sede-img" width="800" height="600" loading="lazy">
+          <div class="about-image-badge">
+            <i data-lucide="map-pin" aria-hidden="true"></i>
+            <div>
+              <strong>Americana</strong>
+              <span>SP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="about-content">
+        <span class="section-tag">A PS Proteção</span>
+        <h2 class="about-title">
+          Conheça a <span>sede da PS Proteção</span>
+        </h2>
+        <p class="about-text">
+          A PS Proteção está sediada na Rua São Gabriel, 1623 — Vila Belvedere, Americana - SP,
+          desde <strong>1998</strong>. Não somos um intermediário: temos estrutura própria, viaturas
+          identificadas e equipe fixa para atender toda a Região Metropolitana de Campinas.
+        </p>
+        <p class="about-text">
+          Ao longo de mais de 28 anos, construímos processos próprios de recrutamento, treinamento e
+          supervisão — o que nos permite colocar equipe qualificada em operação rapidamente, com
+          acompanhamento em campo e relatórios periódicos.
+        </p>
+
+        <div class="about-values">
+          <div class="value-item"><i data-lucide="check-circle-2"></i><span>Sede própria em Americana - SP, desde 1998</span></div>
+          <div class="value-item"><i data-lucide="check-circle-2"></i><span>Viaturas e equipe identificadas com a marca PS Proteção</span></div>
+          <div class="value-item"><i data-lucide="check-circle-2"></i><span>Mais de 1.000 clientes atendidos na região</span></div>
+        </div>
+
+        <a href="/sobre.html" class="btn btn-primary-blue">
+          Conheça nossa história
+          <i data-lucide="arrow-right" aria-hidden="true"></i>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>`;
 }
 
 function heroServico(service, city, h1, tagline) {
@@ -385,11 +482,11 @@ function heroServico(service, city, h1, tagline) {
   <div class="container">
     <div class="page-breadcrumb">
       <a href="/index.html">Home</a>
-      <i data-lucide="chevron-right"></i>
+      <i data-lucide="chevron-right" aria-hidden="true"></i>
       <a href="/servicos.html">Serviços</a>
-      <i data-lucide="chevron-right"></i>
+      <i data-lucide="chevron-right" aria-hidden="true"></i>
       <a href="${cityPath(city)}">${city.name}</a>
-      <i data-lucide="chevron-right"></i>
+      <i data-lucide="chevron-right" aria-hidden="true"></i>
       <span>${service.nomeCurto} em ${city.name}</span>
     </div>
     <div class="hero-servico-grid">
@@ -403,16 +500,16 @@ function heroServico(service, city, h1, tagline) {
         <p class="hero-servico-cta-line">Gostaria de um orçamento ou entrar em contato sobre ${service.nomeCurto.toLowerCase()} terceirizada em ${city.name} - SP? Fale conosco pelo telefone ${TEL_DISPLAY} ou em nosso WhatsApp <a href="${WPP_HREF}" target="_blank" rel="noopener">clicando aqui</a>.</p>
         <div class="hero-servico-actions">
           <a href="${WPP_HREF}" target="_blank" rel="noopener" class="btn btn-wpp btn-lg">
-            <i data-lucide="message-circle"></i>Solicitar Orçamento
+            <i data-lucide="message-circle" aria-hidden="true"></i>Solicitar Orçamento
           </a>
           <a href="${EMAIL_HREF}" class="btn btn-outline-white btn-lg">
-            <i data-lucide="mail"></i>Enviar E-mail
+            <i data-lucide="mail" aria-hidden="true"></i>Enviar E-mail
           </a>
         </div>
       </div>
       <div class="hero-servico-img-frame">
         <img src="/${service.image}" alt="${service.imageAlt} em ${city.name}" width="800" height="1000" loading="eager">
-        <span class="hero-servico-badge"><i data-lucide="badge-check"></i>${city.name} - SP</span>
+        <span class="hero-servico-badge"><i data-lucide="badge-check" aria-hidden="true"></i>${city.name} - SP</span>
       </div>
     </div>
   </div>
@@ -433,7 +530,7 @@ function implantacaoSection(service, city) {
         <img src="/implantacao1.webp" alt="Planejamento de operação PS Proteção" class="timeline-cover-img" width="800" height="600" loading="lazy">
         <div class="timeline-image-overlay">
           <div class="timeline-badge">
-            <i data-lucide="award"></i>
+            <i data-lucide="award" aria-hidden="true"></i>
             <span>Processo Técnico Certificado</span>
           </div>
         </div>
@@ -471,7 +568,7 @@ function implantacaoSection(service, city) {
     </div>
     <div class="section-cta section-cta-center">
       <a href="${WPP_HREF}" target="_blank" rel="noopener" class="btn btn-wpp btn-lg">
-        <i data-lucide="message-circle"></i>Solicitar Proposta Personalizada
+        <i data-lucide="message-circle" aria-hidden="true"></i>Solicitar Proposta Personalizada
       </a>
     </div>
   </div>
@@ -531,13 +628,13 @@ function vejaTambemNichoSection(variacao, nicho, city) {
       <article class="blog-card">
         <div class="svc-card">
           <a href="${c.href}" class="svc-card-img-wrap">
-            <img src="/${c.img}" alt="${c.imgAlt}">
-            <span class="svc-card-tag"><i data-lucide="${c.tagIcon}"></i>${c.tag}</span>
+            <img src="/${c.img}" alt="${c.imgAlt}" width="800" height="600" loading="lazy">
+            <span class="svc-card-tag"><i data-lucide="${c.tagIcon}" aria-hidden="true"></i>${c.tag}</span>
           </a>
           <div class="svc-card-body">
             <h3 class="svc-card-title">${c.title}</h3>
             <p class="svc-card-desc">${c.desc}</p>
-            <a href="${c.href}" class="svc-card-link">Saiba mais<i data-lucide="arrow-right"></i></a>
+            <a href="${c.href}" class="svc-card-link">Saiba mais<i data-lucide="arrow-right" aria-hidden="true"></i></a>
           </div>
         </div>
       </article>`).join('');
@@ -582,39 +679,39 @@ function vejaTambemSection(service, city) {
       <article class="blog-card">
         <div class="svc-card">
           <a href="${hubPath(outro, city)}" class="svc-card-img-wrap">
-            <img src="/${outro.image}" alt="${outro.imageAlt} em ${city.name}">
-            <span class="svc-card-tag"><i data-lucide="${outro.icon}"></i>${outro.nomeCurto}</span>
+            <img src="/${outro.image}" alt="${outro.imageAlt} em ${city.name}" width="800" height="600" loading="lazy">
+            <span class="svc-card-tag"><i data-lucide="${outro.icon}" aria-hidden="true"></i>${outro.nomeCurto}</span>
           </a>
           <div class="svc-card-body">
             <h3 class="svc-card-title">${outro.nome} em ${city.name} - SP</h3>
             <p class="svc-card-desc">${fill(outro.paragraphs.p1[city.index % 3], city)}</p>
-            <a href="${hubPath(outro, city)}" class="svc-card-link">Saiba mais<i data-lucide="arrow-right"></i></a>
+            <a href="${hubPath(outro, city)}" class="svc-card-link">Saiba mais<i data-lucide="arrow-right" aria-hidden="true"></i></a>
           </div>
         </div>
       </article>
       <article class="blog-card">
         <div class="svc-card">
           <a href="/servicos.html" class="svc-card-img-wrap">
-            <img src="/hero.webp" alt="Todos os serviços de Facilities PS Proteção">
-            <span class="svc-card-tag"><i data-lucide="layout-grid"></i>Facilities</span>
+            <img src="/hero.webp" alt="Todos os serviços de Facilities PS Proteção" width="800" height="600" loading="lazy">
+            <span class="svc-card-tag"><i data-lucide="layout-grid" aria-hidden="true"></i>Facilities</span>
           </a>
           <div class="svc-card-body">
             <h3 class="svc-card-title">Todos os serviços de Facilities da PS Proteção</h3>
             <p class="svc-card-desc">Conheça a linha completa: portaria, limpeza, zeladoria, recepção, auxiliar administrativo e auxiliar contábil.</p>
-            <a href="/servicos.html" class="svc-card-link">Ver serviços<i data-lucide="arrow-right"></i></a>
+            <a href="/servicos.html" class="svc-card-link">Ver serviços<i data-lucide="arrow-right" aria-hidden="true"></i></a>
           </div>
         </div>
       </article>
       <article class="blog-card">
         <div class="svc-card">
           <a href="/sobre.html" class="svc-card-img-wrap">
-            <img src="/historia.webp" alt="Quem é a PS Proteção">
-            <span class="svc-card-tag"><i data-lucide="shield-check"></i>Institucional</span>
+            <img src="/historia.webp" alt="Quem é a PS Proteção" width="800" height="600" loading="lazy">
+            <span class="svc-card-tag"><i data-lucide="shield-check" aria-hidden="true"></i>Institucional</span>
           </a>
           <div class="svc-card-body">
             <h3 class="svc-card-title">Quem é a PS Proteção</h3>
             <p class="svc-card-desc">Mais de 28 anos de atuação em Facilities na Região Metropolitana de Campinas.</p>
-            <a href="/sobre.html" class="svc-card-link">Conhecer a empresa<i data-lucide="arrow-right"></i></a>
+            <a href="/sobre.html" class="svc-card-link">Conhecer a empresa<i data-lucide="arrow-right" aria-hidden="true"></i></a>
           </div>
         </div>
       </article>
@@ -666,7 +763,7 @@ function outrasCidadesSection(city) {
 }
 
 function depoimentosSection() {
-  const stars = Array.from({ length: 5 }).map(() => '<i data-lucide="star"></i>').join('');
+  const stars = Array.from({ length: 5 }).map(() => '<i data-lucide="star" aria-hidden="true"></i>').join('');
   const cards = TESTEMUNHOS.map((t) => `
         <div class="depoimento-card">
           <i data-lucide="quote" class="depoimento-card-icon"></i>
@@ -689,7 +786,7 @@ function depoimentosSection() {
       <div class="depoimentos-stars">${stars}</div>
       <p>Nossos clientes avaliam a PS Proteção diretamente no Google. Confira as avaliações reais e verificadas de quem já contratou nossos serviços de Facilities.</p>
       <a href="${GOOGLE_REVIEW_URL}" target="_blank" rel="noopener" class="btn btn-outline-white btn-lg depoimentos-gmb-google">
-        <i data-lucide="external-link"></i>Ver avaliações no Google
+        <i data-lucide="external-link" aria-hidden="true"></i>Ver avaliações no Google
       </a>
     </div>
     <div class="depoimentos-cards">${cards}
@@ -709,10 +806,10 @@ function ctaSection(service, city) {
       </div>
       <div class="cta-actions">
         <a href="${WPP_HREF}" target="_blank" rel="noopener" class="btn btn-wpp btn-xl">
-          <i data-lucide="message-circle"></i>Falar pelo WhatsApp
+          <i data-lucide="message-circle" aria-hidden="true"></i>Falar pelo WhatsApp
         </a>
         <a href="${EMAIL_HREF}" class="btn btn-outline-white btn-xl">
-          <i data-lucide="mail"></i>Enviar E-mail
+          <i data-lucide="mail" aria-hidden="true"></i>Enviar E-mail
         </a>
       </div>
     </div>
@@ -731,10 +828,10 @@ function ctaSectionCidade(city) {
       </div>
       <div class="cta-actions">
         <a href="${WPP_HREF}" target="_blank" rel="noopener" class="btn btn-wpp btn-xl">
-          <i data-lucide="message-circle"></i>Falar pelo WhatsApp
+          <i data-lucide="message-circle" aria-hidden="true"></i>Falar pelo WhatsApp
         </a>
         <a href="${EMAIL_HREF}" class="btn btn-outline-white btn-xl">
-          <i data-lucide="mail"></i>Enviar E-mail
+          <i data-lucide="mail" aria-hidden="true"></i>Enviar E-mail
         </a>
       </div>
     </div>
@@ -748,7 +845,7 @@ function footer() {
   <div class="container">
     <div class="footer-grid">
       <div class="footer-brand">
-        <img src="/logo-servicos.png" alt="PS Proteção" class="footer-logo">
+        <img src="/logo-servicos.png" alt="PS Proteção" class="footer-logo" width="220" height="60" loading="lazy">
         <p class="footer-desc">Soluções completas em Facilities para empresas na Região Metropolitana de Campinas.</p>
         <div class="footer-social">${socialIconsHTML(17)}
         </div>
@@ -778,9 +875,9 @@ function footer() {
       <div class="footer-col">
         <h4 class="footer-title">Contato</h4>
         <div class="footer-contact">
-          <div class="contact-item"><i data-lucide="map-pin"></i><span>Americana, SP · Região Metropolitana de Campinas</span></div>
-          <div class="contact-item"><i data-lucide="phone"></i><a href="${TEL_HREF}">${TEL_DISPLAY}</a></div>
-          <div class="contact-item"><i data-lucide="message-circle"></i><a href="${WPP_HREF}" target="_blank" rel="noopener">WhatsApp Comercial</a></div>
+          <div class="contact-item"><i data-lucide="map-pin" aria-hidden="true"></i><span>Americana, SP · Região Metropolitana de Campinas</span></div>
+          <div class="contact-item"><i data-lucide="phone" aria-hidden="true"></i><a href="${TEL_HREF}">${TEL_DISPLAY}</a></div>
+          <div class="contact-item"><i data-lucide="message-circle" aria-hidden="true"></i><a href="${WPP_HREF}" target="_blank" rel="noopener">WhatsApp Comercial</a></div>
         </div>
       </div>
     </div>
@@ -792,7 +889,7 @@ function footer() {
 </footer>
 
 <a href="${WPP_HREF}" target="_blank" rel="noopener" class="whatsapp-float" aria-label="WhatsApp">
-  <i data-lucide="message-circle"></i>
+  <i data-lucide="message-circle" aria-hidden="true"></i>
 </a>
 <script src="/js/main.js" defer></script>`;
 }
@@ -859,6 +956,8 @@ ${siteHeader()}
 
 <main>
 ${heroServico(service, city, h1, tagline)}
+${statsSection()}
+${sedeSection()}
 ${verPorSegmentoSection(service, city)}
 ${implantacaoSection(service, city)}
 ${vejaTambemSection(service, city)}
@@ -898,6 +997,8 @@ ${siteHeader()}
 
 <main>
 ${heroServico(service, city, h1, tagline)}
+${statsSection()}
+${sedeSection()}
 ${implantacaoSection(service, city)}
 ${vejaTambemNichoSection(variacao, nicho, city)}
 ${faqSection(service, city, h1)}
@@ -931,7 +1032,7 @@ function heroCidade(city, h1, tagline) {
   <div class="container">
     <div class="page-breadcrumb">
       <a href="/index.html">Home</a>
-      <i data-lucide="chevron-right"></i>
+      <i data-lucide="chevron-right" aria-hidden="true"></i>
       <span>${city.name}</span>
     </div>
     <div class="hero-servico-grid">
@@ -943,16 +1044,16 @@ function heroCidade(city, h1, tagline) {
         <p class="hero-servico-cta-line">Gostaria de um orçamento ou entrar em contato sobre serviços de Facilities em ${city.name} - SP? Fale conosco pelo telefone ${TEL_DISPLAY} ou em nosso WhatsApp <a href="${WPP_HREF}" target="_blank" rel="noopener">clicando aqui</a>.</p>
         <div class="hero-servico-actions">
           <a href="${WPP_HREF}" target="_blank" rel="noopener" class="btn btn-wpp btn-lg">
-            <i data-lucide="message-circle"></i>Solicitar Orçamento
+            <i data-lucide="message-circle" aria-hidden="true"></i>Solicitar Orçamento
           </a>
           <a href="${EMAIL_HREF}" class="btn btn-outline-white btn-lg">
-            <i data-lucide="mail"></i>Enviar E-mail
+            <i data-lucide="mail" aria-hidden="true"></i>Enviar E-mail
           </a>
         </div>
       </div>
       <div class="hero-servico-img-frame">
         <img src="/hero.webp" alt="PS Proteção em ${city.name}" width="800" height="1000" loading="eager">
-        <span class="hero-servico-badge"><i data-lucide="badge-check"></i>${city.name} - SP</span>
+        <span class="hero-servico-badge"><i data-lucide="badge-check" aria-hidden="true"></i>${city.name} - SP</span>
       </div>
     </div>
   </div>
@@ -972,13 +1073,13 @@ function servicosCidadeSection(city) {
       <article class="blog-card">
         <div class="svc-card">
           <a href="${c.href}" class="svc-card-img-wrap">
-            <img src="/${c.img}" alt="${c.imgAlt}">
-            <span class="svc-card-tag"><i data-lucide="${c.tagIcon}"></i>${c.tag}</span>
+            <img src="/${c.img}" alt="${c.imgAlt}" width="800" height="600" loading="lazy">
+            <span class="svc-card-tag"><i data-lucide="${c.tagIcon}" aria-hidden="true"></i>${c.tag}</span>
           </a>
           <div class="svc-card-body">
             <h3 class="svc-card-title">${c.title}</h3>
             <p class="svc-card-desc">${c.desc}</p>
-            <a href="${c.href}" class="svc-card-link">Saiba mais<i data-lucide="arrow-right"></i></a>
+            <a href="${c.href}" class="svc-card-link">Saiba mais<i data-lucide="arrow-right" aria-hidden="true"></i></a>
           </div>
         </div>
       </article>`).join('');
@@ -998,7 +1099,7 @@ function servicosCidadeSection(city) {
 function faqSectionCidade(city, h1) {
   const items = FAQ_GENERICO.map(([q, a], i) => `
         <details class="faq-item"${i === 0 ? ' open' : ''}>
-          <summary><span>${fill(q, city)}</span><span class="faq-icon"><i data-lucide="plus"></i></span></summary>
+          <summary><span>${fill(q, city)}</span><span class="faq-icon"><i data-lucide="plus" aria-hidden="true"></i></span></summary>
           <div class="faq-answer">${fill(a, city)}</div>
         </details>`).join('');
   return `
@@ -1033,6 +1134,8 @@ ${siteHeader()}
 
 <main>
 ${heroCidade(city, h1, tagline)}
+${statsSection()}
+${sedeSection()}
 ${servicosCidadeSection(city)}
 ${verPorSegmentoSection(SERVICES.limpeza, city)}
 ${verPorSegmentoSection(SERVICES.portaria, city)}
@@ -1055,7 +1158,16 @@ ${footer()}
 function writeIndexHtml(dir, html) {
   fs.mkdirSync(dir, { recursive: true });
   const outPath = path.join(dir, 'index.html');
-  fs.writeFileSync(outPath, html, 'utf8');
+  for (let attempt = 1; attempt <= 30; attempt++) {
+    try {
+      fs.writeFileSync(outPath, html, 'utf8');
+      return outPath;
+    } catch (err) {
+      if (attempt === 30) throw err;
+      const until = Date.now() + 400;
+      while (Date.now() < until) {} // busy-wait retry (OneDrive transient file lock)
+    }
+  }
   return outPath;
 }
 
