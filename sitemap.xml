@@ -43,4 +43,39 @@
     <priority>0.5</priority>
   </url>
 
+  <url>
+    <loc>https://psprotecao.com.br/blog/</loc>
+    <lastmod>2026-07-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://psprotecao.com.br/blog/como-escolher-empresa-portaria-terceirizada.html</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://psprotecao.com.br/blog/terceirizacao-limpeza-corporativa-vantagens.html</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://psprotecao.com.br/blog/zeladoria-preventiva-evitar-prejuizos.html</loc>
+    <lastmod>2026-05-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://psprotecao.com.br/blog/facilities-management-reduzir-custos.html</loc>
+    <lastmod>2026-04-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
 </urlset>

@@ -20,6 +20,7 @@ function initAll() {
   initScrollReveal();
   initFAQ();
   initSmoothAnchor();
+  initBlogFilters();
 }
 
 /* =============================================
@@ -348,6 +349,27 @@ function initScrollReveal() {
     }
   );
 
+  // Blog cards (listing grid)
+  gsap.fromTo('.blog-card',
+    { y: 40, opacity: 0, scale: .97 },
+    {
+      y: 0, opacity: 1, scale: 1,
+      duration: .6,
+      stagger: { each: .1, ease: 'power1.in' },
+      ease: 'power3.out',
+      scrollTrigger: { trigger: '.blog-grid', start: 'top 82%' }
+    }
+  );
+
+  // Blog featured post
+  const blogFeatured = document.querySelector('.blog-featured');
+  if (blogFeatured) {
+    gsap.fromTo(blogFeatured,
+      { y: 40, opacity: 0 },
+      { y: 0, opacity: 1, duration: .8, ease: 'power3.out' }
+    );
+  }
+
   // Section headers
   document.querySelectorAll('.section-header').forEach(el => {
     gsap.fromTo(el,
@@ -421,6 +443,29 @@ function initSmoothAnchor() {
         duration: 1,
         scrollTo: { y: target, offsetY: headerH },
         ease: 'power3.inOut'
+      });
+    });
+  });
+}
+
+/* =============================================
+   BLOG — Filtro de categorias
+   ============================================= */
+function initBlogFilters() {
+  const buttons = document.querySelectorAll('.blog-filter-btn');
+  const cards   = document.querySelectorAll('.blog-card');
+  if (!buttons.length || !cards.length) return;
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter;
+
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      cards.forEach(card => {
+        const match = filter === 'all' || card.dataset.category === filter;
+        card.style.display = match ? '' : 'none';
       });
     });
   });
