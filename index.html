@@ -8,6 +8,8 @@
   <meta name="keywords" content="facilities, portaria, controle de acesso, portaria administrativa, limpeza, zeladoria, americana, campinas, recepção, PS Proteção">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://psprotecao.com.br/">
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+  <link rel="llms" href="/llms.txt" type="text/plain">
 
   <!-- Open Graph -->
   <meta property="og:type"        content="website">
@@ -44,24 +46,119 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js" defer></script>
 
-  <!-- Local Business Schema -->
+  <!-- Structured Data — @graph com LocalBusiness + WebSite + FAQPage -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": "PS Proteção — Serviços e Facilities",
-    "description": "Soluções completas em Facilities: portaria, limpeza, zeladoria, recepção e suporte administrativo.",
-    "url": "https://psprotecao.com.br",
-    "telephone": "+5519982892037",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "Americana",
-      "addressRegion": "SP",
-      "addressCountry": "BR"
-    },
-    "areaServed": ["Americana", "Campinas", "Sumaré", "Hortolândia", "Paulínia", "Região Metropolitana de Campinas"],
-    "foundingDate": "1997",
-    "sameAs": ["https://share.google/T93Dj9U0KXU4r2ZRx"]
+    "@graph": [
+      {
+        "@type": "LocalBusiness",
+        "@id": "https://psprotecao.com.br/#business",
+        "name": "PS Proteção — Serviços e Facilities",
+        "alternateName": "PS Proteção",
+        "description": "Empresa especializada em Facilities com mais de 28 anos de experiência. Oferece portaria e controle de acesso, limpeza e conservação, zeladoria, recepção, auxiliar administrativo e auxiliar contábil para empresas na Região Metropolitana de Campinas.",
+        "url": "https://psprotecao.com.br",
+        "logo": "https://psprotecao.com.br/logo-servicos.png",
+        "image": "https://psprotecao.com.br/hero.webp",
+        "telephone": ["+551934787799", "+5519997818615"],
+        "email": "empresas@psprotecao.com.br",
+        "foundingDate": "1997",
+        "numberOfEmployees": { "@type": "QuantitativeValue", "minValue": 50, "maxValue": 500 },
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Rua São Gabriel, 1623",
+          "addressLocality": "Americana",
+          "addressRegion": "SP",
+          "postalCode": "13469-000",
+          "addressCountry": "BR"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": -22.7301816,
+          "longitude": -47.30249
+        },
+        "hasMap": "https://maps.app.goo.gl/BosmPPYoMQjiKP4f9",
+        "areaServed": [
+          "Americana", "Campinas", "Sumaré", "Hortolândia", "Paulínia",
+          "Valinhos", "Vinhedo", "Indaiatuba", "Santa Bárbara d'Oeste",
+          "Nova Odessa", "Limeira", "Piracicaba", "Jundiaí",
+          "Região Metropolitana de Campinas"
+        ],
+        "serviceArea": {
+          "@type": "GeoCircle",
+          "geoMidpoint": { "@type": "GeoCoordinates", "latitude": -22.7301816, "longitude": -47.30249 },
+          "geoRadius": "100000"
+        },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Serviços de Facilities",
+          "itemListElement": [
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Portaria e Controle de Acesso", "description": "Profissionais treinados para gestão de acesso, controle de visitantes e procedimentos operacionais padronizados." } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Limpeza e Conservação", "description": "Equipes especializadas para manter ambientes impecáveis com rotinas de limpeza definidas e produtos adequados." } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Zeladoria", "description": "Suporte completo de manutenção preventiva, organização de dependências e conservação do patrimônio." } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Recepção", "description": "Recepcionistas treinados para atender visitantes com excelência e representar a imagem da empresa." } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Auxiliar Administrativo", "description": "Profissionais de suporte para organização de documentos e apoio à gestão operacional." } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Auxiliar Contábil", "description": "Suporte nas rotinas contábeis e financeiras, lançamentos e processos de controle." } }
+          ]
+        },
+        "sameAs": [
+          "https://share.google/cIgaj2GGRqZtFddxp",
+          "https://share.google/T93Dj9U0KXU4r2ZRx",
+          "https://maps.app.goo.gl/BosmPPYoMQjiKP4f9",
+          "https://www.instagram.com/protecao_seguranca/",
+          "https://web.facebook.com/protecaoeseguranca",
+          "https://www.linkedin.com/company/ps-protecao"
+        ],
+        "openingHoursSpecification": [
+          { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"], "opens": "08:00", "closes": "18:00" },
+          { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "08:00", "closes": "12:00" }
+        ],
+        "contactPoint": [
+          { "@type": "ContactPoint", "telephone": "+5519982892037", "contactType": "sales", "availableLanguage": "Portuguese", "areaServed": "BR" },
+          { "@type": "ContactPoint", "telephone": "+5519997818615", "contactType": "customer support", "availableLanguage": "Portuguese", "areaServed": "BR" }
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://psprotecao.com.br/#website",
+        "url": "https://psprotecao.com.br",
+        "name": "PS Proteção — Serviços e Facilities",
+        "description": "Soluções completas em Facilities para empresas na Região Metropolitana de Campinas.",
+        "publisher": { "@id": "https://psprotecao.com.br/#business" },
+        "inLanguage": "pt-BR"
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://psprotecao.com.br/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Como funciona o processo de implantação de uma nova operação?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Nossa implantação segue 4 etapas: diagnóstico do posto, dimensionamento e seleção da equipe, treinamento com POP (Procedimento Operacional Padrão) e início das operações com supervisão intensiva." }
+          },
+          {
+            "@type": "Question",
+            "name": "Em quais regiões a PS Proteção atua?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Atendemos Americana, Campinas e toda a Região Metropolitana de Campinas, incluindo Sumaré, Hortolândia, Paulínia, Valinhos, Vinhedo, Indaiatuba, Santa Bárbara d'Oeste, Nova Odessa, Limeira, Piracicaba e mais de 30 municípios da região." }
+          },
+          {
+            "@type": "Question",
+            "name": "A PS Proteção oferece cobertura em caso de faltas?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Sim. Contamos com equipe de reserva operacional para garantir a cobertura imediata de faltas e ausências, assegurando que o posto de serviço nunca fique sem atendimento." }
+          },
+          {
+            "@type": "Question",
+            "name": "Como é feito o acompanhamento da qualidade do serviço?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Realizamos supervisões periódicas em campo, verificação de rotinas e cumprimento de procedimentos. Geramos relatórios regulares e mantemos canal direto com o cliente para alinhamentos e ajustes na operação." }
+          },
+          {
+            "@type": "Question",
+            "name": "É possível personalizar a operação para a minha empresa?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Absolutamente. Cada operação é estruturada com base nas necessidades específicas do cliente — fluxo de acesso, horários, perfil das instalações e demandas particulares. Desenvolvemos um POP personalizado para cada posto de serviço." }
+          }
+        ]
+      }
+    ]
   }
   </script>
 </head>
