@@ -1584,7 +1584,11 @@ p  { line-height: 1.75; }
   font-family: var(--font-heading);
 }
 @media (max-width: 900px) {
-  .selos-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 40px; padding-top: 32px; }
+  .selos-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; margin-top: 40px; padding-top: 28px; }
+  .selo-card { padding: 6px 2px; gap: 4px; border-radius: 10px; min-width: 0; }
+  .selo-icon { width: 24px; height: 24px; }
+  .selo-icon svg { width: 12px; height: 12px; }
+  .selo-card span { font-size: .5rem; line-height: 1.1; word-break: break-word; overflow-wrap: break-word; }
 }
 
 /* =============================================
