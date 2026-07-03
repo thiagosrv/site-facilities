@@ -2,6 +2,11 @@ name: Aplicar links externos no blog
 
 on:
   workflow_dispatch: {}
+  push:
+    branches:
+      - master
+    paths:
+      - 'content-externo/links.json'
 
 permissions:
   contents: write
