@@ -191,7 +191,7 @@ function renderSection(section) {
 function buildRelatedCards(related) {
   return related.map(p => `      <article class="blog-card">
         <div class="svc-card">
-          <a href="${p.slug}.html" class="svc-card-img-wrap">
+          <a href="/blog/${p.slug}.html" class="svc-card-img-wrap">
             <img src="../${p.image}" alt="${escapeHtml(p.alt)}" loading="lazy" width="800" height="600">
             <span class="svc-card-tag"><i data-lucide="${p.categoryIcon}" aria-hidden="true"></i>${escapeHtml(p.categoryNome)}</span>
           </a>
@@ -200,7 +200,7 @@ function buildRelatedCards(related) {
               <span><i data-lucide="calendar" aria-hidden="true"></i>${p.dateLabel}</span>
             </div>
             <h3 class="svc-card-title">${escapeHtml(p.title)}</h3>
-            <a href="${p.slug}.html" class="svc-card-link">Ler artigo<i data-lucide="arrow-right" aria-hidden="true"></i></a>
+            <a href="/blog/${p.slug}.html" class="svc-card-link">Ler artigo<i data-lucide="arrow-right" aria-hidden="true"></i></a>
           </div>
         </div>
       </article>`).join('\n');
@@ -531,7 +531,7 @@ function updateBlogIndex({ post, category, slug, dateISO, url }) {
   // 3) Novo card no topo do grid
   const cardHtml = `      <article class="blog-card" data-category="${category.slug}">
         <div class="svc-card">
-          <a href="${slug}.html" class="svc-card-img-wrap">
+          <a href="/blog/${slug}.html" class="svc-card-img-wrap">
             <img src="../${COVER_IMAGE}" alt="${escapeHtml(category.alt)}" loading="lazy" width="800" height="600">
             <span class="svc-card-tag"><i data-lucide="${category.icon}" aria-hidden="true"></i>${escapeHtml(category.nome)}</span>
           </a>
@@ -542,7 +542,7 @@ function updateBlogIndex({ post, category, slug, dateISO, url }) {
             </div>
             <h3 class="svc-card-title">${escapeHtml(post.title)}</h3>
             <p class="svc-card-desc">${escapeHtml(post.metaDescription)}</p>
-            <a href="${slug}.html" class="svc-card-link">Ler artigo<i data-lucide="arrow-right" aria-hidden="true"></i></a>
+            <a href="/blog/${slug}.html" class="svc-card-link">Ler artigo<i data-lucide="arrow-right" aria-hidden="true"></i></a>
           </div>
         </div>
       </article>
