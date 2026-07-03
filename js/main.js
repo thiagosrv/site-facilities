@@ -22,6 +22,7 @@ function initAll() {
   initSmoothAnchor();
   initBlogFilters();
   initGeoTopbar();
+  initNavSubmenu();
 }
 
 /* =============================================
@@ -152,7 +153,7 @@ function initMobileMenu() {
     isOpen ? closeMenu() : openMenu();
   });
 
-  menu.querySelectorAll('.nav-link').forEach(link => {
+  menu.querySelectorAll('.nav-link, .nav-sublink').forEach(link => {
     link.addEventListener('click', () => closeMenu());
   });
 
@@ -168,6 +169,46 @@ function initMobileMenu() {
     } else if (!isOpen) {
       applyHidden();
     }
+  });
+}
+
+/* =============================================
+   NAV SUBMENU — Serviços e Soluções > Segmentos
+   ============================================= */
+function initNavSubmenu() {
+  const items = document.querySelectorAll('.nav-item.has-submenu');
+  if (!items.length) return;
+
+  function closeItem(item) {
+    item.classList.remove('open');
+    item.querySelector('.nav-submenu-toggle')?.setAttribute('aria-expanded', 'false');
+  }
+  function closeAll(except) {
+    items.forEach(item => { if (item !== except) closeItem(item); });
+  }
+
+  items.forEach(item => {
+    const toggle = item.querySelector('.nav-submenu-toggle');
+    if (!toggle) return;
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const isOpen = item.classList.contains('open');
+      closeAll(item);
+      item.classList.toggle('open', !isOpen);
+      toggle.setAttribute('aria-expanded', String(!isOpen));
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    items.forEach(item => {
+      if (!item.contains(e.target)) closeItem(item);
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeAll(null);
   });
 }
 

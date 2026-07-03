@@ -421,6 +421,68 @@ p  { line-height: 1.75; }
   flex-shrink: 0;
 }
 
+/* Submenu (Serviços e Soluções > Segmentos) */
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.nav-submenu-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  color: var(--text-mid);
+  border-radius: 50%;
+  transition: var(--t);
+}
+.nav-submenu-toggle:hover { color: var(--primary); background: rgba(0,15,106,.06); }
+.nav-submenu-toggle svg { width: 15px; height: 15px; transition: transform .2s ease; }
+.nav-item.open .nav-submenu-toggle svg { transform: rotate(180deg); }
+.nav-submenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 210px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.15);
+  padding: 6px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity .18s ease, transform .18s ease, visibility .18s;
+  z-index: 1002;
+}
+.nav-item.open .nav-submenu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.nav-sublink {
+  display: block;
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: var(--text-mid);
+  font-family: var(--font-heading);
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .025em;
+  white-space: nowrap;
+  transition: var(--t);
+}
+.nav-sublink:hover { color: var(--primary); background: rgba(0,15,106,.06); }
+.nav-sublink.active { color: var(--white); background: var(--primary); }
+
+@media (min-width: 1201px) {
+  .nav-item:hover .nav-submenu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .nav-item:hover .nav-submenu-toggle svg { transform: rotate(180deg); }
+}
+
 .nav-toggle {
   display: none;
   color: var(--primary-dark);
@@ -2186,6 +2248,33 @@ p  { line-height: 1.75; }
   }
   .nav-menu li:last-child .nav-link { border-bottom: none; }
   .nav-link.active { background: var(--primary); color: #fff; border-bottom-color: transparent; }
+
+  /* Submenu vira acordeão dentro do drawer */
+  .nav-item { flex-direction: column; align-items: stretch; position: relative; }
+  .nav-item .nav-link { border-bottom: none; }
+  .nav-submenu-toggle {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    padding: 12px;
+    border-radius: 8px;
+  }
+  .nav-submenu {
+    position: static;
+    box-shadow: none;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    max-height: 0;
+    overflow: hidden;
+    padding: 0;
+    transition: max-height .25s ease;
+  }
+  .nav-item.open .nav-submenu {
+    max-height: 200px;
+    padding: 0 0 8px 16px;
+  }
+  .nav-sublink { padding: 12px 16px; }
 }
 
 /* =============================================

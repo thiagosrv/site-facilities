@@ -281,8 +281,15 @@ function buildPostHtml({ post, category, slug, dateISO, related }) {
     </a>
     <ul class="nav-menu" id="nav-menu">
       <li><a href="../index.html"       class="nav-link">Home</a></li>
-      <li><a href="../servicos.html"    class="nav-link">Serviços e Soluções</a></li>
-      <li><a href="../segmentos.html"   class="nav-link">Segmentos</a></li>
+      <li class="nav-item has-submenu">
+        <a href="../servicos.html" class="nav-link">Serviços e Soluções</a>
+        <button type="button" class="nav-submenu-toggle" aria-expanded="false" aria-label="Abrir submenu de Segmentos">
+          <i data-lucide="chevron-down" aria-hidden="true"></i>
+        </button>
+        <ul class="nav-submenu">
+          <li><a href="../segmentos.html" class="nav-sublink">Segmentos Atendidos</a></li>
+        </ul>
+      </li>
       <li><a href="../sobre.html"       class="nav-link">Quem Somos</a></li>
       <li><a href="./"                  class="nav-link active">Blog</a></li>
       <li><a href="../contato.html"     class="nav-link">Entre em Contato</a></li>
