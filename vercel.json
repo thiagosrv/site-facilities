@@ -1,6 +1,13 @@
 {
   "cleanUrls": false,
   "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/facilities-management-entenda-o-que-e-e-como-funciona.html",
+      "destination": "/blog/facilities-management-reduzir-custos.html",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/robots.txt",

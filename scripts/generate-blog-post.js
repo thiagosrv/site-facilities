@@ -1,6 +1,6 @@
 // Gera 1 novo post de blog (a partir da pauta do dia) usando a API da OpenAI.
 // Atualiza blog/index.html + sitemap.xml, e gera a versão longa (1000-1500 palavras)
-// em content-externo/{slug}.md para publicação manual em Substack/Medium/LinkedIn.
+// em content-externo/{slug}.txt (texto puro, sem markdown) para publicação manual em Substack/Medium/LinkedIn.
 // Uso: OPENAI_API_KEY=... node scripts/generate-blog-post.js
 const fs = require('fs');
 const path = require('path');
@@ -572,18 +572,19 @@ function updateSitemap({ url, dateISO }) {
 // ── Salva a versão longa (1000-1500 palavras) para publicação externa ──
 function saveLongform({ longo, pauta, category, slug, dateISO, url }) {
   if (!fs.existsSync(EXTERNO_DIR)) fs.mkdirSync(EXTERNO_DIR, { recursive: true });
-  const subtexto = (longo.subtexto || '').replace(/\{\{URL_INTERNA\}\}/g, url);
-  const fechamento = (longo.fechamento || '').replace(/\{\{URL_INTERNA\}\}/g, url);
+  const clean = (s) => (s || '').replace(/\{\{URL_INTERNA\}\}/g, url).replace(/\[([^\]]*)\]\([^)]*\)/g, (_, label) => `${label} (${url})`);
+  const subtexto = clean(longo.subtexto);
+  const fechamento = clean(longo.fechamento);
   const topicos = (longo.topicos || []).slice(0, 5);
-  const topicosMd = topicos.map(t => `## ${t.titulo}\n\n${(t.texto || '').replace(/\{\{URL_INTERNA\}\}/g, url)}`).join('\n\n');
+  const topicosTxt = topicos.map(t => `${t.titulo}\n${clean(t.texto)}`).join('\n\n');
 
-  const md = `# ${longo.titulo}
+  const txt = `${longo.titulo}
 
-## ${longo.subtitulo || ''}
+${longo.subtitulo || ''}
 
 ${subtexto}
 
-${topicosMd}
+${topicosTxt}
 
 ${fechamento}
 
@@ -591,9 +592,9 @@ ${fechamento}
 Pauta #${pauta.id} · Categoria: ${category.nome} · Gerado em ${dateISO}
 Artigo original no blog: ${url}
 `;
-  const filePath = path.join(EXTERNO_DIR, `${slug}.md`);
-  fs.writeFileSync(filePath, md, 'utf8');
-  return `content-externo/${slug}.md`;
+  const filePath = path.join(EXTERNO_DIR, `${slug}.txt`);
+  fs.writeFileSync(filePath, txt, 'utf8');
+  return `content-externo/${slug}.txt`;
 }
 
 // ── Registra a pauta gerada em content-externo/links.json ──
