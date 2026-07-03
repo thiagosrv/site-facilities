@@ -179,12 +179,25 @@
   }
   </script>
 </head>
-<body>
+<body class="has-geo-topbar">
 
 <!-- =============================================
-     HEADER
+     HEADER (com geo-topbar embutido no topo)
      ============================================= -->
 <header id="header" class="header">
+
+  <div class="geo-topbar" id="geoTopbar">
+    <div class="container geo-topbar-inner">
+      <span class="geo-topbar-tag">
+        <i data-lucide="map-pin" aria-hidden="true"></i>
+        Atendemos em <strong id="geoTopbarCity">Campinas</strong><span class="geo-topbar-sub"> com Serviços de Facilities e Portaria</span>
+      </span>
+      <a href="https://wa.me/5519982892037" target="_blank" rel="noopener" class="geo-topbar-cta">
+        <i data-lucide="message-circle" aria-hidden="true"></i><span class="geo-topbar-cta-label">Solicitar Orçamento</span>
+      </a>
+    </div>
+  </div>
+
   <nav class="nav container">
 
     <a href="index.html" class="nav-logo">
@@ -903,7 +916,7 @@
       <span class="section-tag">Abrangência</span>
       <h2 class="section-title">Cidades que Atendemos</h2>
       <p class="section-subtitle">
-        Atendemos em mais de <strong>30 municípios</strong> na Região Metropolitana de Campinas
+        Atendemos em mais de <strong>60 municípios</strong> na Região Metropolitana de Campinas
         e interior paulista — onde sua empresa estiver, a PS Proteção chega.
       </p>
     </div>
@@ -911,36 +924,66 @@
     <div class="cities-map-layout">
 
       <div class="cities-tags">
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Americana</span>
         <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Campinas</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Sumaré</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Hortolândia</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Paulínia</span>
         <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Valinhos</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Vinhedo</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Indaiatuba</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Itatiba</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Paulínia</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Hortolândia</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Sumaré</span>
         <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Jaguariúna</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Pedreira</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Vinhedo</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Nova Odessa</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Monte Mor</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Americana</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Indaiatuba</span>
         <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Holambra</span>
         <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Cosmópolis</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Artur Nogueira</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Engenheiro Coelho</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Monte Mor</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Nova Odessa</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Pedreira</span>
         <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Santa Bárbara d'Oeste</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Limeira</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Piracicaba</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Iracemápolis</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Rio Claro</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Capivari</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Elias Fausto</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Rafard</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Louveira</span>
-        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Jundiaí</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Itatiba</span>
         <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Morungaba</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Artur Nogueira</span>
         <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Santo Antônio de Posse</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Engenheiro Coelho</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Amparo</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Limeira</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Elias Fausto</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Louveira</span>
         <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Mogi Mirim</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Iracemápolis</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Monte Alegre do Sul</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Piracicaba</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Capivari</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Mogi Guaçu</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Serra Negra</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Lindóia</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Cordeirópolis</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Rio das Pedras</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Socorro</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Conchal</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Águas de Lindóia</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Rafard</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Santa Gertrudes</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Charqueada</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Saltinho</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Rio Claro</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Araras</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Mombuca</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Ipeúna</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Leme</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Tietê</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Águas de São Pedro</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>São Pedro</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Cerquilho</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Pirassununga</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Itirapina</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Analândia</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Corumbataí</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Porto Ferreira</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Descalvado</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Brotas</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Santa Cruz da Conceição</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Santa Rita do Passa Quatro</span>
+        <span class="city-tag"><i data-lucide="map-pin" aria-hidden="true"></i>Estiva Gerbi</span>
       </div>
 
       <div class="cities-visual">

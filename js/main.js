@@ -21,6 +21,46 @@ function initAll() {
   initFAQ();
   initSmoothAnchor();
   initBlogFilters();
+  initGeoTopbar();
+}
+
+/* =============================================
+   GEO TOPBAR — detecta a cidade do visitante por IP
+   ============================================= */
+function initGeoTopbar() {
+  const cityEl = document.getElementById('geoTopbarCity');
+  if (!cityEl) return;
+
+  const knownCities = [
+    'Campinas', 'Valinhos', 'Paulínia', 'Hortolândia', 'Sumaré', 'Jaguariúna', 'Vinhedo', 'Nova Odessa',
+    'Monte Mor', 'Americana', 'Indaiatuba', 'Holambra', 'Cosmópolis', 'Pedreira', "Santa Bárbara d'Oeste",
+    'Itatiba', 'Morungaba', 'Artur Nogueira', 'Santo Antônio de Posse', 'Engenheiro Coelho', 'Amparo',
+    'Limeira', 'Elias Fausto', 'Louveira', 'Mogi Mirim', 'Iracemápolis', 'Monte Alegre do Sul', 'Piracicaba',
+    'Capivari', 'Mogi Guaçu', 'Serra Negra', 'Lindóia', 'Cordeirópolis', 'Rio das Pedras', 'Socorro', 'Conchal',
+    'Águas de Lindóia', 'Rafard', 'Santa Gertrudes', 'Charqueada', 'Saltinho', 'Rio Claro', 'Araras', 'Mombuca',
+    'Ipeúna', 'Leme', 'Tietê', 'Águas de São Pedro', 'São Pedro', 'Cerquilho', 'Pirassununga', 'Itirapina',
+    'Analândia', 'Corumbataí', 'Porto Ferreira', 'Descalvado', 'Brotas', 'Santa Cruz da Conceição',
+    'Santa Rita do Passa Quatro', 'Estiva Gerbi',
+  ];
+
+  const normalize = (str) => str
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().replace(/[^a-z]/g, '');
+
+  const cityMap = new Map(knownCities.map(c => [normalize(c), c]));
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 4000);
+
+  fetch('https://ipwho.is/', { signal: controller.signal })
+    .then(res => res.json())
+    .then(data => {
+      if (!data || data.success === false || !data.city) return;
+      const match = cityMap.get(normalize(data.city));
+      if (match) cityEl.textContent = match;
+    })
+    .catch(() => {})
+    .finally(() => clearTimeout(timeout));
 }
 
 /* =============================================
