@@ -104,7 +104,7 @@ Não repita nenhum destes títulos já publicados: ${existingTitles.length ? exi
 Você vai escrever DUAS versões do mesmo tema:
 
 1) "curto": versão enxuta de 400 a 500 palavras para o blog institucional do site (psprotecao.com.br/blog), no formato JSON abaixo.
-2) "longo": versão aprofundada de 1000 a 1500 palavras, em Markdown, para publicação externa (Substack, Medium, LinkedIn) — mais storytelling, exemplos práticos e profundidade técnica, cobrindo o mesmo tema com mais contexto. No penúltimo ou último parágrafo do "longo", inclua uma frase natural citando e linkando o artigo original do blog da PS Proteção usando exatamente este placeholder de link markdown: [artigo original no blog da PS Proteção]({{URL_INTERNA}}) — não troque o placeholder por outra URL.
+2) "longo": versão aprofundada de 1000 a 1500 palavras no total, para publicação externa (Substack, Medium, LinkedIn), em uma estrutura FIXA e simples de copiar: título (H1), subtítulo (H2), um parágrafo de abertura ("subtexto") e EXATAMENTE 5 tópicos (nunca mais, nunca menos). Cada tópico é um parágrafo corrido (sem listas, sem markdown de negrito/itálico dentro do texto), com 150 a 220 palavras cada, para somar o total de 1000-1500 palavras. No parágrafo de "fechamento", inclua uma frase natural citando e linkando o artigo original do blog da PS Proteção usando exatamente este placeholder de link markdown: [artigo original no blog da PS Proteção]({{URL_INTERNA}}) — não troque o placeholder por outra URL.
 
 Responda no seguinte formato JSON exato:
 {
@@ -127,12 +127,21 @@ Responda no seguinte formato JSON exato:
     "closing": ["parágrafo final mencionando a PS Proteção e os +28 anos de experiência"]
   },
   "longo": {
-    "titulo": "título do artigo longo (pode ser igual ou uma variação do título curto)",
-    "subtitulo": "linha de subtítulo opcional (pode ser vazio)",
-    "corpoMarkdown": "corpo completo do artigo longo em Markdown (## para h2), 1000 a 1500 palavras, incluindo o placeholder de link descrito acima"
+    "titulo": "título do artigo longo (H1, pode ser igual ou uma variação do título curto)",
+    "subtitulo": "subtítulo (H2) que expande o título em uma linha",
+    "subtexto": "parágrafo de abertura (80 a 120 palavras) contextualizando o tema e o problema",
+    "topicos": [
+      { "titulo": "título do tópico 1 (h2)", "texto": "parágrafo corrido de 150 a 220 palavras, sem listas nem markdown de ênfase" },
+      { "titulo": "título do tópico 2 (h2)", "texto": "parágrafo corrido de 150 a 220 palavras, sem listas nem markdown de ênfase" },
+      { "titulo": "título do tópico 3 (h2)", "texto": "parágrafo corrido de 150 a 220 palavras, sem listas nem markdown de ênfase" },
+      { "titulo": "título do tópico 4 (h2)", "texto": "parágrafo corrido de 150 a 220 palavras, sem listas nem markdown de ênfase" },
+      { "titulo": "título do tópico 5 (h2)", "texto": "parágrafo corrido de 150 a 220 palavras, sem listas nem markdown de ênfase" }
+    ],
+    "fechamento": "parágrafo final (60 a 100 palavras) com o placeholder de link descrito acima"
   }
 }
-No "curto", inclua de 3 a 5 objetos em "sections". "list" e "subsections" são opcionais — omita quando não fizer sentido para o tema.`;
+No "curto", inclua de 3 a 5 objetos em "sections". "list" e "subsections" são opcionais — omita quando não fizer sentido para o tema.
+No "longo", "topicos" deve ter exatamente 5 itens, nem mais nem menos.`;
 
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -563,10 +572,20 @@ function updateSitemap({ url, dateISO }) {
 // ── Salva a versão longa (1000-1500 palavras) para publicação externa ──
 function saveLongform({ longo, pauta, category, slug, dateISO, url }) {
   if (!fs.existsSync(EXTERNO_DIR)) fs.mkdirSync(EXTERNO_DIR, { recursive: true });
-  const corpo = (longo.corpoMarkdown || '').replace(/\{\{URL_INTERNA\}\}/g, url);
+  const subtexto = (longo.subtexto || '').replace(/\{\{URL_INTERNA\}\}/g, url);
+  const fechamento = (longo.fechamento || '').replace(/\{\{URL_INTERNA\}\}/g, url);
+  const topicos = (longo.topicos || []).slice(0, 5);
+  const topicosMd = topicos.map(t => `## ${t.titulo}\n\n${(t.texto || '').replace(/\{\{URL_INTERNA\}\}/g, url)}`).join('\n\n');
+
   const md = `# ${longo.titulo}
-${longo.subtitulo ? `\n${longo.subtitulo}\n` : ''}
-${corpo}
+
+## ${longo.subtitulo || ''}
+
+${subtexto}
+
+${topicosMd}
+
+${fechamento}
 
 ---
 Pauta #${pauta.id} · Categoria: ${category.nome} · Gerado em ${dateISO}
