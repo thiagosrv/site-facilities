@@ -60,7 +60,11 @@ function main() {
       continue;
     }
 
-    html = html.replace(/(<footer class="footer">)/, `${box}$1`);
+    if (html.includes('id="numeros"')) {
+      html = html.replace(/(<section class="stats" id="numeros">[\s\S]*?<\/section>\n)/, `$1\n${box}`);
+    } else {
+      html = html.replace(/(<footer class="footer">)/, `${box}$1`);
+    }
     fs.writeFileSync(filePath, html, 'utf8');
     entry.status = 'aplicado';
     applied += 1;
