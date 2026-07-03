@@ -27,7 +27,7 @@ async function getAccessToken() {
   return data.access_token;
 }
 
-async function uploadToDrive({ fileName, content, mimeType = 'text/plain' }) {
+async function uploadToDrive({ fileName, content, mimeType = 'text/plain', driveMimeType }) {
   const { GDRIVE_CLIENT_ID, GDRIVE_CLIENT_SECRET, GDRIVE_REFRESH_TOKEN, GDRIVE_FOLDER_ID } = process.env;
   if (!GDRIVE_CLIENT_ID || !GDRIVE_CLIENT_SECRET || !GDRIVE_REFRESH_TOKEN || !GDRIVE_FOLDER_ID) {
     console.log('Credenciais do Google Drive não configuradas — pulando upload ao Drive.');
@@ -36,7 +36,10 @@ async function uploadToDrive({ fileName, content, mimeType = 'text/plain' }) {
 
   const accessToken = await getAccessToken();
 
-  const metadata = { name: fileName, parents: [GDRIVE_FOLDER_ID] };
+  // Se driveMimeType for informado (ex.: application/vnd.google-apps.document), o Drive
+  // converte o conteúdo enviado (HTML) num Google Doc nativo, com H1/H2 estilizados de
+  // verdade em vez de um .txt puro (que o visualizador do Drive exibe com contorno/monoespaçado).
+  const metadata = { name: fileName, parents: [GDRIVE_FOLDER_ID], ...(driveMimeType ? { mimeType: driveMimeType } : {}) };
   const boundary = 'psprotecao-drive-upload-boundary';
   const body =
     `--${boundary}\r\n` +

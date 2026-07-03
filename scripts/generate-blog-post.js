@@ -596,7 +596,19 @@ Artigo original no blog: ${url}
 `;
   const filePath = path.join(EXTERNO_DIR, `${slug}.txt`);
   fs.writeFileSync(filePath, txt, 'utf8');
-  return { longformFile: `content-externo/${slug}.txt`, content: txt };
+
+  const esc = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const topicosHtml = topicos.map(t => `<h2>${esc(t.titulo)}</h2>\n<p>${esc(clean(t.texto))}</p>`).join('\n');
+  const html = `<html><body>
+<h1>${esc(longo.titulo)}</h1>
+<h2>${esc(longo.subtitulo || '')}</h2>
+<p>${esc(subtexto)}</p>
+${topicosHtml}
+<p>${esc(fechamento)}</p>
+<p><em>Pauta #${pauta.id} · Categoria: ${esc(category.nome)} · Gerado em ${dateISO}</em></p>
+</body></html>`;
+
+  return { longformFile: `content-externo/${slug}.txt`, content: txt, html };
 }
 
 // ── Registra a pauta gerada em content-externo/links.json ──
@@ -658,14 +670,15 @@ async function main() {
   updateBlogIndex({ post, category, slug, dateISO, url });
   updateSitemap({ url, dateISO });
 
-  const { longformFile, content: longformContent } = saveLongform({ longo, pauta, category, slug, dateISO, url });
+  const { longformFile, content: longformContent, html: longformHtml } = saveLongform({ longo, pauta, category, slug, dateISO, url });
 
   let driveUrl = '';
   try {
     const drive = await uploadToDrive({
-      fileName: `${slug}.txt`,
-      content: longformContent,
-      mimeType: 'text/plain',
+      fileName: slug,
+      content: longformHtml,
+      mimeType: 'text/html',
+      driveMimeType: 'application/vnd.google-apps.document',
     });
     if (drive) driveUrl = drive.webViewLink || '';
   } catch (err) {
