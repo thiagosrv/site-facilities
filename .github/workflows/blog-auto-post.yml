@@ -1,0 +1,36 @@
+name: Post automático do blog
+
+on:
+  schedule:
+    # 09:00 America/Sao_Paulo (UTC-3) = 12:00 UTC
+    - cron: '0 12 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  generate-post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Gerar novo post do blog
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: node scripts/generate-blog-post.js
+
+      - name: Commit e push
+        run: |
+          git config user.name "psprotecao-blog-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add blog/ sitemap.xml content-externo/ scripts/data/pautas-state.json
+          git diff --cached --quiet && echo "Nada para commitar" && exit 0
+          git commit -m "Novo post automático do blog [skip ci]"
+          git push

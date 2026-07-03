@@ -1,0 +1,641 @@
+// Gera 1 novo post de blog (a partir da pauta do dia) usando a API da OpenAI.
+// Atualiza blog/index.html + sitemap.xml, e gera a versão longa (1000-1500 palavras)
+// em content-externo/{slug}.md para publicação manual em Substack/Medium/LinkedIn.
+// Uso: OPENAI_API_KEY=... node scripts/generate-blog-post.js
+const fs = require('fs');
+const path = require('path');
+const CATEGORIES = require('./data/blog-categories');
+const PAUTAS = require('./data/pautas-blog');
+
+const SITE = 'https://psprotecao.com.br';
+const BLOG_DIR = path.join(__dirname, '..', 'blog');
+const SITEMAP_PATH = path.join(__dirname, '..', 'sitemap.xml');
+const INDEX_PATH = path.join(BLOG_DIR, 'index.html');
+const STATE_PATH = path.join(__dirname, 'data', 'pautas-state.json');
+const EXTERNO_DIR = path.join(__dirname, '..', 'content-externo');
+const LINKS_PATH = path.join(EXTERNO_DIR, 'links.json');
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+
+function todayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function dateBR(iso) {
+  const [y, m, d] = iso.split('-');
+  const meses = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  return `${parseInt(d, 10)} ${meses[parseInt(m, 10) - 1]} ${y}`;
+}
+
+function slugify(str) {
+  return str
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ── Lê os posts já publicados (título, categoria, imagem, data, slug) ──
+function readExistingPosts() {
+  const files = fs.readdirSync(BLOG_DIR).filter(f => f.endsWith('.html') && f !== 'index.html');
+  return files.map(file => {
+    const html = fs.readFileSync(path.join(BLOG_DIR, file), 'utf8');
+    const title = (html.match(/<h1>([\s\S]*?)<\/h1>/) || [, ''])[1].trim();
+    const catMatch = html.match(/section-tag-gold"><i data-lucide="([a-z0-9-]+)" aria-hidden="true"><\/i>([^<]+)<\/span>/);
+    const imgMatch = html.match(/<div class="article-cover">\s*<img src="\.\.\/([^"]+)" alt="([^"]*)"/);
+    const dateMatch = html.match(/data-lucide="calendar" aria-hidden="true"><\/i>(\d{1,2} \w{3} \d{4})/);
+    return {
+      slug: file.replace(/\.html$/, ''),
+      title,
+      categoryIcon: catMatch ? catMatch[1] : 'layout-grid',
+      categoryNome: catMatch ? catMatch[2] : 'Facilities',
+      image: imgMatch ? imgMatch[1] : 'hero.webp',
+      alt: imgMatch ? imgMatch[2] : '',
+      dateLabel: dateMatch ? dateMatch[1] : '',
+    };
+  });
+}
+
+function loadState() {
+  if (!fs.existsSync(STATE_PATH)) return { usedIds: [] };
+  return JSON.parse(fs.readFileSync(STATE_PATH, 'utf8'));
+}
+
+function saveState(state) {
+  fs.writeFileSync(STATE_PATH, JSON.stringify(state, null, 2) + '\n', 'utf8');
+}
+
+// ── Pega a próxima pauta não usada, em ordem de id ──
+function pickPauta(state) {
+  const usedIds = new Set(state.usedIds);
+  const sorted = [...PAUTAS].sort((a, b) => a.id - b.id);
+  return sorted.find(p => !usedIds.has(p.id)) || null;
+}
+
+function findCategory(slug) {
+  return CATEGORIES.find(c => c.slug === slug) || CATEGORIES[0];
+}
+
+async function callOpenAI(pauta, category, existingTitles) {
+  if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY não definido.');
+
+  const system = `Você é o redator de conteúdo do blog da PS Proteção, empresa de Facilities.
+Fatos da empresa (use apenas estes dados, não invente números, prêmios, certificações ou clientes):
+- Fundada em 1998, sede em Americana - SP, mais de 28 anos de experiência
+- Atende a Região Metropolitana de Campinas: Americana, Campinas, Sumaré, Hortolândia, Paulínia, Valinhos, Vinhedo, Indaiatuba, Santa Bárbara d'Oeste, Nova Odessa, Limeira, Piracicaba, Jundiaí
+- Serviços: Portaria e Controle de Acesso, Limpeza e Conservação, Zeladoria, Recepção, Auxiliar Administrativo, Auxiliar Contábil
+- Mais de 3.000 colaboradores treinados, mais de 1.000 clientes atendidos, supervisão ativa com relatórios periódicos
+- Tom profissional, consultivo e direto. Público-alvo: gestores, RH e responsáveis por Facilities de empresas.
+- Nunca cite concorrentes. Nunca invente estatísticas de mercado sem deixar claro que é uma referência genérica do setor.
+Responda SEMPRE em JSON estrito, sem texto fora do JSON.`;
+
+  const user = `Pauta a desenvolver: "${pauta.tema}" (categoria: ${category.nome}).
+Abordagem sugerida: ${pauta.abordagem}
+Palavras-chave sugeridas: ${pauta.keywords}
+Intenção de busca: ${pauta.intencao} | Estágio de funil: ${pauta.funil}
+
+Não repita nenhum destes títulos já publicados: ${existingTitles.length ? existingTitles.join(' | ') : '(nenhum ainda)'}.
+
+Você vai escrever DUAS versões do mesmo tema:
+
+1) "curto": versão enxuta de 400 a 500 palavras para o blog institucional do site (psprotecao.com.br/blog), no formato JSON abaixo.
+2) "longo": versão aprofundada de 1000 a 1500 palavras, em Markdown, para publicação externa (Substack, Medium, LinkedIn) — mais storytelling, exemplos práticos e profundidade técnica, cobrindo o mesmo tema com mais contexto. No penúltimo ou último parágrafo do "longo", inclua uma frase natural citando e linkando o artigo original do blog da PS Proteção usando exatamente este placeholder de link markdown: [artigo original no blog da PS Proteção]({{URL_INTERNA}}) — não troque o placeholder por outra URL.
+
+Responda no seguinte formato JSON exato:
+{
+  "curto": {
+    "title": "título do artigo, direto e específico",
+    "metaDescription": "resumo de até 155 caracteres para meta description",
+    "readingMinutes": numero_inteiro,
+    "tags": ["tag1", "tag2", "tag3", "tag4"],
+    "intro": ["parágrafo 1 de abertura", "parágrafo 2 de abertura (opcional, pode ser só 1)"],
+    "pullQuote": "uma frase curta de destaque (pull quote) resumindo o ponto central do artigo",
+    "sections": [
+      {
+        "heading": "título da seção (h2)",
+        "paragraphs": ["parágrafo 1", "parágrafo 2 opcional"],
+        "list": ["item opcional 1", "item opcional 2"],
+        "subsections": [ { "heading": "subtítulo (h3)", "paragraphs": ["parágrafo"] } ]
+      }
+    ],
+    "closingHeading": "título da seção final, algo como 'Como a PS Proteção...' relacionado ao tema",
+    "closing": ["parágrafo final mencionando a PS Proteção e os +28 anos de experiência"]
+  },
+  "longo": {
+    "titulo": "título do artigo longo (pode ser igual ou uma variação do título curto)",
+    "subtitulo": "linha de subtítulo opcional (pode ser vazio)",
+    "corpoMarkdown": "corpo completo do artigo longo em Markdown (## para h2), 1000 a 1500 palavras, incluindo o placeholder de link descrito acima"
+  }
+}
+No "curto", inclua de 3 a 5 objetos em "sections". "list" e "subsections" são opcionais — omita quando não fizer sentido para o tema.`;
+
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: OPENAI_MODEL,
+      messages: [
+        { role: 'system', content: system },
+        { role: 'user', content: user },
+      ],
+      response_format: { type: 'json_object' },
+      temperature: 0.8,
+    }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`OpenAI API error ${res.status}: ${errText}`);
+  }
+  const data = await res.json();
+  const content = data.choices[0].message.content;
+  return JSON.parse(content);
+}
+
+function renderSection(section) {
+  let html = `        <h2>${escapeHtml(section.heading)}</h2>\n`;
+  for (const p of section.paragraphs || []) {
+    html += `        <p>${p}</p>\n\n`;
+  }
+  if (section.list && section.list.length) {
+    html += `        <ul>\n`;
+    for (const item of section.list) html += `          <li>${item}</li>\n`;
+    html += `        </ul>\n\n`;
+  }
+  for (const sub of section.subsections || []) {
+    html += `        <h3>${escapeHtml(sub.heading)}</h3>\n`;
+    for (const p of sub.paragraphs || []) html += `        <p>${p}</p>\n\n`;
+  }
+  return html;
+}
+
+function buildRelatedCards(related) {
+  return related.map(p => `      <article class="blog-card">
+        <div class="svc-card">
+          <a href="${p.slug}.html" class="svc-card-img-wrap">
+            <img src="../${p.image}" alt="${escapeHtml(p.alt)}" loading="lazy" width="800" height="600">
+            <span class="svc-card-tag"><i data-lucide="${p.categoryIcon}" aria-hidden="true"></i>${escapeHtml(p.categoryNome)}</span>
+          </a>
+          <div class="svc-card-body">
+            <div class="blog-card-meta">
+              <span><i data-lucide="calendar" aria-hidden="true"></i>${p.dateLabel}</span>
+            </div>
+            <h3 class="svc-card-title">${escapeHtml(p.title)}</h3>
+            <a href="${p.slug}.html" class="svc-card-link">Ler artigo<i data-lucide="arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+      </article>`).join('\n');
+}
+
+function buildPostHtml({ post, category, slug, dateISO, related }) {
+  const url = `${SITE}/blog/${slug}.html`;
+  const dateLabel = dateBR(dateISO);
+  const sectionsHtml = post.sections.map((s, i) => {
+    let html = renderSection(s);
+    if (i === 0 && post.pullQuote) {
+      html += `        <blockquote>${escapeHtml(post.pullQuote)}</blockquote>\n\n`;
+    }
+    return html;
+  }).join('');
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="index, follow">
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+  <link rel="llms" href="/llms.txt" type="text/plain">
+  <title>${escapeHtml(post.title)} — PS Proteção</title>
+  <meta name="description" content="${escapeHtml(post.metaDescription)}">
+  <link rel="canonical" href="${url}">
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="article">
+  <meta property="og:site_name"   content="PS Proteção">
+  <meta property="og:locale"      content="pt_BR">
+  <meta property="og:title"       content="${escapeHtml(post.title)}">
+  <meta property="og:description" content="${escapeHtml(post.metaDescription)}">
+  <meta property="og:url"         content="${url}">
+  <meta property="og:image"       content="${SITE}/${category.image}">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="${escapeHtml(post.title)}">
+  <meta name="twitter:description" content="${escapeHtml(post.metaDescription)}">
+  <meta name="twitter:image"       content="${SITE}/${category.image}">
+
+  <link rel="icon" type="image/png" href="../logo-servicos.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js" defer></script>
+
+  <!-- Structured Data — BlogPosting -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "@id": "${url}",
+    "headline": "${escapeHtml(post.title)}",
+    "description": "${escapeHtml(post.metaDescription)}",
+    "image": "${SITE}/${category.image}",
+    "datePublished": "${dateISO}",
+    "dateModified": "${dateISO}",
+    "author": { "@type": "Organization", "name": "PS Proteção" },
+    "publisher": { "@id": "${SITE}/#business" },
+    "mainEntityOfPage": "${url}",
+    "articleSection": "${category.nome}"
+  }
+  </script>
+</head>
+<body>
+
+<header id="header" class="header">
+  <nav class="nav container">
+    <a href="../index.html" class="nav-logo">
+      <img src="../logo-servicos.png" alt="PS Proteção" class="logo-img">
+    </a>
+    <ul class="nav-menu" id="nav-menu">
+      <li><a href="../index.html"       class="nav-link">Home</a></li>
+      <li><a href="../servicos.html"    class="nav-link">Serviços e Soluções</a></li>
+      <li><a href="../segmentos.html"   class="nav-link">Segmentos</a></li>
+      <li><a href="../sobre.html"       class="nav-link">Quem Somos</a></li>
+      <li><a href="./"                  class="nav-link active">Blog</a></li>
+      <li><a href="../contato.html"     class="nav-link">Entre em Contato</a></li>
+      <li><a href="../canal-etica.html" class="nav-link">Canal de Ética</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="https://protecaotalentos.online" target="_blank" rel="noopener" class="btn btn-outline-gold">
+        <i data-lucide="user-plus" aria-hidden="true"></i>Trabalhe Conosco
+      </a>
+      <a href="https://wa.me/5519982892037" target="_blank" rel="noopener" class="btn btn-gold">
+        <i data-lucide="message-circle" aria-hidden="true"></i>Solicitar Orçamento
+      </a>
+    </div>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menu">
+      <i data-lucide="menu" aria-hidden="true"></i>
+    </button>
+  </nav>
+</header>
+
+<main>
+
+<section class="article-hero">
+  <div class="container">
+    <div class="article-hero-inner">
+      <div class="page-breadcrumb">
+        <a href="../index.html">Home</a>
+        <i data-lucide="chevron-right" aria-hidden="true"></i>
+        <a href="./">Blog</a>
+        <i data-lucide="chevron-right" aria-hidden="true"></i>
+        <span>${escapeHtml(category.nome)}</span>
+      </div>
+      <span class="section-tag section-tag-gold"><i data-lucide="${category.icon}" aria-hidden="true"></i>${escapeHtml(category.nome)}</span>
+      <h1>${escapeHtml(post.title)}</h1>
+      <div class="blog-meta">
+        <span><i data-lucide="calendar" aria-hidden="true"></i>${dateLabel}</span>
+        <span><i data-lucide="clock" aria-hidden="true"></i>${post.readingMinutes} min de leitura</span>
+        <span><i data-lucide="user" aria-hidden="true"></i>PS Proteção</span>
+      </div>
+    </div>
+    <div class="article-cover">
+      <img src="../${category.image}" alt="${escapeHtml(category.alt)}" width="800" height="600">
+    </div>
+  </div>
+</section>
+
+<section class="stats" id="numeros">
+  <div class="container">
+    <div class="stats-grid">
+
+      <div class="stat-card" data-value="3000" data-suffix="+">
+        <div class="stat-icon"><i data-lucide="users-2"></i></div>
+        <div class="stat-content">
+          <div class="stat-number"><span class="counter">0</span><span>+</span></div>
+          <p class="stat-label">Colaboradores Treinados por Nós</p>
+        </div>
+      </div>
+
+      <div class="stat-card" data-value="1000" data-suffix="+">
+        <div class="stat-icon"><i data-lucide="building-2"></i></div>
+        <div class="stat-content">
+          <div class="stat-number"><span class="counter">0</span><span>+</span></div>
+          <p class="stat-label">Clientes Atendidos</p>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card-gold" data-value="28" data-suffix="+">
+        <div class="stat-icon"><i data-lucide="calendar-check-2"></i></div>
+        <div class="stat-content">
+          <div class="stat-number"><span class="counter">0</span><span>+</span></div>
+          <p class="stat-label">Anos de Experiência no Mercado</p>
+        </div>
+      </div>
+
+      <div class="stat-card" data-value="100" data-suffix="%">
+        <div class="stat-icon"><i data-lucide="shield-check" aria-hidden="true"></i></div>
+        <div class="stat-content">
+          <div class="stat-number"><span class="counter">0</span><span>%</span></div>
+          <p class="stat-label">Supervisão Ativa com Relatórios</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="article-section">
+  <div class="container">
+    <div class="article-layout">
+
+      <div class="article-share">
+        <span class="article-share-label">Compartilhar</span>
+        <a href="https://wa.me/?text=${url}" target="_blank" rel="noopener" aria-label="Compartilhar no WhatsApp"><i data-lucide="message-circle" aria-hidden="true"></i></a>
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url=${url}" target="_blank" rel="noopener" aria-label="Compartilhar no LinkedIn"><i data-lucide="linkedin" aria-hidden="true"></i></a>
+        <a href="mailto:?subject=${encodeURIComponent(post.title)}&body=${url}" aria-label="Compartilhar por e-mail"><i data-lucide="mail" aria-hidden="true"></i></a>
+      </div>
+
+      <div class="article-body">
+${post.intro.map(p => `        <p>${p}</p>`).join('\n\n')}
+
+${sectionsHtml}        <h2>${escapeHtml(post.closingHeading)}</h2>
+${post.closing.map(p => `        <p>${p}</p>`).join('\n\n')}
+
+        <div class="article-tags">
+${post.tags.map(t => `          <span class="article-tag">${escapeHtml(t)}</span>`).join('\n')}
+        </div>
+
+        <div class="author-box">
+          <div class="author-avatar"><i data-lucide="${category.icon}" aria-hidden="true"></i></div>
+          <div class="author-info">
+            <h4>PS Proteção</h4>
+            <p>Empresa de Facilities com +28 anos de experiência em portaria, limpeza, zeladoria e suporte administrativo para empresas da Região Metropolitana de Campinas.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="related-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Continue lendo</span>
+      <h2 class="section-title">Outros artigos que podem te interessar</h2>
+    </div>
+    <div class="blog-grid">
+${buildRelatedCards(related)}
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-inner">
+      <div class="cta-content">
+        <h2>Quer uma proposta de Facilities para sua empresa?</h2>
+        <p>Fale com nossa equipe e receba uma proposta personalizada de acordo com a sua operação.</p>
+      </div>
+      <div class="cta-actions">
+        <a href="https://wa.me/5519982892037" target="_blank" rel="noopener" class="btn btn-gold btn-xl">
+          <i data-lucide="message-circle" aria-hidden="true"></i>Falar pelo WhatsApp
+        </a>
+        <a href="../contato.html" class="btn btn-outline-white btn-xl">
+          <i data-lucide="mail" aria-hidden="true"></i>Enviar mensagem
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="../logo-servicos.png" alt="PS Proteção" class="footer-logo">
+        <p class="footer-desc">Soluções completas em Facilities para empresas na Região Metropolitana de Campinas.</p>
+        <div class="footer-social">
+          <a href="https://wa.me/5519982892037" target="_blank" rel="noopener" aria-label="WhatsApp"><i data-lucide="message-circle" aria-hidden="true"></i></a>
+          <a href="https://share.google/T93Dj9U0KXU4r2ZRx" target="_blank" rel="noopener" aria-label="Google"><i data-lucide="star" aria-hidden="true"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-title">Serviços</h4>
+        <ul class="footer-links">
+          <li><a href="../servicos.html">Portaria e Controle de Acesso</a></li>
+          <li><a href="../servicos.html">Limpeza e Conservação</a></li>
+          <li><a href="../servicos.html">Zeladoria</a></li>
+          <li><a href="../servicos.html">Auxiliar Administrativo</a></li>
+          <li><a href="../servicos.html">Recepção</a></li>
+          <li><a href="../servicos.html">Auxiliar Contábil</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-title">Institucional</h4>
+        <ul class="footer-links">
+          <li><a href="../sobre.html">Quem Somos</a></li>
+          <li><a href="../segmentos.html">Segmentos</a></li>
+          <li><a href="./">Blog</a></li>
+          <li><a href="../contato.html">Entre em Contato</a></li>
+          <li><a href="../canal-etica.html">Canal de Ética</a></li>
+          <li><a href="https://protecaotalentos.online" target="_blank" rel="noopener">Trabalhe Conosco</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-title">Contato</h4>
+        <div class="footer-contact">
+          <div class="contact-item"><i data-lucide="map-pin" aria-hidden="true"></i><span>Americana, SP · Região Metropolitana de Campinas</span></div>
+          <div class="contact-item"><i data-lucide="phone" aria-hidden="true"></i><a href="tel:+5519982892037">(19) 98289-2037</a></div>
+          <div class="contact-item"><i data-lucide="message-circle" aria-hidden="true"></i><a href="https://wa.me/5519982892037" target="_blank" rel="noopener">WhatsApp Comercial</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 PS Proteção — Serviços e Facilities. Todos os direitos reservados.</p>
+      <p class="footer-region">Americana · Campinas · Região Metropolitana de Campinas · SP</p>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/5519982892037" target="_blank" rel="noopener" class="whatsapp-float" aria-label="WhatsApp">
+  <i data-lucide="message-circle" aria-hidden="true"></i>
+</a>
+<script src="../js/main.js" defer></script>
+</body>
+</html>
+`;
+}
+
+// ── Atualiza blog/index.html: JSON-LD, filtro de categoria e card novo ──
+function updateBlogIndex({ post, category, slug, dateISO, url }) {
+  let html = fs.readFileSync(INDEX_PATH, 'utf8');
+  const dateLabel = dateBR(dateISO);
+
+  // 1) JSON-LD blogPost — insere no topo do array
+  const newEntry = `      {
+        "@type": "BlogPosting",
+        "headline": "${escapeHtml(post.title)}",
+        "url": "${url}",
+        "datePublished": "${dateISO}"
+      },
+`;
+  html = html.replace(/("blogPost": \[\n)/, `$1${newEntry}`);
+
+  // 2) Botão de filtro — adiciona se a categoria ainda não existir
+  if (!html.includes(`data-filter="${category.slug}"`)) {
+    html = html.replace(
+      /(<button class="blog-filter-btn" data-filter="facilities">Facilities<\/button>\n)/,
+      `$1    <button class="blog-filter-btn" data-filter="${category.slug}">${escapeHtml(category.nome)}</button>\n`
+    );
+  }
+
+  // 3) Novo card no topo do grid
+  const cardHtml = `      <article class="blog-card" data-category="${category.slug}">
+        <div class="svc-card">
+          <a href="${slug}.html" class="svc-card-img-wrap">
+            <img src="../${category.image}" alt="${escapeHtml(category.alt)}" loading="lazy" width="800" height="600">
+            <span class="svc-card-tag"><i data-lucide="${category.icon}" aria-hidden="true"></i>${escapeHtml(category.nome)}</span>
+          </a>
+          <div class="svc-card-body">
+            <div class="blog-card-meta">
+              <span><i data-lucide="calendar" aria-hidden="true"></i>${dateLabel}</span>
+              <span><i data-lucide="clock" aria-hidden="true"></i>${post.readingMinutes} min</span>
+            </div>
+            <h3 class="svc-card-title">${escapeHtml(post.title)}</h3>
+            <p class="svc-card-desc">${escapeHtml(post.metaDescription)}</p>
+            <a href="${slug}.html" class="svc-card-link">Ler artigo<i data-lucide="arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+      </article>
+
+`;
+  html = html.replace(/(<div class="blog-grid">\n\n)/, `$1${cardHtml}`);
+
+  fs.writeFileSync(INDEX_PATH, html, 'utf8');
+}
+
+// ── Atualiza sitemap.xml: adiciona a URL do novo post logo após o índice do blog ──
+function updateSitemap({ url, dateISO }) {
+  let xml = fs.readFileSync(SITEMAP_PATH, 'utf8');
+  const entry = `
+  <url>
+    <loc>${url}</loc>
+    <lastmod>${dateISO}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+`;
+  xml = xml.replace(
+    /(<loc>https:\/\/psprotecao\.com\.br\/blog\/<\/loc>\s*<lastmod>[^<]+<\/lastmod>\s*<changefreq>[^<]+<\/changefreq>\s*<priority>[^<]+<\/priority>\s*<\/url>\n)/,
+    `$1${entry}`
+  );
+  fs.writeFileSync(SITEMAP_PATH, xml, 'utf8');
+}
+
+// ── Salva a versão longa (1000-1500 palavras) para publicação externa ──
+function saveLongform({ longo, pauta, category, slug, dateISO, url }) {
+  if (!fs.existsSync(EXTERNO_DIR)) fs.mkdirSync(EXTERNO_DIR, { recursive: true });
+  const corpo = (longo.corpoMarkdown || '').replace(/\{\{URL_INTERNA\}\}/g, url);
+  const md = `# ${longo.titulo}
+${longo.subtitulo ? `\n${longo.subtitulo}\n` : ''}
+${corpo}
+
+---
+Pauta #${pauta.id} · Categoria: ${category.nome} · Gerado em ${dateISO}
+Artigo original no blog: ${url}
+`;
+  const filePath = path.join(EXTERNO_DIR, `${slug}.md`);
+  fs.writeFileSync(filePath, md, 'utf8');
+  return `content-externo/${slug}.md`;
+}
+
+// ── Registra a pauta gerada em content-externo/links.json ──
+function registerLink({ pauta, category, slug, url, dateISO, longformFile }) {
+  let links = [];
+  if (fs.existsSync(LINKS_PATH)) {
+    links = JSON.parse(fs.readFileSync(LINKS_PATH, 'utf8'));
+  }
+  links.push({
+    pautaId: pauta.id,
+    tema: pauta.tema,
+    categoriaSlug: category.slug,
+    slug,
+    blogUrl: url,
+    longformFile,
+    geradoEm: dateISO,
+    status: 'gerado',
+    substackUrl: '',
+    mediumUrl: '',
+    linkedinUrl: '',
+  });
+  fs.writeFileSync(LINKS_PATH, JSON.stringify(links, null, 2) + '\n', 'utf8');
+}
+
+async function main() {
+  const state = loadState();
+  const pauta = pickPauta(state);
+
+  if (!pauta) {
+    console.log('Todas as 100 pautas já foram publicadas. Nenhum post novo gerado.');
+    return;
+  }
+
+  const category = findCategory(pauta.categoriaSlug);
+  const existingPosts = readExistingPosts();
+  const existingSlugs = new Set(existingPosts.map(p => p.slug));
+
+  const result = await callOpenAI(pauta, category, existingPosts.map(p => p.title));
+  const post = result.curto;
+  const longo = result.longo;
+
+  let slug = slugify(post.title);
+  let suffix = 2;
+  while (existingSlugs.has(slug)) {
+    slug = `${slugify(post.title)}-${suffix}`;
+    suffix += 1;
+  }
+
+  const dateISO = todayISO();
+  const url = `${SITE}/blog/${slug}.html`;
+
+  // Posts relacionados: até 3 dos mais recentes já existentes
+  const related = existingPosts.slice(-3).reverse();
+
+  const html = buildPostHtml({ post, category, slug, dateISO, related });
+  fs.writeFileSync(path.join(BLOG_DIR, `${slug}.html`), html, 'utf8');
+
+  updateBlogIndex({ post, category, slug, dateISO, url });
+  updateSitemap({ url, dateISO });
+
+  const longformFile = saveLongform({ longo, pauta, category, slug, dateISO, url });
+  registerLink({ pauta, category, slug, url, dateISO, longformFile });
+
+  state.usedIds.push(pauta.id);
+  saveState(state);
+
+  console.log(`Post gerado: blog/${slug}.html`);
+  console.log(`Título: ${post.title}`);
+  console.log(`Categoria: ${category.nome}`);
+  console.log(`Pauta #${pauta.id} — restam ${100 - state.usedIds.length} pautas.`);
+  console.log(`Versão longa salva em: ${longformFile}`);
+}
+
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});

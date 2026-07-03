@@ -2710,6 +2710,42 @@ p  { line-height: 1.75; }
 .author-info h4 { color: var(--primary-dark); margin-bottom: 4px; }
 .author-info p { color: var(--gray-text); font-size: .88rem; line-height: 1.7; }
 
+.external-links-box {
+  margin-top: 24px;
+  padding: 22px 26px;
+  background: var(--gray-light);
+  border: 1px solid var(--gray-border, #e4e4e4);
+  border-radius: var(--radius-lg);
+}
+.external-links-box p {
+  color: var(--primary-dark);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.external-links-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.external-links-list a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  color: var(--primary);
+  font-size: .85rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--gray-border, #e4e4e4);
+  transition: var(--t2);
+}
+.external-links-list a:hover {
+  background: var(--gold);
+  color: var(--primary-dark);
+  border-color: var(--gold);
+}
+
 .related-section { padding: var(--section-py-sm) 0; background: var(--gray-light); }
 
 /* =============================================
