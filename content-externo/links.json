@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "pautaId": 1,
+    "tema": "Implantação de Serviços de Facilities",
+    "categoriaSlug": "facilities",
+    "slug": "implantacao-de-servicos-de-facilities-um-guia-pratico",
+    "blogUrl": "https://psprotecao.com.br/blog/implantacao-de-servicos-de-facilities-um-guia-pratico.html",
+    "longformFile": "content-externo/implantacao-de-servicos-de-facilities-um-guia-pratico.md",
+    "geradoEm": "2026-07-03",
+    "status": "gerado",
+    "substackUrl": "",
+    "mediumUrl": "",
+    "linkedinUrl": ""
+  }
+]
