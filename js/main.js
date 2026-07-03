@@ -365,18 +365,6 @@ function initScrollReveal() {
     );
   }
 
-  // City tags
-  gsap.fromTo('.city-tag',
-    { scale: .85, opacity: 0 },
-    {
-      scale: 1, opacity: 1,
-      duration: .4,
-      stagger: .04,
-      ease: 'back.out(1.6)',
-      scrollTrigger: { trigger: '.cities-tags', start: 'top 80%' }
-    }
-  );
-
   // FAQ items
   gsap.fromTo('.faq-item',
     { y: 30, opacity: 0 },
@@ -426,7 +414,7 @@ function initScrollReveal() {
   // Page hero (sub-pages)
   const pageHero = document.querySelector('.page-hero');
   if (pageHero) {
-    gsap.fromTo(pageHero.querySelectorAll('*'),
+    gsap.fromTo(pageHero.children,
       { y: 30, opacity: 0 },
       { y: 0, opacity: 1, duration: .7, stagger: .1, ease: 'power2.out', delay: .2 }
     );

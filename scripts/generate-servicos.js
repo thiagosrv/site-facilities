@@ -358,7 +358,7 @@ function siteHeader() {
 <header id="header" class="header header-servico">
   <nav class="nav container">
     <a href="/index.html" class="nav-logo">
-      <img src="/logo-servicos.png" alt="PS Proteção" class="logo-img">
+      <img src="/logo-servicos.webp" alt="PS Proteção" class="logo-img">
     </a>
     <ul class="nav-menu" id="nav-menu">
       <li><a href="/index.html"       class="nav-link">Home</a></li>
@@ -861,7 +861,7 @@ function footer() {
   <div class="container">
     <div class="footer-grid">
       <div class="footer-brand">
-        <img src="/logo-servicos.png" alt="PS Proteção" class="footer-logo" width="220" height="60" loading="lazy">
+        <img src="/logo-servicos.webp" alt="PS Proteção" class="footer-logo" width="220" height="60" loading="lazy">
         <p class="footer-desc">Soluções completas em Facilities para empresas na Região Metropolitana de Campinas.</p>
         <div class="footer-social">${socialIconsHTML(17)}
         </div>
@@ -941,7 +941,7 @@ function headBlock({ title, description, url, ogImage, schemaJson }) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="/css/style.css">
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="https://unpkg.com/lucide@1.23.0/dist/umd/lucide.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js" defer></script>
