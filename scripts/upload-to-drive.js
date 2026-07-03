@@ -1,64 +1,42 @@
-// Sobe um arquivo para uma pasta do Google Drive usando uma conta de serviço.
-// Não depende de nenhuma lib externa — assina o JWT com o módulo `crypto` nativo
-// e fala direto com a API REST do Drive (OAuth2 service account flow).
+// Sobe um arquivo para uma pasta do Google Drive autenticando EM NOME DO USUÁRIO
+// (OAuth2 com refresh token), não como conta de serviço — contas de serviço não
+// têm cota própria de armazenamento em contas pessoais (@gmail.com), só em
+// Drives Compartilhados do Google Workspace. Ver scripts/gdrive-oauth-setup.js
+// para o passo único de autorização que gera o refresh token.
 //
 // Variáveis de ambiente esperadas:
-//   GDRIVE_SERVICE_ACCOUNT_KEY = conteúdo JSON completo da chave da conta de serviço
-//   GDRIVE_FOLDER_ID           = ID da pasta do Drive (compartilhada com o e-mail da conta de serviço)
-const crypto = require('crypto');
+//   GDRIVE_CLIENT_ID     = client ID OAuth (tipo Desktop app)
+//   GDRIVE_CLIENT_SECRET = client secret OAuth
+//   GDRIVE_REFRESH_TOKEN = refresh token gerado por scripts/gdrive-oauth-setup.js
+//   GDRIVE_FOLDER_ID     = ID da pasta do Drive de destino
 
-function base64url(input) {
-  return Buffer.from(input)
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-}
-
-async function getAccessToken(serviceAccount) {
-  const header = { alg: 'RS256', typ: 'JWT' };
-  const now = Math.floor(Date.now() / 1000);
-  const claim = {
-    iss: serviceAccount.client_email,
-    scope: 'https://www.googleapis.com/auth/drive',
-    aud: 'https://oauth2.googleapis.com/token',
-    iat: now,
-    exp: now + 3600,
-  };
-
-  const unsigned = `${base64url(JSON.stringify(header))}.${base64url(JSON.stringify(claim))}`;
-  const signer = crypto.createSign('RSA-SHA256');
-  signer.update(unsigned);
-  signer.end();
-  const signature = signer.sign(serviceAccount.private_key).toString('base64')
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  const jwt = `${unsigned}.${signature}`;
-
+async function getAccessToken() {
+  const { GDRIVE_CLIENT_ID, GDRIVE_CLIENT_SECRET, GDRIVE_REFRESH_TOKEN } = process.env;
   const res = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
-      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-      assertion: jwt,
+      client_id: GDRIVE_CLIENT_ID,
+      client_secret: GDRIVE_CLIENT_SECRET,
+      refresh_token: GDRIVE_REFRESH_TOKEN,
+      grant_type: 'refresh_token',
     }),
   });
-  if (!res.ok) throw new Error(`Falha ao obter access token do Google: ${res.status} ${await res.text()}`);
+  if (!res.ok) throw new Error(`Falha ao renovar access token do Google: ${res.status} ${await res.text()}`);
   const data = await res.json();
   return data.access_token;
 }
 
-async function uploadToDrive({ filePath, fileName, content, mimeType = 'text/plain' }) {
-  const keyJson = process.env.GDRIVE_SERVICE_ACCOUNT_KEY;
-  const folderId = process.env.GDRIVE_FOLDER_ID;
-  if (!keyJson || !folderId) {
-    console.log('GDRIVE_SERVICE_ACCOUNT_KEY ou GDRIVE_FOLDER_ID não configurados — pulando upload ao Drive.');
+async function uploadToDrive({ fileName, content, mimeType = 'text/plain' }) {
+  const { GDRIVE_CLIENT_ID, GDRIVE_CLIENT_SECRET, GDRIVE_REFRESH_TOKEN, GDRIVE_FOLDER_ID } = process.env;
+  if (!GDRIVE_CLIENT_ID || !GDRIVE_CLIENT_SECRET || !GDRIVE_REFRESH_TOKEN || !GDRIVE_FOLDER_ID) {
+    console.log('Credenciais do Google Drive não configuradas — pulando upload ao Drive.');
     return null;
   }
 
-  const serviceAccount = JSON.parse(keyJson);
-  const accessToken = await getAccessToken(serviceAccount);
+  const accessToken = await getAccessToken();
 
-  const metadata = { name: fileName, parents: [folderId] };
+  const metadata = { name: fileName, parents: [GDRIVE_FOLDER_ID] };
   const boundary = 'psprotecao-drive-upload-boundary';
   const body =
     `--${boundary}\r\n` +
