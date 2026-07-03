@@ -248,6 +248,13 @@ function localBusinessNode() {
       { '@type': 'ContactPoint', telephone: '+5519982892037', contactType: 'sales', availableLanguage: 'Portuguese', areaServed: 'BR' },
       { '@type': 'ContactPoint', telephone: '+5519997818615', contactType: 'customer support', availableLanguage: 'Portuguese', areaServed: 'BR' },
     ],
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.8',
+      reviewCount: '71',
+      bestRating: '5',
+      worstRating: '1',
+    },
   };
 }
 function websiteNode() {
