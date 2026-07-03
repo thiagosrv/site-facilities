@@ -11,5 +11,18 @@
     "substackUrl": "",
     "mediumUrl": "",
     "linkedinUrl": ""
+  },
+  {
+    "pautaId": 2,
+    "tema": "Facilities Management: o que é e como funciona na prática",
+    "categoriaSlug": "facilities",
+    "slug": "facilities-management-entenda-o-que-e-e-como-funciona",
+    "blogUrl": "https://psprotecao.com.br/blog/facilities-management-entenda-o-que-e-e-como-funciona.html",
+    "longformFile": "content-externo/facilities-management-entenda-o-que-e-e-como-funciona.md",
+    "geradoEm": "2026-07-03",
+    "status": "gerado",
+    "substackUrl": "",
+    "mediumUrl": "",
+    "linkedinUrl": ""
   }
 ]
