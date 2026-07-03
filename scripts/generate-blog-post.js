@@ -265,7 +265,7 @@ function buildPostHtml({ post, category, slug, dateISO, related }) {
     "image": "${SITE}/${COVER_IMAGE}",
     "datePublished": "${dateISO}",
     "dateModified": "${dateISO}",
-    "author": { "@type": "Organization", "name": "PS Proteção" },
+    "author": { "@type": "Person", "name": "Thiago Stephano" },
     "publisher": { "@id": "${SITE}/#business" },
     "mainEntityOfPage": "${url}",
     "articleSection": "${category.nome}"
@@ -319,7 +319,7 @@ function buildPostHtml({ post, category, slug, dateISO, related }) {
       <div class="blog-meta">
         <span><i data-lucide="calendar" aria-hidden="true"></i>${dateLabel}</span>
         <span><i data-lucide="clock" aria-hidden="true"></i>${post.readingMinutes} min de leitura</span>
-        <span><i data-lucide="user" aria-hidden="true"></i>PS Proteção</span>
+        <span><i data-lucide="user" aria-hidden="true"></i>Thiago Stephano</span>
       </div>
     </div>
     <div class="article-cover">
@@ -392,8 +392,8 @@ ${post.tags.map(t => `          <span class="article-tag">${escapeHtml(t)}</span
         <div class="author-box">
           <div class="author-avatar"><i data-lucide="${category.icon}" aria-hidden="true"></i></div>
           <div class="author-info">
-            <h4>PS Proteção</h4>
-            <p>Empresa de Facilities com +28 anos de experiência em portaria, limpeza, zeladoria e suporte administrativo para empresas da Região Metropolitana de Campinas.</p>
+            <h4>Thiago Stephano</h4>
+            <p>Especialista em Facilities na PS Proteção, empresa com +28 anos de experiência em portaria, limpeza, zeladoria e suporte administrativo para empresas da Região Metropolitana de Campinas.</p>
           </div>
         </div>
 
