@@ -385,6 +385,19 @@ ${post.tags.map(t => `          <span class="article-tag">${escapeHtml(t)}</span
             <p>Empresa de Facilities com +28 anos de experiência em portaria, limpeza, zeladoria e suporte administrativo para empresas da Região Metropolitana de Campinas.</p>
           </div>
         </div>
+
+        <div class="article-cta-box">
+          <div class="article-cta-text">
+            <span class="article-cta-eyebrow"><i data-lucide="shield-check" aria-hidden="true"></i>Diagnóstico gratuito</span>
+            <h4>Solicite um diagnóstico preciso sobre Portaria e Facilities para sua empresa</h4>
+            <p>Nossa equipe técnica avalia sua operação e retorna com um plano objetivo de cobertura, custo e supervisão.</p>
+          </div>
+          <div class="article-cta-buttons">
+            <a href="mailto:empresas@psprotecao.com.br" class="btn btn-gold"><i data-lucide="mail" aria-hidden="true"></i>E-mail</a>
+            <a href="https://wa.me/5519978210246" target="_blank" rel="noopener" class="btn btn-wpp"><i data-lucide="message-circle" aria-hidden="true"></i>WhatsApp</a>
+            <a href="https://instagram.com/protecao_seguranca" target="_blank" rel="noopener" class="btn btn-outline-white"><i data-lucide="instagram" aria-hidden="true"></i>Instagram</a>
+          </div>
+        </div>
       </div>
     </div>
   </div>

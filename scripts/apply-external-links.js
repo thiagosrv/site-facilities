@@ -14,16 +14,19 @@ function escapeHtml(str) {
 
 function buildBox(entry) {
   const items = [];
+  if (entry.linkedinUrl) items.push(`<a href="${escapeHtml(entry.linkedinUrl)}" target="_blank" rel="noopener"><i data-lucide="linkedin" aria-hidden="true"></i>LinkedIn</a>`);
   if (entry.substackUrl) items.push(`<a href="${escapeHtml(entry.substackUrl)}" target="_blank" rel="noopener"><i data-lucide="rss" aria-hidden="true"></i>Substack</a>`);
   if (entry.mediumUrl) items.push(`<a href="${escapeHtml(entry.mediumUrl)}" target="_blank" rel="noopener"><i data-lucide="book-open" aria-hidden="true"></i>Medium</a>`);
-  if (entry.linkedinUrl) items.push(`<a href="${escapeHtml(entry.linkedinUrl)}" target="_blank" rel="noopener"><i data-lucide="linkedin" aria-hidden="true"></i>LinkedIn</a>`);
   if (!items.length) return null;
-  return `        <div class="external-links-box">
-          <p>Leia a versão completa deste artigo em:</p>
-          <div class="external-links-list">
-${items.map(i => `            ${i}`).join('\n')}
-          </div>
-        </div>
+  return `<section class="article-footer-links">
+  <div class="container">
+    <p>Leia a versão completa deste artigo em:</p>
+    <div class="external-links-list">
+${items.map(i => `      ${i}`).join('\n')}
+    </div>
+  </div>
+</section>
+
 `;
 }
 
@@ -50,17 +53,14 @@ function main() {
     if (!box) continue;
 
     let html = fs.readFileSync(filePath, 'utf8');
-    if (html.includes('external-links-box')) {
+    if (html.includes('article-footer-links')) {
       // já tem a caixa (reaplicação manual) — não duplica
       entry.status = 'aplicado';
       applied += 1;
       continue;
     }
 
-    html = html.replace(
-      /(<div class="author-box">[\s\S]*?<\/div>\n        <\/div>\n)/,
-      `$1${box}`
-    );
+    html = html.replace(/(<footer class="footer">)/, `${box}$1`);
     fs.writeFileSync(filePath, html, 'utf8');
     entry.status = 'aplicado';
     applied += 1;
