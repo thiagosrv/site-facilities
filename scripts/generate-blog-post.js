@@ -6,8 +6,10 @@ const fs = require('fs');
 const path = require('path');
 const CATEGORIES = require('./data/blog-categories');
 const PAUTAS = require('./data/pautas-blog');
+const { uploadToDrive } = require('./upload-to-drive');
 
 const SITE = 'https://psprotecao.com.br';
+const COVER_IMAGE = 'blog.webp';
 const BLOG_DIR = path.join(__dirname, '..', 'blog');
 const SITEMAP_PATH = path.join(__dirname, '..', 'sitemap.xml');
 const INDEX_PATH = path.join(BLOG_DIR, 'index.html');
@@ -234,13 +236,13 @@ function buildPostHtml({ post, category, slug, dateISO, related }) {
   <meta property="og:title"       content="${escapeHtml(post.title)}">
   <meta property="og:description" content="${escapeHtml(post.metaDescription)}">
   <meta property="og:url"         content="${url}">
-  <meta property="og:image"       content="${SITE}/${category.image}">
+  <meta property="og:image"       content="${SITE}/${COVER_IMAGE}">
 
   <!-- Twitter Card -->
   <meta name="twitter:card"        content="summary_large_image">
   <meta name="twitter:title"       content="${escapeHtml(post.title)}">
   <meta name="twitter:description" content="${escapeHtml(post.metaDescription)}">
-  <meta name="twitter:image"       content="${SITE}/${category.image}">
+  <meta name="twitter:image"       content="${SITE}/${COVER_IMAGE}">
 
   <link rel="icon" type="image/png" href="../logo-servicos.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -260,7 +262,7 @@ function buildPostHtml({ post, category, slug, dateISO, related }) {
     "@id": "${url}",
     "headline": "${escapeHtml(post.title)}",
     "description": "${escapeHtml(post.metaDescription)}",
-    "image": "${SITE}/${category.image}",
+    "image": "${SITE}/${COVER_IMAGE}",
     "datePublished": "${dateISO}",
     "dateModified": "${dateISO}",
     "author": { "@type": "Organization", "name": "PS Proteção" },
@@ -321,7 +323,7 @@ function buildPostHtml({ post, category, slug, dateISO, related }) {
       </div>
     </div>
     <div class="article-cover">
-      <img src="../${category.image}" alt="${escapeHtml(category.alt)}" width="800" height="600">
+      <img src="../${COVER_IMAGE}" alt="${escapeHtml(category.alt)}" width="800" height="600">
     </div>
   </div>
 </section>
@@ -530,7 +532,7 @@ function updateBlogIndex({ post, category, slug, dateISO, url }) {
   const cardHtml = `      <article class="blog-card" data-category="${category.slug}">
         <div class="svc-card">
           <a href="${slug}.html" class="svc-card-img-wrap">
-            <img src="../${category.image}" alt="${escapeHtml(category.alt)}" loading="lazy" width="800" height="600">
+            <img src="../${COVER_IMAGE}" alt="${escapeHtml(category.alt)}" loading="lazy" width="800" height="600">
             <span class="svc-card-tag"><i data-lucide="${category.icon}" aria-hidden="true"></i>${escapeHtml(category.nome)}</span>
           </a>
           <div class="svc-card-body">
@@ -594,11 +596,11 @@ Artigo original no blog: ${url}
 `;
   const filePath = path.join(EXTERNO_DIR, `${slug}.txt`);
   fs.writeFileSync(filePath, txt, 'utf8');
-  return `content-externo/${slug}.txt`;
+  return { longformFile: `content-externo/${slug}.txt`, content: txt };
 }
 
 // ── Registra a pauta gerada em content-externo/links.json ──
-function registerLink({ pauta, category, slug, url, dateISO, longformFile }) {
+function registerLink({ pauta, category, slug, url, dateISO, longformFile, driveUrl }) {
   let links = [];
   if (fs.existsSync(LINKS_PATH)) {
     links = JSON.parse(fs.readFileSync(LINKS_PATH, 'utf8'));
@@ -610,6 +612,7 @@ function registerLink({ pauta, category, slug, url, dateISO, longformFile }) {
     slug,
     blogUrl: url,
     longformFile,
+    driveUrl: driveUrl || '',
     geradoEm: dateISO,
     status: 'gerado',
     substackUrl: '',
@@ -655,8 +658,21 @@ async function main() {
   updateBlogIndex({ post, category, slug, dateISO, url });
   updateSitemap({ url, dateISO });
 
-  const longformFile = saveLongform({ longo, pauta, category, slug, dateISO, url });
-  registerLink({ pauta, category, slug, url, dateISO, longformFile });
+  const { longformFile, content: longformContent } = saveLongform({ longo, pauta, category, slug, dateISO, url });
+
+  let driveUrl = '';
+  try {
+    const drive = await uploadToDrive({
+      fileName: `${slug}.txt`,
+      content: longformContent,
+      mimeType: 'text/plain',
+    });
+    if (drive) driveUrl = drive.webViewLink || '';
+  } catch (err) {
+    console.error('Falha ao enviar versão longa ao Google Drive (post gerado normalmente mesmo assim):', err.message);
+  }
+
+  registerLink({ pauta, category, slug, url, dateISO, longformFile, driveUrl });
 
   state.usedIds.push(pauta.id);
   saveState(state);
@@ -665,7 +681,8 @@ async function main() {
   console.log(`Título: ${post.title}`);
   console.log(`Categoria: ${category.nome}`);
   console.log(`Pauta #${pauta.id} — restam ${100 - state.usedIds.length} pautas.`);
-  console.log(`Versão longa salva em: ${longformFile}`);
+  console.log(`Versão longa salva localmente em: ${longformFile}`);
+  if (driveUrl) console.log(`Versão longa no Google Drive: ${driveUrl}`);
 }
 
 main().catch(err => {
