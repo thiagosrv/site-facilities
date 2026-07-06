@@ -1,5 +1,5 @@
 // Gera 1 novo post de blog (a partir da pauta do dia) usando a API da OpenAI.
-// Atualiza blog/index.html + sitemap.xml, e gera a versão longa (1000-1500 palavras)
+// Atualiza blog/index.html + sitemap.xml, e gera a versão longa (mínimo 1000 palavras + FAQ de 5 perguntas)
 // em content-externo/{slug}.txt (texto puro, sem markdown) para publicação manual em Substack/Medium/LinkedIn.
 // Uso: OPENAI_API_KEY=... node scripts/generate-blog-post.js
 const fs = require('fs');
@@ -106,7 +106,7 @@ Não repita nenhum destes títulos já publicados: ${existingTitles.length ? exi
 Você vai escrever DUAS versões do mesmo tema:
 
 1) "curto": versão enxuta de 400 a 500 palavras para o blog institucional do site (psprotecao.com.br/blog), no formato JSON abaixo.
-2) "longo": versão aprofundada de 1000 a 1500 palavras no total, para publicação externa (Substack, Medium, LinkedIn), em uma estrutura FIXA e simples de copiar: título (H1), subtítulo (H2), um parágrafo de abertura ("subtexto") e EXATAMENTE 5 tópicos (nunca mais, nunca menos). Cada tópico é um parágrafo corrido (sem listas, sem markdown de negrito/itálico dentro do texto), com 150 a 220 palavras cada, para somar o total de 1000-1500 palavras. No parágrafo de "fechamento", inclua uma frase natural citando e linkando o artigo original do blog da PS Proteção usando exatamente este placeholder de link markdown: [artigo original no blog da PS Proteção]({{URL_INTERNA}}) — não troque o placeholder por outra URL.
+2) "longo": versão aprofundada para publicação externa (Substack, Medium, LinkedIn), em uma estrutura FIXA e simples de copiar: título (H1), subtítulo (H2), um parágrafo de abertura ("subtexto"), EXATAMENTE 5 tópicos (nunca mais, nunca menos) e um bloco de FAQ final. Cada tópico é um parágrafo corrido (sem listas, sem markdown de negrito/itálico dentro do texto), com 150 a 220 palavras cada. IMPORTANTE: o artigo completo (subtexto + 5 tópicos + fechamento + FAQ) tem que somar NO MÍNIMO 1000 palavras — nunca menos que isso; pode chegar a 1500-1600 palavras se o tema pedir, mas 1000 é o piso inegociável. Escreva com folga acima do mínimo, não encoste exatamente nos 1000. No parágrafo de "fechamento", inclua uma frase natural citando e linkando o artigo original do blog da PS Proteção usando exatamente este placeholder de link markdown: [artigo original no blog da PS Proteção]({{URL_INTERNA}}) — não troque o placeholder por outra URL. Depois do fechamento, inclua "faq": um rodapé com EXATAMENTE 5 perguntas sobre o tema do artigo, cada uma com sua resposta objetiva (2 a 4 frases), no estilo de uma seção de Perguntas Frequentes ao final de um artigo.
 
 Responda no seguinte formato JSON exato:
 {
@@ -139,11 +139,18 @@ Responda no seguinte formato JSON exato:
       { "titulo": "título do tópico 4 (h2)", "texto": "parágrafo corrido de 150 a 220 palavras, sem listas nem markdown de ênfase" },
       { "titulo": "título do tópico 5 (h2)", "texto": "parágrafo corrido de 150 a 220 palavras, sem listas nem markdown de ênfase" }
     ],
-    "fechamento": "parágrafo final (60 a 100 palavras) com o placeholder de link descrito acima"
+    "fechamento": "parágrafo final (60 a 100 palavras) com o placeholder de link descrito acima",
+    "faq": [
+      { "pergunta": "pergunta 1 sobre o tema do artigo", "resposta": "resposta objetiva (2 a 4 frases)" },
+      { "pergunta": "pergunta 2 sobre o tema do artigo", "resposta": "resposta objetiva (2 a 4 frases)" },
+      { "pergunta": "pergunta 3 sobre o tema do artigo", "resposta": "resposta objetiva (2 a 4 frases)" },
+      { "pergunta": "pergunta 4 sobre o tema do artigo", "resposta": "resposta objetiva (2 a 4 frases)" },
+      { "pergunta": "pergunta 5 sobre o tema do artigo", "resposta": "resposta objetiva (2 a 4 frases)" }
+    ]
   }
 }
 No "curto", inclua de 3 a 5 objetos em "sections". "list" e "subsections" são opcionais — omita quando não fizer sentido para o tema.
-No "longo", "topicos" deve ter exatamente 5 itens, nem mais nem menos.`;
+No "longo", "topicos" deve ter exatamente 5 itens e "faq" deve ter exatamente 5 itens, nem mais nem menos. O texto total do "longo" (subtexto + topicos + fechamento + faq) precisa somar no mínimo 1000 palavras.`;
 
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -596,7 +603,7 @@ function updateSitemap({ url, dateISO }) {
   fs.writeFileSync(SITEMAP_PATH, xml, 'utf8');
 }
 
-// ── Salva a versão longa (1000-1500 palavras) para publicação externa ──
+// ── Salva a versão longa (mínimo 1000 palavras + FAQ) para publicação externa ──
 function saveLongform({ longo, pauta, category, slug, dateISO, url }) {
   if (!fs.existsSync(EXTERNO_DIR)) fs.mkdirSync(EXTERNO_DIR, { recursive: true });
   const clean = (s) => (s || '').replace(/\{\{URL_INTERNA\}\}/g, url).replace(/\[([^\]]*)\]\([^)]*\)/g, (_, label) => `${label} (${url})`);
@@ -604,6 +611,10 @@ function saveLongform({ longo, pauta, category, slug, dateISO, url }) {
   const fechamento = clean(longo.fechamento);
   const topicos = (longo.topicos || []).slice(0, 5);
   const topicosTxt = topicos.map(t => `${t.titulo}\n${clean(t.texto)}`).join('\n\n');
+  const faq = (longo.faq || []).slice(0, 5);
+  const faqTxt = faq.length
+    ? `Perguntas Frequentes\n\n${faq.map(f => `${clean(f.pergunta)}\n${clean(f.resposta)}`).join('\n\n')}`
+    : '';
 
   const txt = `${longo.titulo}
 
@@ -614,7 +625,7 @@ ${subtexto}
 ${topicosTxt}
 
 ${fechamento}
-
+${faqTxt ? `\n${faqTxt}\n` : ''}
 ---
 Pauta #${pauta.id} · Categoria: ${category.nome} · Gerado em ${dateISO}
 Artigo original no blog: ${url}
@@ -624,12 +635,16 @@ Artigo original no blog: ${url}
 
   const esc = (s) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const topicosHtml = topicos.map(t => `<h2>${esc(t.titulo)}</h2>\n<p>${esc(clean(t.texto))}</p>`).join('\n');
+  const faqHtml = faq.length
+    ? `<h2>Perguntas Frequentes</h2>\n${faq.map(f => `<h3>${esc(clean(f.pergunta))}</h3>\n<p>${esc(clean(f.resposta))}</p>`).join('\n')}`
+    : '';
   const html = `<html><body>
 <h1>${esc(longo.titulo)}</h1>
 <h2>${esc(longo.subtitulo || '')}</h2>
 <p>${esc(subtexto)}</p>
 ${topicosHtml}
 <p>${esc(fechamento)}</p>
+${faqHtml}
 <p><em>Pauta #${pauta.id} · Categoria: ${esc(category.nome)} · Gerado em ${dateISO}</em></p>
 </body></html>`;
 
