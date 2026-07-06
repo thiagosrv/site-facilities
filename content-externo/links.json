@@ -107,5 +107,19 @@
     "substackUrl": "",
     "mediumUrl": "",
     "linkedinUrl": ""
+  },
+  {
+    "pautaId": 9,
+    "tema": "Erros comuns ao contratar serviços terceirizados",
+    "categoriaSlug": "facilities",
+    "slug": "erros-comuns-ao-contratar-servicos-terceirizados",
+    "blogUrl": "https://psprotecao.com.br/blog/erros-comuns-ao-contratar-servicos-terceirizados.html",
+    "longformFile": "content-externo/erros-comuns-ao-contratar-servicos-terceirizados.txt",
+    "driveUrl": "https://docs.google.com/document/d/1-SQTMSmxYwrQjRv1DuAHkv1IwgVi5vh34AAwS0_Wr6k/edit?usp=drivesdk",
+    "geradoEm": "2026-07-06",
+    "status": "gerado",
+    "substackUrl": "",
+    "mediumUrl": "",
+    "linkedinUrl": ""
   }
 ]
