@@ -501,6 +501,7 @@ p  { line-height: 1.75; }
   overflow: hidden;
 }
 .has-geo-topbar .hero { padding-top: 186px; }
+.hero .container { max-width: 1520px; }
 
 /* Subtle ambient glow on the right (behind card) */
 .hero::before {
