@@ -1821,6 +1821,7 @@ p  { line-height: 1.75; }
   font-size: .78rem;
   font-weight: 600;
   color: var(--text-dark);
+  text-decoration: none;
   transition: var(--t);
   letter-spacing: .01em;
 }
