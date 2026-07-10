@@ -29,7 +29,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/style.min.css">
   <script src="https://unpkg.com/lucide@1.23.0/dist/umd/lucide.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
@@ -566,7 +566,10 @@
 <section style="padding: 64px 0; background: var(--gray-light)">
   <div class="container">
     <div style="max-width: 600px; margin: 0 auto; background: var(--white); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-md); display: flex; gap: 24px; align-items: center">
-      <img src="../thiago.png" alt="Thiago Stephano" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; flex-shrink: 0">
+      <picture>
+        <source srcset="../thiago.webp" type="image/webp">
+        <img src="../thiago.png" alt="Thiago Stephano" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; flex-shrink: 0">
+      </picture>
       <div>
         <h3 style="font-size: 1.1rem; color: var(--primary-dark); margin: 0 0 4px 0">Thiago Stephano</h3>
         <p style="font-size: .85rem; color: var(--primary); margin: 0 0 12px 0; font-weight: 600">Supervisor e Especialista em Facilities</p>
