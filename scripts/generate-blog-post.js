@@ -272,7 +272,7 @@ function buildPostHtml({ post, category, slug, dateISO, related }) {
     "image": "${SITE}/${COVER_IMAGE}",
     "datePublished": "${dateISO}",
     "dateModified": "${dateISO}",
-    "author": { "@type": "Person", "name": "Thiago Stephano" },
+    "author": { "@type": "Person", "name": "Thiago Stephano", "jobTitle": "Gestor de Segurança Privada", "sameAs": "https://www.linkedin.com/in/thiago-stephano-82baba325/" },
     "publisher": { "@id": "${SITE}/#business" },
     "mainEntityOfPage": "${url}",
     "articleSection": "${category.nome}"
@@ -407,7 +407,8 @@ ${post.tags.map(t => `          <span class="article-tag">${escapeHtml(t)}</span
           <div class="author-avatar"><i data-lucide="${category.icon}" aria-hidden="true"></i></div>
           <div class="author-info">
             <h4>Thiago Stephano</h4>
-            <p>Especialista em Facilities na PS Proteção, empresa com +28 anos de experiência em portaria, limpeza, zeladoria e suporte administrativo para empresas da Região Metropolitana de Campinas.</p>
+            <p style="font-size:.85rem;color:var(--primary);font-weight:600;margin:0 0 8px 0">Gestor de Segurança Privada · Membro da CIPA</p>
+            <p>Responsável pela supervisão operacional da PS Proteção, empresa com +28 anos de experiência em portaria, limpeza, zeladoria e suporte administrativo para empresas da Região Metropolitana de Campinas.</p>
           </div>
         </div>
 
