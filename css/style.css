@@ -575,10 +575,12 @@ p  { line-height: 1.75; }
 }
 
 .hero-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.1rem, 3.4vw, 3.2rem);
   color: var(--white);
-  margin-bottom: 24px;
-  letter-spacing: -.03em;
-  line-height: 1.06;
+  margin-bottom: 28px;
+  letter-spacing: -.02em;
+  line-height: 1.15;
 }
 .hero-title-accent { color: var(--gold); display: inline; }
 

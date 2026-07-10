@@ -18,6 +18,7 @@ const STATIC_PAGES = [
   ['/', 'weekly', '1.0', '2026-07-02'],
   ['/servicos.html', 'monthly', '0.9', '2026-07-02'],
   ['/segmentos.html', 'monthly', '0.8', '2026-07-02'],
+  ['/onde-atuamos.html', 'monthly', '0.8', '2026-07-02'],
   ['/sobre.html', 'monthly', '0.8', '2026-07-02'],
   ['/contato.html', 'monthly', '0.7', '2026-07-02'],
   ['/canal-etica.html', 'yearly', '0.5', '2026-07-02'],
