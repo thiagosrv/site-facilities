@@ -312,61 +312,6 @@ p  { line-height: 1.75; }
   padding: 10px 0;
   box-shadow: 0 4px 24px rgba(0,0,0,.10), 0 1px 0 rgba(0,0,0,.06);
 }
-.header.scrolled .geo-topbar { max-height: 0; opacity: 0; margin-bottom: -12px; }
-
-/* =============================================
-   GEO TOPBAR — cidade detectada por IP (home)
-   ============================================= */
-.geo-topbar {
-  background: var(--primary-dark);
-  overflow: hidden;
-  max-height: 60px;
-  opacity: 1;
-  transition: max-height var(--t2), opacity var(--t2), margin-bottom var(--t2);
-  margin-bottom: 10px;
-}
-.geo-topbar-inner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 8px 0;
-}
-.geo-topbar-tag {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: rgba(255,255,255,.85);
-  font-family: var(--font-heading);
-  font-size: .8rem;
-  font-weight: 600;
-  letter-spacing: -.01em;
-}
-.geo-topbar-tag svg { width: 14px; height: 14px; color: var(--gold); flex-shrink: 0; }
-.geo-topbar-tag strong { color: var(--gold); font-weight: 800; }
-.geo-topbar-cta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-  background: var(--gold);
-  color: var(--primary-dark);
-  padding: 6px 14px;
-  border-radius: var(--radius-pill);
-  font-family: var(--font-heading);
-  font-size: .76rem;
-  font-weight: 700;
-  transition: filter var(--t);
-}
-.geo-topbar-cta:hover { filter: brightness(1.08); }
-.geo-topbar-cta svg { width: 13px; height: 13px; }
-
-@media (max-width: 640px) {
-  .geo-topbar-sub { display: none; }
-  .geo-topbar-tag { font-size: .74rem; }
-  .geo-topbar-cta-label { display: none; }
-  .geo-topbar-cta { padding: 7px; border-radius: 50%; }
-}
 
 .nav {
   display: flex;
@@ -500,7 +445,6 @@ p  { line-height: 1.75; }
   position: relative;
   overflow: hidden;
 }
-.has-geo-topbar .hero { padding-top: 186px; }
 .hero .container { max-width: 1520px; }
 
 /* Subtle ambient glow on the right (behind card) */
@@ -1271,6 +1215,9 @@ p  { line-height: 1.75; }
   gap: 12px;
   border-top: 1px solid var(--gray-mid);
   padding-top: 22px;
+}
+.testimonial-author picture {
+  flex-shrink: 0;
 }
 
 .author-avatar {
@@ -2330,7 +2277,6 @@ p  { line-height: 1.75; }
      HERO
   ───────────────────────────────────────────── */
   .hero { padding: 100px 0 56px; }
-  .has-geo-topbar .hero { padding-top: 140px; }
   .hero-grid { grid-template-columns: 1fr; gap: 36px; }
   .hero-text { text-align: center; }
   .hero-tag  { margin-inline: auto; }
