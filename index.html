@@ -32,9 +32,6 @@
   <link rel="icon" type="image/png" sizes="64x64" href="logo-servicos.png">
   <link rel="apple-touch-icon"    href="logo-servicos.png">
 
-  <!-- Preload LCP image -->
-  <link rel="preload" as="image" href="hero.webp">
-
   <!-- Google Fonts — non-blocking -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -230,6 +227,16 @@
      HERO
      ============================================= -->
 <section class="hero" id="inicio">
+  <div class="hero-video-bg" aria-hidden="true">
+    <video class="hero-video" muted loop playsinline preload="none">
+      <source data-src="hero-bg.webm" type="video/webm">
+      <source data-src="hero-bg.mp4" type="video/mp4">
+    </video>
+    <video class="hero-video-mobile" muted loop playsinline preload="none">
+      <source data-src="hero-bg-mobile.webm" type="video/webm">
+      <source data-src="hero-bg-mobile.mp4" type="video/mp4">
+    </video>
+  </div>
   <div class="container">
     <div class="hero-grid">
 
@@ -272,18 +279,6 @@
           <div class="trust-item"><i data-lucide="check-circle-2"></i><span>Equipe certificada</span></div>
         </div>
 
-      </div>
-
-      <!-- Coluna 2: Card com imagem -->
-      <div class="hero-image-wrap">
-        <div class="hero-card">
-          <img src="hero.webp" alt="Equipe PS Proteção — profissionais de Facilities" class="hero-card-img" width="640" height="480" fetchpriority="high">
-          <div class="hero-card-overlay"></div>
-        </div>
-        <div class="hero-badge-1">
-          <strong>+28</strong>
-          <span>anos no mercado</span>
-        </div>
       </div>
 
     </div>

@@ -22,6 +22,40 @@ function initAll() {
   initSmoothAnchor();
   initBlogFilters();
   initNavSubmenu();
+  initHeroVideoBg();
+}
+
+/* =============================================
+   HERO — video background (deferred, picks desktop or mobile source)
+   ============================================= */
+function initHeroVideoBg() {
+  const wrap = document.querySelector('.hero-video-bg');
+  if (!wrap) return;
+
+  const isMobile = window.matchMedia('(max-width: 767px)').matches;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const saveData = !!(conn && (conn.saveData || /^(slow-2g|2g)$/.test(conn.effectiveType || '')));
+
+  if (reducedMotion || saveData) return;
+
+  const video = wrap.querySelector(isMobile ? '.hero-video-mobile' : '.hero-video');
+  if (!video) return;
+
+  const start = () => {
+    video.querySelectorAll('source[data-src]').forEach((s) => {
+      s.src = s.getAttribute('data-src');
+    });
+    video.addEventListener('canplay', () => video.classList.add('is-loaded'), { once: true });
+    video.load();
+    video.play().catch(() => {});
+  };
+
+  if (document.readyState === 'complete') {
+    setTimeout(start, 300);
+  } else {
+    window.addEventListener('load', () => setTimeout(start, 300), { once: true });
+  }
 }
 
 /* =============================================

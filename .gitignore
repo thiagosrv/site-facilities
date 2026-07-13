@@ -2,3 +2,5 @@ node_modules/
 .claude/
 .mcp.json
 content-externo/*.txt
+site-video.mp4
+site-mobile.mp4
