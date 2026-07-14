@@ -576,7 +576,9 @@ p  { line-height: 1.75; }
   text-align: center;
   font-weight: 900;
 }
-.hero-title-accent { color: var(--gold); display: inline; }
+.hero-title-accent { color: var(--gold); display: inline; font-weight: 800; }
+.hero-title-brand { text-transform: uppercase; font-size: 1.1em; font-weight: 900; }
+.hero-title-sub { font-weight: 800; }
 
 .hero-subtitle {
   color: rgba(255,255,255,.58);
@@ -1386,6 +1388,222 @@ p  { line-height: 1.75; }
   background: rgba(254,190,0,.1);
   color: var(--gold);
 }
+
+/* =============================================
+   TECH SOLUTIONS — Tecnologias Aplicadas a Serviços
+   Fundo azul-marinho vira branco quando a seção entra em foco (via JS/ScrollTrigger)
+   ============================================= */
+/* Preenche o recorte do border-radius do topo com a cor da seção anterior
+   (.implantacao), dando a ilusão de que ela continua atrás da curva */
+.tech-solutions-corner-fill {
+  height: 56px;
+  margin-bottom: -56px;
+  background: var(--primary-dark);
+}
+.tech-solutions {
+  padding: var(--section-py) 0;
+  /* Tom levemente mais claro que --primary-dark: mantém o azul-marinho mas
+     torna o recorte arredondado do topo perceptível contra a seção acima (mesma cor base) */
+  background: #141D3F;
+  position: relative;
+  overflow: hidden;
+  border-radius: 56px 56px 0 0;
+  box-shadow:
+    0 -1px 0 rgba(255,255,255,.09),
+    0 -32px 64px -40px rgba(0,0,0,.55);
+  transition: background-color 2s cubic-bezier(.65,0,.35,1), box-shadow 2s cubic-bezier(.65,0,.35,1);
+}
+.tech-solutions::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size: 56px 56px;
+  opacity: 1;
+  transition: opacity 2s cubic-bezier(.65,0,.35,1);
+}
+.tech-solutions.is-active::before { opacity: 0; }
+.tech-solutions.is-active {
+  background-color: var(--white);
+  box-shadow:
+    0 -1px 0 rgba(0,15,106,.08),
+    0 -32px 64px -40px rgba(0,0,0,.2);
+}
+
+.tech-solutions .section-tag {
+  background: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.9);
+  border-color: rgba(255,255,255,.15);
+  transition: background-color 1.4s cubic-bezier(.65,0,.35,1), color 1.4s cubic-bezier(.65,0,.35,1), border-color 1.4s cubic-bezier(.65,0,.35,1);
+}
+.tech-solutions .section-tag::before { background: var(--gold); }
+.tech-solutions.is-active .section-tag {
+  background: rgba(0,15,106,.06);
+  color: var(--primary);
+  border-color: rgba(0,15,106,.1);
+}
+
+.tech-solutions .section-title { color: var(--white); transition: color 1.4s cubic-bezier(.65,0,.35,1); }
+.tech-solutions.is-active .section-title { color: var(--primary-dark); }
+
+.tech-solutions .section-subtitle { color: rgba(255,255,255,.65); transition: color 1.4s cubic-bezier(.65,0,.35,1); }
+.tech-solutions.is-active .section-subtitle { color: var(--gray-text); }
+
+/* Layout — lista 1/2, conteúdo 1/2 */
+.tech-solutions-layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.tech-solutions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: sticky;
+  top: 110px;
+}
+.tech-list-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 18px 16px;
+  background: transparent;
+  border: none;
+  border-left: 3px solid rgba(255,255,255,.14);
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-body);
+  overflow: hidden;
+  transition: border-color .3s ease, background-color .3s ease, box-shadow .3s ease;
+}
+.tech-list-item:hover { background: rgba(65,147,255,.08); }
+
+/* Sweep de "scan" digital usado na animação de entrada (JS) */
+.tech-list-scan {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(65,147,255,.45), transparent);
+  transform: translateX(-120%);
+  pointer-events: none;
+  z-index: 1;
+}
+.tech-list-num {
+  font-family: 'SFMono-Regular', Consolas, Menlo, 'Liberation Mono', monospace;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: rgba(255,255,255,.35);
+  transition: color .3s ease, text-shadow .3s ease;
+}
+.tech-list-label {
+  flex: 1;
+  color: rgba(255,255,255,.72);
+  font-size: .95rem;
+  font-weight: 700;
+  line-height: 1.4;
+  transition: color .3s ease;
+}
+.tech-list-arrow {
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+  color: var(--blue-support);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity .3s ease, transform .3s ease;
+}
+.tech-list-item.active {
+  border-left-color: var(--blue-support);
+  background: linear-gradient(90deg, rgba(65,147,255,.14), transparent);
+  box-shadow: inset 0 0 0 1px rgba(65,147,255,.1);
+}
+.tech-list-item.active .tech-list-num { color: var(--blue-support); text-shadow: 0 0 14px rgba(65,147,255,.55); }
+.tech-list-item.active .tech-list-label { color: var(--white); font-weight: 800; }
+.tech-list-item.active .tech-list-arrow { opacity: 1; transform: translateX(0); }
+
+.tech-solutions.is-active .tech-list-item { border-left-color: rgba(0,15,106,.12); }
+.tech-solutions.is-active .tech-list-item:hover { background: rgba(65,147,255,.07); }
+.tech-solutions.is-active .tech-list-num { color: rgba(0,15,106,.4); }
+.tech-solutions.is-active .tech-list-label { color: var(--gray-text); }
+.tech-solutions.is-active .tech-list-item.active {
+  border-left-color: var(--primary);
+  background: linear-gradient(90deg, rgba(0,15,106,.07), transparent);
+  box-shadow: inset 0 0 0 1px rgba(0,15,106,.06);
+}
+.tech-solutions.is-active .tech-list-item.active .tech-list-num { color: var(--primary); text-shadow: none; }
+.tech-solutions.is-active .tech-list-item.active .tech-list-label { color: var(--primary-dark); font-weight: 800; }
+.tech-solutions.is-active .tech-list-item.active .tech-list-arrow { color: var(--primary); }
+
+/* Painel de detalhe */
+.tech-solutions-detail { min-height: 420px; }
+.tech-detail-panel {
+  display: none;
+  grid-template-columns: 1fr;
+  gap: 28px;
+}
+.tech-detail-panel.active { display: grid; animation: techFadeIn .5s ease; }
+@keyframes techFadeIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.tech-detail-tag {
+  display: inline-block;
+  color: var(--gold);
+  font-family: var(--font-heading);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  transition: color 1.4s cubic-bezier(.65,0,.35,1);
+}
+.tech-solutions.is-active .tech-detail-tag { color: #C49500; }
+
+.tech-detail-title {
+  color: var(--white);
+  font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+  margin-bottom: 18px;
+  line-height: 1.2;
+  transition: color 1.4s cubic-bezier(.65,0,.35,1);
+}
+.tech-solutions.is-active .tech-detail-title { color: var(--primary-dark); }
+
+.tech-detail-desc {
+  color: rgba(255,255,255,.65);
+  font-size: 1rem;
+  line-height: 1.8;
+  transition: color 1.4s cubic-bezier(.65,0,.35,1);
+}
+.tech-solutions.is-active .tech-detail-desc { color: var(--gray-text); }
+
+/* Placeholder 16:9 — substituir por <img> quando as fotos forem entregues */
+.tech-detail-media {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+  border: 1px solid rgba(255,255,255,.14);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  transition: background-color 1.4s cubic-bezier(.65,0,.35,1), border-color 1.4s cubic-bezier(.65,0,.35,1);
+}
+.tech-detail-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tech-detail-media-placeholder { color: rgba(255,255,255,.25); }
+.tech-detail-media-placeholder svg { width: 40px; height: 40px; }
+.tech-solutions.is-active .tech-detail-media {
+  background: linear-gradient(160deg, rgba(0,15,106,.05), rgba(0,15,106,.02));
+  border-color: rgba(0,15,106,.1);
+}
+.tech-solutions.is-active .tech-detail-media-placeholder { color: rgba(0,15,106,.2); }
 
 /* =============================================
    GUARANTEES
@@ -2226,6 +2444,21 @@ p  { line-height: 1.75; }
   .footer-grid     { grid-template-columns: 1fr 1fr; gap: 36px; }
   .timeline-layout { gap: 48px; }
   .about-grid      { gap: 48px; }
+
+  /* ── TECH SOLUTIONS — pilha única, lista deixa de ser sticky ── */
+  .tech-solutions-corner-fill { height: 40px; margin-bottom: -40px; }
+  .tech-solutions { border-radius: 40px 40px 0 0; }
+  .tech-solutions-layout { grid-template-columns: 1fr; gap: 28px; }
+  .tech-solutions-list   { position: static; flex-direction: row; flex-wrap: wrap; gap: 8px; }
+  .tech-list-item {
+    flex: 1 1 auto;
+    border-left: none;
+    border-bottom: 3px solid rgba(255,255,255,.14);
+    padding: 14px 12px;
+  }
+  .tech-solutions.is-active .tech-list-item { border-bottom-color: rgba(0,15,106,.12); }
+  .tech-list-item.active { border-left-color: transparent; border-bottom-color: var(--blue-support); }
+  .tech-solutions.is-active .tech-list-item.active { border-bottom-color: var(--primary); }
 }
 
 /* =============================================
@@ -2314,6 +2547,18 @@ p  { line-height: 1.75; }
   .step-content { grid-template-columns: 70px 1fr; }
   .step-image-small img { width: 70px; height: 52px; }
   .timeline-step, .step-content, .step-text { max-width: 100%; word-break: break-word; }
+
+  /* ─────────────────────────────────────────────
+     TECH SOLUTIONS — lista volta a ser coluna única
+  ───────────────────────────────────────────── */
+  .tech-solutions-corner-fill { height: 24px; margin-bottom: -24px; }
+  .tech-solutions { border-radius: 24px 24px 0 0; }
+  .tech-solutions-list { flex-direction: column; }
+  .tech-list-item      { border-bottom: none; border-left: 3px solid rgba(255,255,255,.14); }
+  .tech-solutions.is-active .tech-list-item { border-left-color: rgba(0,15,106,.12); border-bottom-color: transparent; }
+  .tech-list-item.active { border-left-color: var(--blue-support); border-bottom-color: transparent; }
+  .tech-solutions.is-active .tech-list-item.active { border-left-color: var(--primary); }
+  .tech-list-label { font-size: .88rem; }
 
   /* ─────────────────────────────────────────────
      GUARANTEES

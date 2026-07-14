@@ -23,6 +23,7 @@ function initAll() {
   initBlogFilters();
   initNavSubmenu();
   initHeroVideoBg();
+  initTechSolutions();
 }
 
 /* =============================================
@@ -466,6 +467,79 @@ function initScrollReveal() {
       scrollTrigger: { trigger: '.about-values', start: 'top 82%' }
     }
   );
+}
+
+/* =============================================
+   TECH SOLUTIONS — fundo navy → branco ao chegar + tabs
+   ============================================= */
+function initTechSolutions() {
+  const section = document.querySelector('.tech-solutions');
+  if (!section) return;
+
+  ScrollTrigger.create({
+    trigger: section,
+    start: 'top 65%',
+    end: 'bottom 20%',
+    onEnter: () => section.classList.add('is-active'),
+    onLeaveBack: () => section.classList.remove('is-active'),
+  });
+
+  const items  = section.querySelectorAll('.tech-list-item');
+  const panels = section.querySelectorAll('.tech-detail-panel');
+
+  items.forEach((item) => {
+    item.addEventListener('click', () => {
+      const key = item.dataset.tech;
+
+      items.forEach((i) => {
+        const isActive = i === item;
+        i.classList.toggle('active', isActive);
+        i.setAttribute('aria-selected', String(isActive));
+      });
+
+      panels.forEach((p) => p.classList.toggle('active', p.dataset.tech === key));
+    });
+  });
+
+  /* ── Entrada "tech": slide + sweep de scan + scramble digital ── */
+  gsap.set(items, { opacity: 0, x: -24 });
+
+  ScrollTrigger.create({
+    trigger: '.tech-solutions-list',
+    start: 'top 82%',
+    once: true,
+    onEnter: () => {
+      items.forEach((item, i) => {
+        const numEl  = item.querySelector('.tech-list-num');
+        const scanEl = item.querySelector('.tech-list-scan');
+        const finalNum = numEl ? numEl.textContent : '';
+        const delay = i * 0.12;
+
+        gsap.to(item, { opacity: 1, x: 0, duration: .5, ease: 'power2.out', delay });
+
+        if (scanEl) {
+          gsap.fromTo(scanEl,
+            { xPercent: -120 },
+            { xPercent: 120, duration: .6, ease: 'power1.inOut', delay }
+          );
+        }
+
+        if (numEl) {
+          setTimeout(() => {
+            let ticks = 0;
+            const scramble = setInterval(() => {
+              numEl.textContent = String(Math.floor(Math.random() * 90) + 10);
+              ticks++;
+              if (ticks > 5) {
+                clearInterval(scramble);
+                numEl.textContent = finalNum;
+              }
+            }, 45);
+          }, delay * 1000);
+        }
+      });
+    },
+  });
 }
 
 /* =============================================
