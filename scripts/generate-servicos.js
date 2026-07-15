@@ -402,7 +402,7 @@ function statsSection() {
       <div class="stat-card" data-value="3000" data-suffix="+">
         <div class="stat-icon"><i data-lucide="users-2"></i></div>
         <div class="stat-content">
-          <div class="stat-number"><span class="counter">0</span><span>+</span></div>
+          <div class="stat-number"><span class="counter">3.000</span><span>+</span></div>
           <p class="stat-label">Colaboradores Treinados por Nós</p>
         </div>
       </div>
@@ -410,7 +410,7 @@ function statsSection() {
       <div class="stat-card" data-value="1000" data-suffix="+">
         <div class="stat-icon"><i data-lucide="building-2"></i></div>
         <div class="stat-content">
-          <div class="stat-number"><span class="counter">0</span><span>+</span></div>
+          <div class="stat-number"><span class="counter">1.000</span><span>+</span></div>
           <p class="stat-label">Clientes Atendidos</p>
         </div>
       </div>
@@ -418,7 +418,7 @@ function statsSection() {
       <div class="stat-card stat-card-gold" data-value="28" data-suffix="+">
         <div class="stat-icon"><i data-lucide="calendar-check-2"></i></div>
         <div class="stat-content">
-          <div class="stat-number"><span class="counter">0</span><span>+</span></div>
+          <div class="stat-number"><span class="counter">28</span><span>+</span></div>
           <p class="stat-label">Anos de Experiência no Mercado</p>
         </div>
       </div>
@@ -426,7 +426,7 @@ function statsSection() {
       <div class="stat-card" data-value="100" data-suffix="%">
         <div class="stat-icon"><i data-lucide="shield-check" aria-hidden="true"></i></div>
         <div class="stat-content">
-          <div class="stat-number"><span class="counter">0</span><span>%</span></div>
+          <div class="stat-number"><span class="counter">100</span><span>%</span></div>
           <p class="stat-label">Supervisão Ativa com Relatórios</p>
         </div>
       </div>

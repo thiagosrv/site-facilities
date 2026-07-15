@@ -286,14 +286,14 @@ function initCounters() {
    SCROLL REVEAL
    ============================================= */
 function initScrollReveal() {
-  // Stat cards
+  // Stat cards — cada bloco "encaixa" no lugar, como peça de quebra-cabeça
   gsap.fromTo('.stat-card',
-    { y: 50, opacity: 0 },
+    { scale: .4, opacity: 0, rotation: (i) => (i % 2 === 0 ? -10 : 10) },
     {
-      y: 0, opacity: 1,
-      duration: .7,
-      stagger: .12,
-      ease: 'power3.out',
+      scale: 1, opacity: 1, rotation: 0,
+      duration: .65,
+      stagger: .15,
+      ease: 'back.out(1.7)',
       scrollTrigger: { trigger: '.stats-grid', start: 'top 80%' }
     }
   );
