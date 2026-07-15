@@ -5,25 +5,40 @@
 
 /* ── Initialize Lucide Icons ── */
 document.addEventListener('DOMContentLoaded', () => {
-  lucide.createIcons();
+  safeInit('lucide.createIcons', () => lucide.createIcons());
   initAll();
 });
 
-function initAll() {
-  gsap.registerPlugin(ScrollTrigger);
+function safeInit(name, fn) {
+  try {
+    fn();
+  } catch (err) {
+    console.error(`[init] ${name} failed:`, err);
+  }
+}
 
-  initHeader();
-  initMobileMenu();
-  initHeroAnimation();
-  initOnlineClock();
-  initCounters();
-  initScrollReveal();
-  initFAQ();
-  initSmoothAnchor();
-  initBlogFilters();
-  initNavSubmenu();
-  initHeroVideoBg();
-  initTechSolutions();
+function initAll() {
+  // CTA/lead-capture wiring must never be skipped, so it runs first and is
+  // isolated from any failure in the GSAP-dependent inits below (GSAP is
+  // loaded via async CDN <script> tags with no ordering guarantee against
+  // this deferred script, so it may not be ready yet when DOMContentLoaded fires).
+  safeInit('initLeadModal', initLeadModal);
+  safeInit('initCTAIntercept', initCTAIntercept);
+  safeInit('initContactFormPage', initContactFormPage);
+
+  safeInit('gsap.registerPlugin', () => gsap.registerPlugin(ScrollTrigger));
+  safeInit('initHeader', initHeader);
+  safeInit('initMobileMenu', initMobileMenu);
+  safeInit('initHeroAnimation', initHeroAnimation);
+  safeInit('initOnlineClock', initOnlineClock);
+  safeInit('initCounters', initCounters);
+  safeInit('initScrollReveal', initScrollReveal);
+  safeInit('initFAQ', initFAQ);
+  safeInit('initSmoothAnchor', initSmoothAnchor);
+  safeInit('initBlogFilters', initBlogFilters);
+  safeInit('initNavSubmenu', initNavSubmenu);
+  safeInit('initHeroVideoBg', initHeroVideoBg);
+  safeInit('initTechSolutions', initTechSolutions);
 }
 
 /* =============================================
@@ -621,7 +636,282 @@ function initBlogFilters() {
   });
 }
 
-/* Contact form handled inline in contato.html via Web3Forms */
+/* =============================================
+   LEAD MODAL — popup em 3 etapas (Dados -> Serviços -> Conectando) + GTM + e-mail + WhatsApp
+   ============================================= */
+const LEAD_FORM_CONFIG = {
+  accessKey: '31cbc197-cb46-4864-b9d1-0d1d31a0a52d',
+  whatsapp: '5519982892037',
+};
+
+const LEAD_MODAL_SERVICES = [
+  'Portaria e Controle de Acesso',
+  'Limpeza e Conservação',
+  'Zeladoria',
+  'Auxiliar Administrativo',
+  'Recepção',
+  'Auxiliar Contábil',
+];
+
+function buildLeadModal() {
+  if (document.getElementById('lead-modal-overlay')) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'lead-modal-overlay';
+  overlay.className = 'lead-modal-overlay';
+  overlay.innerHTML = `
+    <div class="lead-modal" role="dialog" aria-modal="true" aria-labelledby="lead-modal-title">
+      <button type="button" class="lead-modal-close" aria-label="Fechar">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="lead-modal-progress">
+        <span class="lead-modal-step-dot is-active" data-step-dot="1"></span>
+        <span class="lead-modal-step-dot" data-step-dot="2"></span>
+      </div>
+      <form id="lead-modal-form" novalidate>
+        <div class="lead-modal-step is-active" data-step="1">
+          <h3 id="lead-modal-title" class="lead-modal-title">Solicite seu orçamento</h3>
+          <p class="lead-modal-subtitle">Preencha seus dados para começar.</p>
+          <div class="form-group">
+            <label class="form-label" for="lead-nome">Nome</label>
+            <input class="form-input" type="text" id="lead-nome" name="nome" placeholder="Seu nome" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="lead-email">E-mail</label>
+            <input class="form-input" type="email" id="lead-email" name="email" placeholder="seu@email.com.br" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="lead-cnpj">CNPJ</label>
+            <input class="form-input" type="text" id="lead-cnpj" name="cnpj" placeholder="00.000.000/0001-00" required>
+          </div>
+          <p class="lead-modal-error" data-error-for="1"></p>
+          <button type="button" class="btn btn-gold form-submit" data-step-next>Avançar</button>
+        </div>
+
+        <div class="lead-modal-step" data-step="2">
+          <h3 class="lead-modal-title">Quais serviços você precisa?</h3>
+          <p class="lead-modal-subtitle">Selecione uma ou mais opções.</p>
+          <div class="lead-modal-services">
+            ${LEAD_MODAL_SERVICES.map((servico, i) => `
+              <label class="lead-modal-service-item">
+                <input type="checkbox" name="servicos" value="${servico}" id="lead-servico-${i}">
+                <span>${servico}</span>
+              </label>
+            `).join('')}
+          </div>
+          <p class="lead-modal-error" data-error-for="2"></p>
+          <div class="lead-modal-nav">
+            <button type="button" class="lead-modal-back-btn" data-step-back>Voltar</button>
+            <button type="submit" class="btn btn-gold form-submit">Enviar e falar com especialista</button>
+          </div>
+        </div>
+
+        <div class="lead-modal-step" data-step="3">
+          <div class="lead-modal-loading">
+            <span class="lead-modal-spinner"></span>
+            <p class="lead-modal-loading-text">Estamos conectando você com um especialista...</p>
+          </div>
+        </div>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const form = overlay.querySelector('#lead-modal-form');
+
+  overlay.querySelector('.lead-modal-close').addEventListener('click', closeLeadModal);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeLeadModal(); });
+
+  overlay.querySelector('[data-step-next]').addEventListener('click', () => {
+    const nome  = form.querySelector('#lead-nome');
+    const email = form.querySelector('#lead-email');
+    const cnpj  = form.querySelector('#lead-cnpj');
+    const errorEl = form.querySelector('[data-error-for="1"]');
+    if (!nome.value.trim() || !email.value.trim() || !cnpj.value.trim() || !email.checkValidity()) {
+      errorEl.textContent = 'Preencha nome, e-mail e CNPJ corretamente.';
+      errorEl.classList.add('is-visible');
+      return;
+    }
+    errorEl.classList.remove('is-visible');
+    goToLeadStep(2);
+  });
+
+  overlay.querySelector('[data-step-back]').addEventListener('click', () => goToLeadStep(1));
+
+  form.addEventListener('submit', (e) => handleLeadWizardSubmit(e));
+}
+
+function goToLeadStep(step) {
+  const overlay = document.getElementById('lead-modal-overlay');
+  if (!overlay) return;
+  overlay.querySelectorAll('.lead-modal-step').forEach((el) => {
+    el.classList.toggle('is-active', Number(el.dataset.step) === step);
+  });
+  overlay.querySelectorAll('.lead-modal-step-dot').forEach((el) => {
+    el.classList.toggle('is-active', Number(el.dataset.stepDot) <= step);
+  });
+}
+
+function openLeadModal() {
+  buildLeadModal();
+  const overlay = document.getElementById('lead-modal-overlay');
+  overlay.classList.add('is-open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => overlay.querySelector('#lead-nome')?.focus(), 100);
+}
+
+function closeLeadModal() {
+  const overlay = document.getElementById('lead-modal-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('is-open');
+  document.body.style.overflow = '';
+  setTimeout(() => {
+    const form = overlay.querySelector('#lead-modal-form');
+    if (form) form.reset();
+    goToLeadStep(1);
+    overlay.querySelectorAll('.lead-modal-error').forEach((el) => el.classList.remove('is-visible'));
+  }, 300);
+}
+
+async function handleLeadWizardSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const errorEl = form.querySelector('[data-error-for="2"]');
+  const checked = Array.from(form.querySelectorAll('input[name="servicos"]:checked')).map((el) => el.value);
+
+  if (checked.length === 0) {
+    errorEl.textContent = 'Selecione ao menos um serviço.';
+    errorEl.classList.add('is-visible');
+    return;
+  }
+  errorEl.classList.remove('is-visible');
+
+  // Abre a aba do WhatsApp já dentro do clique do usuário, para o navegador
+  // não bloquear o popup quando ela for navegada depois do fetch assíncrono.
+  const waWindow = window.open('', '_blank');
+
+  goToLeadStep(3);
+
+  const nome  = form.querySelector('#lead-nome').value.trim();
+  const email = form.querySelector('#lead-email').value.trim();
+  const cnpj  = form.querySelector('#lead-cnpj').value.trim();
+
+  const data = new FormData();
+  data.append('access_key', LEAD_FORM_CONFIG.accessKey);
+  data.append('subject', 'Novo lead — Site PS Proteção');
+  data.append('from_name', 'Site PS Proteção');
+  data.append('nome', nome);
+  data.append('email', email);
+  data.append('cnpj', cnpj);
+  data.append('servicos', checked.join(', '));
+
+  const sendEmail = fetch('https://api.web3forms.com/submit', { method: 'POST', body: data }).catch(() => null);
+  const minDelay  = new Promise((resolve) => setTimeout(resolve, 1600));
+  await Promise.all([sendEmail, minDelay]);
+
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'form_submit_lead',
+    form_location: 'popup',
+    lead_name: nome,
+    lead_email: email,
+    lead_cnpj: cnpj,
+    lead_services: checked.join(', '),
+  });
+
+  const waText = `Olá! Meu nome é ${nome} (CNPJ ${cnpj}). Tenho interesse em: ${checked.join(', ')}. Gostaria de solicitar um orçamento.`;
+  const waUrl  = `https://wa.me/${LEAD_FORM_CONFIG.whatsapp}?text=${encodeURIComponent(waText)}`;
+
+  if (waWindow) {
+    waWindow.location.href = waUrl;
+  } else {
+    window.open(waUrl, '_blank', 'noopener');
+  }
+
+  closeLeadModal();
+}
+
+async function handleLeadSubmit(e, origin) {
+  e.preventDefault();
+  const form  = e.target;
+  const btn   = form.querySelector('.form-submit');
+  const msgEl = form.querySelector('.form-submit-msg');
+  const originalHTML = btn.innerHTML;
+
+  btn.disabled = true;
+  btn.innerHTML = 'Enviando...';
+  if (msgEl) msgEl.classList.remove('is-visible');
+
+  const data = new FormData(form);
+  data.append('access_key', LEAD_FORM_CONFIG.accessKey);
+  data.append('subject', 'Novo lead — Site PS Proteção');
+  data.append('from_name', 'Site PS Proteção');
+
+  const nome     = (data.get('nome') || '').toString();
+  const telefone = (data.get('telefone') || '').toString();
+  const mensagem = (data.get('mensagem') || '').toString();
+
+  try {
+    const res  = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: data });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.message || 'Erro desconhecido');
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'form_submit_lead',
+      form_location: origin,
+      lead_name: nome,
+      lead_phone: telefone,
+    });
+
+    if (msgEl) {
+      msgEl.textContent = '✓ Recebemos seus dados! Abrindo o WhatsApp...';
+      msgEl.style.color = '#16a34a';
+      msgEl.classList.add('is-visible');
+    }
+    form.reset();
+
+    const waText = `Olá! Meu nome é ${nome}. Gostaria de solicitar um orçamento.${mensagem ? ' ' + mensagem : ''}`;
+    const waUrl  = `https://wa.me/${LEAD_FORM_CONFIG.whatsapp}?text=${encodeURIComponent(waText)}`;
+
+    setTimeout(() => {
+      window.open(waUrl, '_blank', 'noopener');
+      btn.innerHTML = originalHTML;
+      btn.disabled = false;
+    }, 900);
+
+  } catch (err) {
+    if (msgEl) {
+      msgEl.textContent = '✕ Erro ao enviar — tente novamente.';
+      msgEl.style.color = '#dc2626';
+      msgEl.classList.add('is-visible');
+    }
+    btn.innerHTML = originalHTML;
+    btn.disabled = false;
+  }
+}
+
+function initLeadModal() {
+  document.addEventListener('keydown', (e) => {
+    const overlay = document.getElementById('lead-modal-overlay');
+    if (e.key === 'Escape' && overlay?.classList.contains('is-open')) closeLeadModal();
+  });
+}
+
+function initCTAIntercept() {
+  document.addEventListener('click', (e) => {
+    const trigger = e.target.closest('a[href^="https://wa.me/"], a[href^="wa.me/"], a[href^="mailto:"], .whatsapp-float');
+    if (!trigger) return;
+    e.preventDefault();
+    openLeadModal();
+  });
+}
+
+function initContactFormPage() {
+  const form = document.getElementById('contact-form');
+  if (!form) return;
+  form.addEventListener('submit', (e) => handleLeadSubmit(e, 'contato'));
+}
 
 /* =============================================
    GSAP ScrollTo plugin fallback (native)

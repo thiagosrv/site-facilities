@@ -3614,3 +3614,163 @@ p  { line-height: 1.75; }
 @media (max-width: 860px) {
   .depoimentos-cards { grid-template-columns: 1fr; }
 }
+
+/* =============================================
+   LEAD MODAL — popup unificado de captação (todos os CTAs)
+   ============================================= */
+.lead-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,18,60,.55);
+  backdrop-filter: blur(3px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .25s ease, visibility .25s ease;
+}
+.lead-modal-overlay.is-open { opacity: 1; visibility: visible; }
+.lead-modal {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 40px 36px 36px;
+  position: relative;
+  transform: translateY(16px) scale(.97);
+  transition: transform .25s ease;
+}
+.lead-modal-overlay.is-open .lead-modal { transform: translateY(0) scale(1); }
+.lead-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--off-white);
+  border: none;
+  border-radius: 50%;
+  color: var(--gray-text);
+  cursor: pointer;
+  transition: background var(--t), color var(--t);
+}
+.lead-modal-close:hover { background: var(--gray-mid); color: var(--primary-dark); }
+.lead-modal-title { color: var(--primary-dark); margin-bottom: 6px; font-size: 1.35rem; }
+.lead-modal-subtitle { color: var(--gray-text); font-size: .9rem; margin-bottom: 24px; line-height: 1.5; }
+.lead-modal .form-group { margin-bottom: 18px; }
+
+.lead-modal-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.lead-modal-step-dot {
+  width: 28px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--gray-mid);
+  transition: background var(--t);
+}
+.lead-modal-step-dot.is-active { background: var(--gold); }
+
+.lead-modal-step { display: none; }
+.lead-modal-step.is-active { display: block; }
+
+.lead-modal-services {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.lead-modal-service-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--gray-mid);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: .85rem;
+  color: var(--primary-dark);
+  transition: border-color var(--t), background var(--t);
+}
+.lead-modal-service-item:has(input:checked) {
+  border-color: var(--gold);
+  background: rgba(254,190,0,.08);
+}
+.lead-modal-service-item input { accent-color: var(--gold); width: 16px; height: 16px; flex-shrink: 0; }
+
+.lead-modal-error {
+  font-size: .8rem;
+  font-weight: 600;
+  color: #dc2626;
+  margin-top: 10px;
+  display: none;
+}
+.lead-modal-error.is-visible { display: block; }
+
+.lead-modal-step[data-step="1"] .form-submit,
+.lead-modal-step[data-step="2"] .form-submit { margin-top: 22px; }
+
+.lead-modal-nav {
+  display: flex;
+  gap: 12px;
+  margin-top: 0;
+}
+.lead-modal-nav .form-submit { flex: 1; margin-top: 0; }
+.lead-modal-back-btn {
+  flex: 0 0 auto;
+  padding: 0 20px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--gray-mid);
+  background: transparent;
+  color: var(--gray-text);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.lead-modal-back-btn:hover { border-color: var(--primary-dark); color: var(--primary-dark); }
+
+.lead-modal-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px 10px 10px;
+}
+.lead-modal-spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid var(--gray-mid);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: lead-modal-spin .8s linear infinite;
+  margin-bottom: 20px;
+}
+.lead-modal-loading-text { color: var(--primary-dark); font-weight: 600; font-size: 1rem; }
+@keyframes lead-modal-spin { to { transform: rotate(360deg); } }
+
+.form-submit-msg {
+  font-size: .85rem;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 12px;
+  display: none;
+}
+.form-submit-msg.is-visible { display: block; }
+@media (max-width: 480px) {
+  .lead-modal { padding: 32px 22px 26px; }
+  .lead-modal-services { grid-template-columns: 1fr; }
+}

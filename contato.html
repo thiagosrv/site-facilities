@@ -1,6 +1,13 @@
 ﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-TBR8J899');</script>
+<!-- End Google Tag Manager -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="index, follow">
@@ -255,6 +262,10 @@
   </style>
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TBR8J899"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
 <header id="header" class="header">
   <nav class="nav container">
@@ -484,6 +495,7 @@
             <i data-lucide="send" aria-hidden="true"></i>
             Enviar Mensagem
           </button>
+          <p class="form-submit-msg"></p>
 
           <p class="whatsapp-alt">
             Prefere conversar agora?
@@ -653,54 +665,6 @@
 <a href="https://wa.me/5519982892037" target="_blank" rel="noopener" class="whatsapp-float" aria-label="WhatsApp">
   <i data-lucide="message-circle" aria-hidden="true"></i>
 </a>
-<!-- GSAP --> <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" async></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" async></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js" async></script> <script src="js/main.min.js" defer></script>
-<script>
-/* ── Solicitar Proposta: envio real via Web3Forms ── */
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('contact-form');
-  if (!form) return;
-
-  const ACCESS_KEY = '52df41d5-6dd2-4f9b-877c-c82264abb5ea';
-
-  form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const btn = form.querySelector('.form-submit');
-    const originalHTML = btn.innerHTML;
-
-    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Enviando...';
-    btn.disabled = true;
-
-    const data = new FormData(form);
-    data.append('access_key', ACCESS_KEY);
-    data.append('subject', 'Solicitação de Proposta — PS Proteção');
-    data.append('from_name', 'Site PS Proteção');
-
-    try {
-      const res  = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: data });
-      const json = await res.json();
-      if (json.success) {
-        btn.innerHTML = '✓ Mensagem enviada! Retornamos em até 24h.';
-        btn.style.background = '#16a34a';
-        form.reset();
-        setTimeout(() => {
-          btn.innerHTML = originalHTML;
-          btn.style.background = '';
-          btn.disabled = false;
-        }, 6000);
-      } else {
-        throw new Error(json.message || 'Erro desconhecido');
-      }
-    } catch (err) {
-      btn.innerHTML = '✕ Erro ao enviar — tente novamente';
-      btn.style.background = '#dc2626';
-      btn.disabled = false;
-      setTimeout(() => {
-        btn.innerHTML = originalHTML;
-        btn.style.background = '';
-      }, 4000);
-    }
-  });
-});
-</script>
+<!-- GSAP --> <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js" defer></script> <script src="js/main.min.js" defer></script>
 </body>
 </html>
