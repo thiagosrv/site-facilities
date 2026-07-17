@@ -261,5 +261,19 @@
     "substackUrl": "",
     "mediumUrl": "",
     "linkedinUrl": ""
+  },
+  {
+    "pautaId": 20,
+    "tema": "Checklist de limpeza para empresas: modelo de rotina eficiente",
+    "categoriaSlug": "limpeza",
+    "slug": "checklist-de-limpeza-para-empresas-rotina-eficiente",
+    "blogUrl": "https://psprotecao.com.br/blog/checklist-de-limpeza-para-empresas-rotina-eficiente.html",
+    "longformFile": "content-externo/checklist-de-limpeza-para-empresas-rotina-eficiente.txt",
+    "driveUrl": "https://docs.google.com/document/d/15ESaK5ObJ7MmP5TpL6Qwlnn6-z7GMBmK2-oUmDzQGDU/edit?usp=drivesdk",
+    "geradoEm": "2026-07-17",
+    "status": "gerado",
+    "substackUrl": "",
+    "mediumUrl": "",
+    "linkedinUrl": ""
   }
 ]
