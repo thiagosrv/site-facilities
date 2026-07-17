@@ -1,8 +1,8 @@
 // Gera 1 novo post de blog (a partir da pauta do dia) usando a API da OpenAI.
-// Atualiza blog/index.html + sitemap.xml com a versão curta (700-900 palavras) do blog do site,
-// e gera a versão longa (1000-1500 palavras + FAQ de 5 perguntas), que aprofunda e complementa a
-// versão curta, em content-externo/{slug}.txt (texto puro, sem markdown) para publicação manual
-// em Substack/Medium/LinkedIn e upload ao Google Drive.
+// Atualiza blog/index.html + sitemap.xml com a versão curta (1200-1500 palavras + FAQ de 4 perguntas
+// com schema FAQPage) do blog do site, e gera a versão longa (1000-1500 palavras + FAQ de 5
+// perguntas), que aprofunda e complementa a versão curta, em content-externo/{slug}.txt (texto
+// puro, sem markdown) para publicação manual em Substack/Medium/LinkedIn e upload ao Google Drive.
 // Uso: OPENAI_API_KEY=... node scripts/generate-blog-post.js
 const fs = require('fs');
 const path = require('path');
@@ -96,6 +96,7 @@ Fatos da empresa (use apenas estes dados, não invente números, prêmios, certi
 - Mais de 3.000 colaboradores treinados, mais de 1.000 clientes atendidos, supervisão ativa com relatórios periódicos
 - Tom profissional, consultivo e direto. Público-alvo: gestores, RH e responsáveis por Facilities de empresas.
 - Nunca cite concorrentes. Nunca invente estatísticas de mercado sem deixar claro que é uma referência genérica do setor.
+- Nunca abra parágrafo com frase de enrolação genérica ("Neste artigo, vamos explorar...", "É importante ressaltar que...", "Antes de mais nada..."). Cada parágrafo de seção precisa responder a pergunta implícita do título (heading) já na primeira frase — vá direto ao fato, número ou exemplo.
 Responda SEMPRE em JSON estrito, sem texto fora do JSON.`;
 
   const user = `Pauta a desenvolver: "${pauta.tema}" (categoria: ${category.nome}).
@@ -107,7 +108,7 @@ Não repita nenhum destes títulos já publicados: ${existingTitles.length ? exi
 
 Você vai escrever DUAS versões do mesmo tema:
 
-1) "curto": versão para o blog institucional do site (psprotecao.com.br/blog), no formato JSON abaixo. IMPORTANTE: o texto total do "curto" (intro + sections + closing, somando todos os parágrafos e listas) tem que ficar ENTRE 700 E 900 PALAVRAS — nunca menos que 700, nunca mais que 900. Para bater essa meta com folga, siga à risca o tamanho de cada bloco: "intro" com 2 parágrafos de 70 a 100 palavras cada; EXATAMENTE 4 objetos em "sections", cada um com 2 parágrafos de 80 a 110 palavras cada (parágrafos de verdade, desenvolvidos com exemplo ou explicação — nunca frases soltas de 1-2 linhas); "closing" com 1 parágrafo de 80 a 110 palavras. Seguindo esses tamanhos por bloco o total já cai naturalmente entre 700 e 900 palavras.
+1) "curto": versão para o blog institucional do site (psprotecao.com.br/blog), no formato JSON abaixo. IMPORTANTE: o texto total do "curto" (intro + sections + closing, somando todos os parágrafos e listas) tem que ficar ENTRE 1200 E 1500 PALAVRAS — nunca menos que 1200, nunca mais que 1500. Para bater essa meta com folga, siga à risca o tamanho de cada bloco: "intro" com 2 parágrafos de 90 a 120 palavras cada; EXATAMENTE 4 objetos em "sections", cada um com 3 parágrafos de 90 a 120 palavras cada (parágrafos de verdade, desenvolvidos com exemplo ou explicação — nunca frases soltas de 1-2 linhas, e nunca repetindo entre si o mesmo ponto com outras palavras: cada parágrafo da seção precisa cobrir um ângulo diferente do subtema); "closing" com 1 parágrafo de 100 a 130 palavras. Seguindo esses tamanhos por bloco o total já cai naturalmente entre 1200 e 1500 palavras. Além disso, o "curto" também leva um "faq" próprio com EXATAMENTE 4 perguntas frequentes sobre o tema (diferentes das perguntas do "longo"), cada uma respondida de forma direta e objetiva em 40 a 70 palavras — essas perguntas viram uma seção de FAQ com schema no site, então a resposta tem que ser autossuficiente (não depende do resto do artigo para fazer sentido). Sempre que fizer sentido para o tema, cite dentro do corpo de alguma seção (não só no "closing") algum dos números reais da empresa (28 anos de experiência, +3.000 colaboradores treinados, +1.000 clientes atendidos) como reforço de credibilidade — nunca invente números novos.
 2) "longo": versão densa e aprofundada para publicação externa (Substack, Medium, LinkedIn) e upload ao Google Drive, em uma estrutura FIXA e simples de copiar: título (H1), subtítulo (H2), um parágrafo de abertura ("subtexto"), EXATAMENTE 5 tópicos (nunca mais, nunca menos) e um bloco de FAQ final. Cada tópico é um parágrafo corrido (sem listas, sem markdown de negrito/itálico dentro do texto), com 150 a 220 palavras cada. IMPORTANTE: o artigo completo (subtexto + 5 tópicos + fechamento + FAQ) tem que ficar ENTRE 1000 E 1500 PALAVRAS — nunca menos que 1000, nunca mais que 1500. No parágrafo de "fechamento", inclua uma frase natural citando e linkando o artigo original do blog da PS Proteção usando exatamente este placeholder de link markdown: [artigo original no blog da PS Proteção]({{URL_INTERNA}}) — não troque o placeholder por outra URL. Depois do fechamento, inclua "faq": um rodapé com EXATAMENTE 5 perguntas sobre o tema do artigo, cada uma com sua resposta objetiva (2 a 4 frases), no estilo de uma seção de Perguntas Frequentes ao final de um artigo.
 
 REGRA CENTRAL — o "longo" SEMPRE complementa o "curto", nunca é só uma versão mais longa do mesmo texto: não repita os mesmos parágrafos ou argumentos do "curto" com outras palavras. O "longo" deve aprofundar pontos que o "curto" só menciona de passagem, trazer exemplos práticos, nuances, dados ou sub-temas que NÃO aparecem no "curto", e cobrir o assunto com mais camadas. Pense no "curto" como a introdução ao tema (o que o leitor vê no site) e no "longo" como o material completo para quem clica para se aprofundar — o maior sempre soma informação nova ao menor, nunca apenas repete com mais palavras.
@@ -119,18 +120,24 @@ Responda no seguinte formato JSON exato:
     "metaDescription": "resumo de até 155 caracteres para meta description",
     "readingMinutes": numero_inteiro,
     "tags": ["tag1", "tag2", "tag3", "tag4"],
-    "intro": ["parágrafo 1 de abertura, 70 a 100 palavras", "parágrafo 2 de abertura, 70 a 100 palavras"],
+    "intro": ["parágrafo 1 de abertura, 90 a 120 palavras", "parágrafo 2 de abertura, 90 a 120 palavras"],
     "pullQuote": "uma frase curta de destaque (pull quote) resumindo o ponto central do artigo",
     "sections": [
       {
         "heading": "título da seção (h2)",
-        "paragraphs": ["parágrafo 1, 80 a 110 palavras, desenvolvido com exemplo/explicação", "parágrafo 2, 80 a 110 palavras, desenvolvido com exemplo/explicação"],
+        "paragraphs": ["parágrafo 1, 90 a 120 palavras, desenvolvido com exemplo/explicação", "parágrafo 2, 90 a 120 palavras, cobrindo um ângulo diferente do parágrafo 1", "parágrafo 3, 90 a 120 palavras, cobrindo um ângulo diferente dos parágrafos 1 e 2"],
         "list": ["item opcional 1", "item opcional 2"],
         "subsections": [ { "heading": "subtítulo (h3)", "paragraphs": ["parágrafo"] } ]
       }
     ],
     "closingHeading": "título da seção final, algo como 'Como a PS Proteção...' relacionado ao tema",
-    "closing": ["parágrafo final de 80 a 110 palavras, mencionando a PS Proteção e os +28 anos de experiência"]
+    "closing": ["parágrafo final de 100 a 130 palavras, mencionando a PS Proteção e os +28 anos de experiência"],
+    "faq": [
+      { "pergunta": "pergunta 1 sobre o tema do artigo", "resposta": "resposta direta e objetiva, 40 a 70 palavras, autossuficiente" },
+      { "pergunta": "pergunta 2 sobre o tema do artigo", "resposta": "resposta direta e objetiva, 40 a 70 palavras, autossuficiente" },
+      { "pergunta": "pergunta 3 sobre o tema do artigo", "resposta": "resposta direta e objetiva, 40 a 70 palavras, autossuficiente" },
+      { "pergunta": "pergunta 4 sobre o tema do artigo", "resposta": "resposta direta e objetiva, 40 a 70 palavras, autossuficiente" }
+    ]
   },
   "longo": {
     "titulo": "título do artigo longo (H1, pode ser igual ou uma variação do título curto)",
@@ -153,7 +160,7 @@ Responda no seguinte formato JSON exato:
     ]
   }
 }
-No "curto", inclua EXATAMENTE 4 objetos em "sections", cada um com 2 parágrafos completos de 80 a 110 palavras (não use frases únicas e curtas). "list" e "subsections" são opcionais — omita quando não fizer sentido para o tema. Siga os tamanhos de parágrafo indicados acima (intro, sections, closing) à risca — é assim que o texto total do "curto" fica entre 700 e 900 palavras.
+No "curto", inclua EXATAMENTE 4 objetos em "sections", cada um com 3 parágrafos completos de 90 a 120 palavras (não use frases únicas e curtas, e não repita o mesmo argumento entre os 3 parágrafos de uma seção — cada um cobre um ângulo/exemplo diferente). "list" e "subsections" são opcionais — omita quando não fizer sentido para o tema. Siga os tamanhos de parágrafo indicados acima (intro, sections, closing) à risca — é assim que o texto total do "curto" fica entre 1200 e 1500 palavras. O "curto.faq" deve ter EXATAMENTE 4 itens, nem mais nem menos.
 No "longo", "topicos" deve ter exatamente 5 itens e "faq" deve ter exatamente 5 itens, nem mais nem menos. O texto total do "longo" (subtexto + topicos + fechamento + faq) precisa ficar entre 1000 e 1500 palavras. Lembre-se: "longo" complementa "curto" com conteúdo novo, não repete o mesmo texto com mais palavras.`;
 
   const messages = [
@@ -236,6 +243,8 @@ function findShapeError(result) {
   const { curto, longo } = result;
   if (!curto || typeof curto !== 'object') return '"curto" ausente ou inválido';
   if (!Array.isArray(curto.sections) || curto.sections.length === 0) return '"curto.sections" ausente ou vazio';
+  if (!Array.isArray(curto.faq) || curto.faq.length !== 4) return '"curto.faq" deve ter exatamente 4 itens';
+  if (curto.faq.some(f => !f || !String(f.pergunta || '').trim() || !String(f.resposta || '').trim())) return '"curto.faq" tem pergunta ou resposta vazia';
   if (!longo || typeof longo !== 'object') return '"longo" ausente ou inválido';
   if (typeof longo.subtexto !== 'string' || !longo.subtexto.trim()) return '"longo.subtexto" ausente';
   if (typeof longo.fechamento !== 'string' || !longo.fechamento.trim()) return '"longo.fechamento" ausente';
@@ -243,14 +252,100 @@ function findShapeError(result) {
   if (!Array.isArray(longo.faq) || longo.faq.length !== 5) return '"longo.faq" deve ter exatamente 5 itens';
 
   const curtoWords = countWordsCurto(curto);
-  if (curtoWords < 650) return `"curto" tem só ${curtoWords} palavras (mínimo esperado: 700)`;
-  if (curtoWords > 1000) return `"curto" tem ${curtoWords} palavras (máximo esperado: 900)`;
+  if (curtoWords < 1100) return `"curto" tem só ${curtoWords} palavras (mínimo esperado: 1200)`;
+  if (curtoWords > 1700) return `"curto" tem ${curtoWords} palavras (máximo esperado: 1500)`;
 
   const longoWords = countWordsLongo(longo);
   if (longoWords < 950) return `"longo" tem só ${longoWords} palavras (mínimo esperado: 1000)`;
   if (longoWords > 1650) return `"longo" tem ${longoWords} palavras (máximo esperado: 1500)`;
 
   return null;
+}
+
+// Mesmos depoimentos reais (Google) usados nas páginas de serviço — fixos, não gerados por IA.
+const TESTEMUNHOS = [
+  {
+    nome: 'Fernanda M.',
+    cargo: 'RH',
+    texto: 'A terceirização com a PS Proteção trouxe mais previsibilidade para a nossa operação: a equipe chega treinada, os postos não ficam descobertos em caso de falta e o suporte é rápido sempre que precisamos ajustar algo na escala.',
+  },
+  {
+    nome: 'Carlos R.',
+    cargo: 'Segurança do Trabalho',
+    texto: 'O que mais valorizo é o cumprimento dos procedimentos operacionais e o cuidado com uniformes e EPIs. Isso facilita bastante o nosso trabalho de acompanhamento e auditoria interna.',
+  },
+  {
+    nome: 'Rodrigo A.',
+    cargo: 'Supervisor',
+    texto: 'Desde que passamos a trabalhar com a PS Proteção, a comunicação melhorou bastante. Qualquer ajuste na escala ou reposição de profissional é resolvido com agilidade, sem burocracia.',
+  },
+];
+const GOOGLE_REVIEW_URL = 'https://share.google/ooNJXAY0U2mRvWnU1';
+
+function iniciais(nome) {
+  return nome.split(' ').filter(Boolean).map(p => p[0]).join('').slice(0, 2).toUpperCase();
+}
+
+function depoimentosSection() {
+  const stars = Array.from({ length: 5 }).map(() => '<i data-lucide="star" aria-hidden="true"></i>').join('');
+  const cards = TESTEMUNHOS.map(t => `
+        <div class="depoimento-card">
+          <i data-lucide="quote" class="depoimento-card-icon"></i>
+          <p>${escapeHtml(t.texto)}</p>
+          <div class="depoimento-card-author">
+            <span class="depoimento-card-avatar depoimento-card-avatar-placeholder">${iniciais(t.nome)}</span>
+            <div class="depoimento-card-author-text">
+              <span class="depoimento-card-nome">${escapeHtml(t.nome)}</span>
+              <span class="depoimento-card-cargo">${escapeHtml(t.cargo)}</span>
+            </div>
+          </div>
+        </div>`).join('');
+  return `<section class="depoimentos-gmb">
+  <div class="container">
+    <div class="depoimentos-gmb-inner">
+      <span class="section-tag section-tag-light">Avaliações reais</span>
+      <div class="depoimentos-stars">${stars}</div>
+      <p>Nossos clientes avaliam a PS Proteção diretamente no Google. Confira as avaliações reais e verificadas de quem já contratou nossos serviços de Facilities.</p>
+      <a href="${GOOGLE_REVIEW_URL}" target="_blank" rel="noopener" class="btn btn-outline-white btn-lg depoimentos-gmb-google">
+        <i data-lucide="external-link" aria-hidden="true"></i>Ver avaliações no Google
+      </a>
+    </div>
+    <div class="depoimentos-cards">${cards}
+    </div>
+  </div>
+</section>`;
+}
+
+function faqBlogSection(post) {
+  const items = post.faq.map((f, i) => `
+        <details class="faq-item"${i === 0 ? ' open' : ''}>
+          <summary><span>${escapeHtml(f.pergunta)}</span><span class="faq-icon"><i data-lucide="plus" aria-hidden="true"></i></span></summary>
+          <div class="faq-answer">${escapeHtml(f.resposta)}</div>
+        </details>`).join('');
+  return `<section class="faq-servico" id="faq">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Perguntas frequentes</span>
+      <h2 class="section-title">Dúvidas sobre ${escapeHtml(post.title)}</h2>
+    </div>
+    <div class="faq-list">${items}
+    </div>
+  </div>
+</section>`;
+}
+
+function faqSchemaBlock(post, url) {
+  const mainEntity = post.faq.map(f => ({
+    '@type': 'Question',
+    name: f.pergunta,
+    acceptedAnswer: { '@type': 'Answer', text: f.resposta },
+  }));
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    '@id': `${url}#faq`,
+    mainEntity,
+  }, null, 2);
 }
 
 function renderSection(section) {
@@ -352,6 +447,11 @@ function buildPostHtml({ post, category, slug, dateISO, related }) {
     "mainEntityOfPage": "${url}",
     "articleSection": "${category.nome}"
   }
+  </script>
+
+  <!-- Structured Data — FAQPage -->
+  <script type="application/ld+json">
+  ${faqSchemaBlock(post, url)}
   </script>
 </head>
 <body>
@@ -503,6 +603,10 @@ ${post.tags.map(t => `          <span class="article-tag">${escapeHtml(t)}</span
     </div>
   </div>
 </section>
+
+${faqBlogSection(post)}
+
+${depoimentosSection()}
 
 <section class="related-section">
   <div class="container">
