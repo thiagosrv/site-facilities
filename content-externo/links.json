@@ -275,5 +275,19 @@
     "substackUrl": "",
     "mediumUrl": "",
     "linkedinUrl": ""
+  },
+  {
+    "pautaId": 21,
+    "tema": "Portaria terceirizada: como funciona na prática",
+    "categoriaSlug": "portaria",
+    "slug": "portaria-terceirizada-entenda-como-funciona-na-pratica",
+    "blogUrl": "https://psprotecao.com.br/blog/portaria-terceirizada-entenda-como-funciona-na-pratica.html",
+    "longformFile": "content-externo/portaria-terceirizada-entenda-como-funciona-na-pratica.txt",
+    "driveUrl": "https://docs.google.com/document/d/1Pc8tGwZBX34NCjzOJ6MHo9HjUgFy_r9TBi0F9YL2hd4/edit?usp=drivesdk",
+    "geradoEm": "2026-07-17",
+    "status": "gerado",
+    "substackUrl": "",
+    "mediumUrl": "",
+    "linkedinUrl": ""
   }
 ]
