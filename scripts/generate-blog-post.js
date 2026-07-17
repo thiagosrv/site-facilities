@@ -152,30 +152,58 @@ Responda no seguinte formato JSON exato:
 No "curto", inclua de 3 a 5 objetos em "sections". "list" e "subsections" são opcionais — omita quando não fizer sentido para o tema.
 No "longo", "topicos" deve ter exatamente 5 itens e "faq" deve ter exatamente 5 itens, nem mais nem menos. O texto total do "longo" (subtexto + topicos + fechamento + faq) precisa somar no mínimo 1000 palavras.`;
 
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: OPENAI_MODEL,
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: user },
-      ],
-      response_format: { type: 'json_object' },
-      temperature: 0.8,
-    }),
-  });
+  const maxAttempts = 3;
+  let lastError;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: OPENAI_MODEL,
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user', content: user },
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.8,
+      }),
+    });
 
-  if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`OpenAI API error ${res.status}: ${errText}`);
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`OpenAI API error ${res.status}: ${errText}`);
+    }
+    const data = await res.json();
+    const content = data.choices[0].message.content;
+
+    try {
+      const result = JSON.parse(content);
+      const shapeError = findShapeError(result);
+      if (!shapeError) return result;
+      lastError = new Error(`Resposta da OpenAI com formato inválido: ${shapeError}`);
+    } catch (err) {
+      lastError = new Error(`Resposta da OpenAI não é um JSON válido: ${err.message}`);
+    }
+    console.error(`Tentativa ${attempt}/${maxAttempts} falhou: ${lastError.message}`);
   }
-  const data = await res.json();
-  const content = data.choices[0].message.content;
-  return JSON.parse(content);
+  throw lastError;
+}
+
+// ── Confere se o JSON retornado pela OpenAI tem os campos exigidos; retorna string de erro ou null ──
+function findShapeError(result) {
+  if (!result || typeof result !== 'object') return '"curto"/"longo" ausentes (resposta não é um objeto)';
+  const { curto, longo } = result;
+  if (!curto || typeof curto !== 'object') return '"curto" ausente ou inválido';
+  if (!Array.isArray(curto.sections) || curto.sections.length === 0) return '"curto.sections" ausente ou vazio';
+  if (!longo || typeof longo !== 'object') return '"longo" ausente ou inválido';
+  if (typeof longo.subtexto !== 'string' || !longo.subtexto.trim()) return '"longo.subtexto" ausente';
+  if (typeof longo.fechamento !== 'string' || !longo.fechamento.trim()) return '"longo.fechamento" ausente';
+  if (!Array.isArray(longo.topicos) || longo.topicos.length !== 5) return '"longo.topicos" deve ter exatamente 5 itens';
+  if (!Array.isArray(longo.faq) || longo.faq.length !== 5) return '"longo.faq" deve ter exatamente 5 itens';
+  return null;
 }
 
 function renderSection(section) {
