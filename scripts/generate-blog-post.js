@@ -1,6 +1,8 @@
 // Gera 1 novo post de blog (a partir da pauta do dia) usando a API da OpenAI.
-// Atualiza blog/index.html + sitemap.xml, e gera a versão longa (mínimo 1000 palavras + FAQ de 5 perguntas)
-// em content-externo/{slug}.txt (texto puro, sem markdown) para publicação manual em Substack/Medium/LinkedIn.
+// Atualiza blog/index.html + sitemap.xml com a versão curta (700-900 palavras) do blog do site,
+// e gera a versão longa (1000-1500 palavras + FAQ de 5 perguntas), que aprofunda e complementa a
+// versão curta, em content-externo/{slug}.txt (texto puro, sem markdown) para publicação manual
+// em Substack/Medium/LinkedIn e upload ao Google Drive.
 // Uso: OPENAI_API_KEY=... node scripts/generate-blog-post.js
 const fs = require('fs');
 const path = require('path');
@@ -105,8 +107,10 @@ Não repita nenhum destes títulos já publicados: ${existingTitles.length ? exi
 
 Você vai escrever DUAS versões do mesmo tema:
 
-1) "curto": versão enxuta de 400 a 500 palavras para o blog institucional do site (psprotecao.com.br/blog), no formato JSON abaixo.
-2) "longo": versão aprofundada para publicação externa (Substack, Medium, LinkedIn), em uma estrutura FIXA e simples de copiar: título (H1), subtítulo (H2), um parágrafo de abertura ("subtexto"), EXATAMENTE 5 tópicos (nunca mais, nunca menos) e um bloco de FAQ final. Cada tópico é um parágrafo corrido (sem listas, sem markdown de negrito/itálico dentro do texto), com 150 a 220 palavras cada. IMPORTANTE: o artigo completo (subtexto + 5 tópicos + fechamento + FAQ) tem que somar NO MÍNIMO 1000 palavras — nunca menos que isso; pode chegar a 1500-1600 palavras se o tema pedir, mas 1000 é o piso inegociável. Escreva com folga acima do mínimo, não encoste exatamente nos 1000. No parágrafo de "fechamento", inclua uma frase natural citando e linkando o artigo original do blog da PS Proteção usando exatamente este placeholder de link markdown: [artigo original no blog da PS Proteção]({{URL_INTERNA}}) — não troque o placeholder por outra URL. Depois do fechamento, inclua "faq": um rodapé com EXATAMENTE 5 perguntas sobre o tema do artigo, cada uma com sua resposta objetiva (2 a 4 frases), no estilo de uma seção de Perguntas Frequentes ao final de um artigo.
+1) "curto": versão para o blog institucional do site (psprotecao.com.br/blog), no formato JSON abaixo. IMPORTANTE: o texto total do "curto" (intro + sections + closing, somando todos os parágrafos e listas) tem que ficar ENTRE 700 E 900 PALAVRAS — nunca menos que 700, nunca mais que 900. Para atingir isso, use de 4 a 5 seções em "sections", cada uma com 1 a 2 parágrafos de verdade (não frases soltas).
+2) "longo": versão densa e aprofundada para publicação externa (Substack, Medium, LinkedIn) e upload ao Google Drive, em uma estrutura FIXA e simples de copiar: título (H1), subtítulo (H2), um parágrafo de abertura ("subtexto"), EXATAMENTE 5 tópicos (nunca mais, nunca menos) e um bloco de FAQ final. Cada tópico é um parágrafo corrido (sem listas, sem markdown de negrito/itálico dentro do texto), com 150 a 220 palavras cada. IMPORTANTE: o artigo completo (subtexto + 5 tópicos + fechamento + FAQ) tem que ficar ENTRE 1000 E 1500 PALAVRAS — nunca menos que 1000, nunca mais que 1500. No parágrafo de "fechamento", inclua uma frase natural citando e linkando o artigo original do blog da PS Proteção usando exatamente este placeholder de link markdown: [artigo original no blog da PS Proteção]({{URL_INTERNA}}) — não troque o placeholder por outra URL. Depois do fechamento, inclua "faq": um rodapé com EXATAMENTE 5 perguntas sobre o tema do artigo, cada uma com sua resposta objetiva (2 a 4 frases), no estilo de uma seção de Perguntas Frequentes ao final de um artigo.
+
+REGRA CENTRAL — o "longo" SEMPRE complementa o "curto", nunca é só uma versão mais longa do mesmo texto: não repita os mesmos parágrafos ou argumentos do "curto" com outras palavras. O "longo" deve aprofundar pontos que o "curto" só menciona de passagem, trazer exemplos práticos, nuances, dados ou sub-temas que NÃO aparecem no "curto", e cobrir o assunto com mais camadas. Pense no "curto" como a introdução ao tema (o que o leitor vê no site) e no "longo" como o material completo para quem clica para se aprofundar — o maior sempre soma informação nova ao menor, nunca apenas repete com mais palavras.
 
 Responda no seguinte formato JSON exato:
 {
@@ -149,8 +153,8 @@ Responda no seguinte formato JSON exato:
     ]
   }
 }
-No "curto", inclua de 3 a 5 objetos em "sections". "list" e "subsections" são opcionais — omita quando não fizer sentido para o tema.
-No "longo", "topicos" deve ter exatamente 5 itens e "faq" deve ter exatamente 5 itens, nem mais nem menos. O texto total do "longo" (subtexto + topicos + fechamento + faq) precisa somar no mínimo 1000 palavras.`;
+No "curto", inclua de 4 a 5 objetos em "sections", com parágrafos completos (não use frases únicas e curtas). "list" e "subsections" são opcionais — omita quando não fizer sentido para o tema. O texto total do "curto" precisa ficar entre 700 e 900 palavras.
+No "longo", "topicos" deve ter exatamente 5 itens e "faq" deve ter exatamente 5 itens, nem mais nem menos. O texto total do "longo" (subtexto + topicos + fechamento + faq) precisa ficar entre 1000 e 1500 palavras. Lembre-se: "longo" complementa "curto" com conteúdo novo, não repete o mesmo texto com mais palavras.`;
 
   const maxAttempts = 3;
   let lastError;
@@ -192,7 +196,31 @@ No "longo", "topicos" deve ter exatamente 5 itens e "faq" deve ter exatamente 5 
   throw lastError;
 }
 
-// ── Confere se o JSON retornado pela OpenAI tem os campos exigidos; retorna string de erro ou null ──
+function countWords(str) {
+  return typeof str === 'string' ? (str.match(/\S+/g) || []).length : 0;
+}
+
+function sumWords(arr) {
+  return Array.isArray(arr) ? arr.reduce((acc, s) => acc + countWords(s), 0) : 0;
+}
+
+function countWordsCurto(curto) {
+  let words = sumWords(curto.intro) + sumWords(curto.closing);
+  for (const section of curto.sections || []) {
+    words += sumWords(section.paragraphs) + sumWords(section.list);
+    for (const sub of section.subsections || []) words += sumWords(sub.paragraphs);
+  }
+  return words;
+}
+
+function countWordsLongo(longo) {
+  let words = countWords(longo.subtexto) + countWords(longo.fechamento);
+  for (const t of longo.topicos || []) words += countWords(t.texto);
+  for (const f of longo.faq || []) words += countWords(f.resposta);
+  return words;
+}
+
+// ── Confere se o JSON retornado pela OpenAI tem os campos exigidos e o tamanho certo; retorna string de erro ou null ──
 function findShapeError(result) {
   if (!result || typeof result !== 'object') return '"curto"/"longo" ausentes (resposta não é um objeto)';
   const { curto, longo } = result;
@@ -203,6 +231,15 @@ function findShapeError(result) {
   if (typeof longo.fechamento !== 'string' || !longo.fechamento.trim()) return '"longo.fechamento" ausente';
   if (!Array.isArray(longo.topicos) || longo.topicos.length !== 5) return '"longo.topicos" deve ter exatamente 5 itens';
   if (!Array.isArray(longo.faq) || longo.faq.length !== 5) return '"longo.faq" deve ter exatamente 5 itens';
+
+  const curtoWords = countWordsCurto(curto);
+  if (curtoWords < 650) return `"curto" tem só ${curtoWords} palavras (mínimo esperado: 700)`;
+  if (curtoWords > 1000) return `"curto" tem ${curtoWords} palavras (máximo esperado: 900)`;
+
+  const longoWords = countWordsLongo(longo);
+  if (longoWords < 950) return `"longo" tem só ${longoWords} palavras (mínimo esperado: 1000)`;
+  if (longoWords > 1650) return `"longo" tem ${longoWords} palavras (máximo esperado: 1500)`;
+
   return null;
 }
 
@@ -632,7 +669,7 @@ function updateSitemap({ url, dateISO }) {
   fs.writeFileSync(SITEMAP_PATH, xml, 'utf8');
 }
 
-// ── Salva a versão longa (mínimo 1000 palavras + FAQ) para publicação externa ──
+// ── Salva a versão longa (1000-1500 palavras + FAQ) para publicação externa ──
 function saveLongform({ longo, pauta, category, slug, dateISO, url }) {
   if (!fs.existsSync(EXTERNO_DIR)) fs.mkdirSync(EXTERNO_DIR, { recursive: true });
   const clean = (s) => (s || '').replace(/\{\{URL_INTERNA\}\}/g, url).replace(/\[([^\]]*)\]\([^)]*\)/g, (_, label) => `${label} (${url})`);
