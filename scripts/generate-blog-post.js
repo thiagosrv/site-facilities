@@ -107,7 +107,7 @@ Não repita nenhum destes títulos já publicados: ${existingTitles.length ? exi
 
 Você vai escrever DUAS versões do mesmo tema:
 
-1) "curto": versão para o blog institucional do site (psprotecao.com.br/blog), no formato JSON abaixo. IMPORTANTE: o texto total do "curto" (intro + sections + closing, somando todos os parágrafos e listas) tem que ficar ENTRE 700 E 900 PALAVRAS — nunca menos que 700, nunca mais que 900. Para atingir isso, use de 4 a 5 seções em "sections", cada uma com 1 a 2 parágrafos de verdade (não frases soltas).
+1) "curto": versão para o blog institucional do site (psprotecao.com.br/blog), no formato JSON abaixo. IMPORTANTE: o texto total do "curto" (intro + sections + closing, somando todos os parágrafos e listas) tem que ficar ENTRE 700 E 900 PALAVRAS — nunca menos que 700, nunca mais que 900. Para bater essa meta com folga, siga à risca o tamanho de cada bloco: "intro" com 2 parágrafos de 70 a 100 palavras cada; EXATAMENTE 4 objetos em "sections", cada um com 2 parágrafos de 80 a 110 palavras cada (parágrafos de verdade, desenvolvidos com exemplo ou explicação — nunca frases soltas de 1-2 linhas); "closing" com 1 parágrafo de 80 a 110 palavras. Seguindo esses tamanhos por bloco o total já cai naturalmente entre 700 e 900 palavras.
 2) "longo": versão densa e aprofundada para publicação externa (Substack, Medium, LinkedIn) e upload ao Google Drive, em uma estrutura FIXA e simples de copiar: título (H1), subtítulo (H2), um parágrafo de abertura ("subtexto"), EXATAMENTE 5 tópicos (nunca mais, nunca menos) e um bloco de FAQ final. Cada tópico é um parágrafo corrido (sem listas, sem markdown de negrito/itálico dentro do texto), com 150 a 220 palavras cada. IMPORTANTE: o artigo completo (subtexto + 5 tópicos + fechamento + FAQ) tem que ficar ENTRE 1000 E 1500 PALAVRAS — nunca menos que 1000, nunca mais que 1500. No parágrafo de "fechamento", inclua uma frase natural citando e linkando o artigo original do blog da PS Proteção usando exatamente este placeholder de link markdown: [artigo original no blog da PS Proteção]({{URL_INTERNA}}) — não troque o placeholder por outra URL. Depois do fechamento, inclua "faq": um rodapé com EXATAMENTE 5 perguntas sobre o tema do artigo, cada uma com sua resposta objetiva (2 a 4 frases), no estilo de uma seção de Perguntas Frequentes ao final de um artigo.
 
 REGRA CENTRAL — o "longo" SEMPRE complementa o "curto", nunca é só uma versão mais longa do mesmo texto: não repita os mesmos parágrafos ou argumentos do "curto" com outras palavras. O "longo" deve aprofundar pontos que o "curto" só menciona de passagem, trazer exemplos práticos, nuances, dados ou sub-temas que NÃO aparecem no "curto", e cobrir o assunto com mais camadas. Pense no "curto" como a introdução ao tema (o que o leitor vê no site) e no "longo" como o material completo para quem clica para se aprofundar — o maior sempre soma informação nova ao menor, nunca apenas repete com mais palavras.
@@ -119,18 +119,18 @@ Responda no seguinte formato JSON exato:
     "metaDescription": "resumo de até 155 caracteres para meta description",
     "readingMinutes": numero_inteiro,
     "tags": ["tag1", "tag2", "tag3", "tag4"],
-    "intro": ["parágrafo 1 de abertura", "parágrafo 2 de abertura (opcional, pode ser só 1)"],
+    "intro": ["parágrafo 1 de abertura, 70 a 100 palavras", "parágrafo 2 de abertura, 70 a 100 palavras"],
     "pullQuote": "uma frase curta de destaque (pull quote) resumindo o ponto central do artigo",
     "sections": [
       {
         "heading": "título da seção (h2)",
-        "paragraphs": ["parágrafo 1", "parágrafo 2 opcional"],
+        "paragraphs": ["parágrafo 1, 80 a 110 palavras, desenvolvido com exemplo/explicação", "parágrafo 2, 80 a 110 palavras, desenvolvido com exemplo/explicação"],
         "list": ["item opcional 1", "item opcional 2"],
         "subsections": [ { "heading": "subtítulo (h3)", "paragraphs": ["parágrafo"] } ]
       }
     ],
     "closingHeading": "título da seção final, algo como 'Como a PS Proteção...' relacionado ao tema",
-    "closing": ["parágrafo final mencionando a PS Proteção e os +28 anos de experiência"]
+    "closing": ["parágrafo final de 80 a 110 palavras, mencionando a PS Proteção e os +28 anos de experiência"]
   },
   "longo": {
     "titulo": "título do artigo longo (H1, pode ser igual ou uma variação do título curto)",
@@ -153,10 +153,15 @@ Responda no seguinte formato JSON exato:
     ]
   }
 }
-No "curto", inclua de 4 a 5 objetos em "sections", com parágrafos completos (não use frases únicas e curtas). "list" e "subsections" são opcionais — omita quando não fizer sentido para o tema. O texto total do "curto" precisa ficar entre 700 e 900 palavras.
+No "curto", inclua EXATAMENTE 4 objetos em "sections", cada um com 2 parágrafos completos de 80 a 110 palavras (não use frases únicas e curtas). "list" e "subsections" são opcionais — omita quando não fizer sentido para o tema. Siga os tamanhos de parágrafo indicados acima (intro, sections, closing) à risca — é assim que o texto total do "curto" fica entre 700 e 900 palavras.
 No "longo", "topicos" deve ter exatamente 5 itens e "faq" deve ter exatamente 5 itens, nem mais nem menos. O texto total do "longo" (subtexto + topicos + fechamento + faq) precisa ficar entre 1000 e 1500 palavras. Lembre-se: "longo" complementa "curto" com conteúdo novo, não repete o mesmo texto com mais palavras.`;
 
-  const maxAttempts = 3;
+  const messages = [
+    { role: 'system', content: system },
+    { role: 'user', content: user },
+  ];
+
+  const maxAttempts = 4;
   let lastError;
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -167,10 +172,7 @@ No "longo", "topicos" deve ter exatamente 5 itens e "faq" deve ter exatamente 5 
       },
       body: JSON.stringify({
         model: OPENAI_MODEL,
-        messages: [
-          { role: 'system', content: system },
-          { role: 'user', content: user },
-        ],
+        messages,
         response_format: { type: 'json_object' },
         temperature: 0.8,
       }),
@@ -183,15 +185,23 @@ No "longo", "topicos" deve ter exatamente 5 itens e "faq" deve ter exatamente 5 
     const data = await res.json();
     const content = data.choices[0].message.content;
 
+    let shapeError;
     try {
       const result = JSON.parse(content);
-      const shapeError = findShapeError(result);
+      shapeError = findShapeError(result);
       if (!shapeError) return result;
-      lastError = new Error(`Resposta da OpenAI com formato inválido: ${shapeError}`);
     } catch (err) {
-      lastError = new Error(`Resposta da OpenAI não é um JSON válido: ${err.message}`);
+      shapeError = `resposta não é um JSON válido: ${err.message}`;
     }
-    console.error(`Tentativa ${attempt}/${maxAttempts} falhou: ${lastError.message}`);
+    lastError = new Error(`Resposta da OpenAI com formato inválido: ${shapeError}`);
+    console.error(`Tentativa ${attempt}/${maxAttempts} falhou: ${shapeError}`);
+
+    // Retry com feedback real do erro, em vez de reenviar o mesmo prompt cego de novo.
+    messages.push({ role: 'assistant', content });
+    messages.push({
+      role: 'user',
+      content: `A resposta anterior não seguiu as regras: ${shapeError}. Reescreva o JSON inteiro (mesmo tema, mesma estrutura, mesmos títulos), corrigindo especificamente esse ponto — se for um problema de tamanho, ajuste o número de frases por parágrafo até acertar a contagem, sem enrolar nem repetir ideias. Responda só com o JSON completo, sem nenhum texto fora dele.`,
+    });
   }
   throw lastError;
 }
