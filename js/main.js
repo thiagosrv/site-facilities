@@ -757,7 +757,10 @@ function openLeadModal() {
   const overlay = document.getElementById('lead-modal-overlay');
   overlay.classList.add('is-open');
   document.body.style.overflow = 'hidden';
-  setTimeout(() => overlay.querySelector('#lead-nome')?.focus(), 100);
+  const isTouch = window.matchMedia('(pointer: coarse)').matches;
+  if (!isTouch) {
+    setTimeout(() => overlay.querySelector('#lead-nome')?.focus(), 100);
+  }
 }
 
 function closeLeadModal() {

@@ -3803,4 +3803,8 @@ p  { line-height: 1.75; }
 @media (max-width: 480px) {
   .lead-modal { padding: 32px 22px 26px; }
   .lead-modal-services { grid-template-columns: 1fr; }
+  .lead-modal .form-input { font-size: 16px; }
+  .lead-modal-nav { flex-direction: column-reverse; gap: 10px; }
+  .lead-modal-back-btn { width: 100%; padding: 13px 20px; }
+  .lead-modal-nav .form-submit { white-space: normal; text-align: center; line-height: 1.3; }
 }
