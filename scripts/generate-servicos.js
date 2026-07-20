@@ -898,7 +898,7 @@ function footer() {
       <div class="footer-col">
         <h4 class="footer-title">Contato</h4>
         <div class="footer-contact">
-          <div class="contact-item"><i data-lucide="map-pin" aria-hidden="true"></i><span>Americana, SP · Região Metropolitana de Campinas</span></div>
+          <div class="contact-item"><i data-lucide="map-pin" aria-hidden="true"></i><a href="https://maps.google.com/maps?q=-22.7301816,-47.30249" target="_blank" rel="noopener">Rua São Gabriel, 1623 — Americana, SP</a></div>
           <div class="contact-item"><i data-lucide="phone" aria-hidden="true"></i><a href="${TEL_HREF}">${TEL_DISPLAY}</a></div>
           <div class="contact-item"><i data-lucide="message-circle" aria-hidden="true"></i><a href="${WPP_HREF}" target="_blank" rel="noopener">WhatsApp Comercial</a></div>
         </div>

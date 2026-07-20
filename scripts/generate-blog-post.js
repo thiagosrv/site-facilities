@@ -695,7 +695,7 @@ ${buildRelatedCards(related)}
       <div class="footer-col">
         <h4 class="footer-title">Contato</h4>
         <div class="footer-contact">
-          <div class="contact-item"><i data-lucide="map-pin" aria-hidden="true"></i><span>Americana, SP · Região Metropolitana de Campinas</span></div>
+          <div class="contact-item"><i data-lucide="map-pin" aria-hidden="true"></i><a href="https://maps.google.com/maps?q=-22.7301816,-47.30249" target="_blank" rel="noopener">Rua São Gabriel, 1623 — Americana, SP</a></div>
           <div class="contact-item"><i data-lucide="phone" aria-hidden="true"></i><a href="tel:+5519982892037">(19) 98289-2037</a></div>
           <div class="contact-item"><i data-lucide="message-circle" aria-hidden="true"></i><a href="https://wa.me/5519982892037" target="_blank" rel="noopener">WhatsApp Comercial</a></div>
         </div>
@@ -730,12 +730,16 @@ function updateBlogIndex({ post, category, slug, dateISO, url }) {
         "datePublished": "${dateISO}"
       },
 `;
-  html = html.replace(/("blogPost": \[\n)/, `$1${newEntry}`);
+  const blogPostRe = /("blogPost": \[\r?\n)/;
+  if (!blogPostRe.test(html)) throw new Error('updateBlogIndex: âncora "blogPost": [ não encontrada — JSON-LD não atualizado.');
+  html = html.replace(blogPostRe, `$1${newEntry}`);
 
   // 2) Botão de filtro — adiciona se a categoria ainda não existir
   if (!html.includes(`data-filter="${category.slug}"`)) {
+    const filterRe = /(<button class="blog-filter-btn" data-filter="facilities">Facilities<\/button>\r?\n)/;
+    if (!filterRe.test(html)) throw new Error('updateBlogIndex: âncora do botão de filtro "facilities" não encontrada.');
     html = html.replace(
-      /(<button class="blog-filter-btn" data-filter="facilities">Facilities<\/button>\n)/,
+      filterRe,
       `$1    <button class="blog-filter-btn" data-filter="${category.slug}">${escapeHtml(category.nome)}</button>\n`
     );
   }
@@ -760,7 +764,9 @@ function updateBlogIndex({ post, category, slug, dateISO, url }) {
       </article>
 
 `;
-  html = html.replace(/(<div class="blog-grid">\n\n)/, `$1${cardHtml}`);
+  const gridRe = /(<div class="blog-grid">\r?\n\r?\n)/;
+  if (!gridRe.test(html)) throw new Error('updateBlogIndex: âncora <div class="blog-grid"> não encontrada — card não inserido.');
+  html = html.replace(gridRe, `$1${cardHtml}`);
 
   fs.writeFileSync(INDEX_PATH, html, 'utf8');
 }
@@ -776,10 +782,9 @@ function updateSitemap({ url, dateISO }) {
     <priority>0.6</priority>
   </url>
 `;
-  xml = xml.replace(
-    /(<loc>https:\/\/psprotecao\.com\.br\/blog\/<\/loc>\s*<lastmod>[^<]+<\/lastmod>\s*<changefreq>[^<]+<\/changefreq>\s*<priority>[^<]+<\/priority>\s*<\/url>\n)/,
-    `$1${entry}`
-  );
+  const re = /(<loc>https:\/\/psprotecao\.com\.br\/blog\/<\/loc>\s*<lastmod>[^<]+<\/lastmod>\s*<changefreq>[^<]+<\/changefreq>\s*<priority>[^<]+<\/priority>\s*<\/url>\r?\n)/;
+  if (!re.test(xml)) throw new Error('updateSitemap: âncora do índice do blog não encontrada em sitemap.xml — nenhuma URL foi inserida.');
+  xml = xml.replace(re, `$1${entry}`);
   fs.writeFileSync(SITEMAP_PATH, xml, 'utf8');
 }
 
@@ -918,7 +923,14 @@ async function main() {
   if (driveUrl) console.log(`Versão longa no Google Drive: ${driveUrl}`);
 }
 
-main().catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch(err => {
+    console.error(err);
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  buildPostHtml, updateBlogIndex, updateSitemap, findCategory, dateBR, todayISO,
+  slugify, readExistingPosts, escapeHtml, BLOG_DIR, SITE,
+};
