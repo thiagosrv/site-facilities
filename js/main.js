@@ -684,6 +684,18 @@ function buildLeadModal() {
             <label class="form-label" for="lead-cnpj">CNPJ</label>
             <input class="form-input" type="text" id="lead-cnpj" name="cnpj" placeholder="00.000.000/0001-00" required>
           </div>
+          <div class="form-group">
+            <label class="form-label" for="lead-whatsapp">WhatsApp <span class="form-label-optional">(opcional)</span></label>
+            <input class="form-input" type="tel" id="lead-whatsapp" name="whatsapp" placeholder="(19) 99999-9999">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="lead-contato-preferido">Por onde prefere ser contatado? <span class="form-label-optional">(opcional)</span></label>
+            <select class="form-select" id="lead-contato-preferido" name="contato_preferido">
+              <option value="">Selecione uma opção</option>
+              <option value="WhatsApp">WhatsApp</option>
+              <option value="E-mail">E-mail</option>
+            </select>
+          </div>
           <p class="lead-modal-error" data-error-for="1"></p>
           <button type="button" class="btn btn-gold form-submit" data-step-next>Avançar</button>
         </div>
@@ -698,6 +710,10 @@ function buildLeadModal() {
                 <span>${servico}</span>
               </label>
             `).join('')}
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="lead-mensagem">Mensagem <span class="form-label-optional">(opcional)</span></label>
+            <textarea class="form-textarea" id="lead-mensagem" name="mensagem" placeholder="Conte um pouco sobre o serviço que você precisa..."></textarea>
           </div>
           <p class="lead-modal-error" data-error-for="2"></p>
           <div class="lead-modal-nav">
@@ -795,9 +811,12 @@ async function handleLeadWizardSubmit(e) {
 
   goToLeadStep(3);
 
-  const nome  = form.querySelector('#lead-nome').value.trim();
-  const email = form.querySelector('#lead-email').value.trim();
-  const cnpj  = form.querySelector('#lead-cnpj').value.trim();
+  const nome     = form.querySelector('#lead-nome').value.trim();
+  const email    = form.querySelector('#lead-email').value.trim();
+  const cnpj     = form.querySelector('#lead-cnpj').value.trim();
+  const whatsapp = form.querySelector('#lead-whatsapp').value.trim();
+  const contatoPreferido = form.querySelector('#lead-contato-preferido').value.trim();
+  const mensagem = form.querySelector('#lead-mensagem').value.trim();
 
   const data = new FormData();
   data.append('access_key', LEAD_FORM_CONFIG.accessKey);
@@ -806,7 +825,10 @@ async function handleLeadWizardSubmit(e) {
   data.append('nome', nome);
   data.append('email', email);
   data.append('cnpj', cnpj);
+  if (whatsapp) data.append('whatsapp', whatsapp);
   data.append('servicos', checked.join(', '));
+  if (contatoPreferido) data.append('contato_preferido', contatoPreferido);
+  if (mensagem) data.append('mensagem', mensagem);
 
   const sendEmail = fetch('https://api.web3forms.com/submit', { method: 'POST', body: data }).catch(() => null);
   const minDelay  = new Promise((resolve) => setTimeout(resolve, 1600));
@@ -819,10 +841,13 @@ async function handleLeadWizardSubmit(e) {
     lead_name: nome,
     lead_email: email,
     lead_cnpj: cnpj,
+    lead_whatsapp: whatsapp,
     lead_services: checked.join(', '),
+    lead_preferred_contact: contatoPreferido,
+    lead_message: mensagem,
   });
 
-  const waText = `Olá! Meu nome é ${nome} (CNPJ ${cnpj}). Tenho interesse em: ${checked.join(', ')}. Gostaria de solicitar um orçamento.`;
+  const waText = `Olá! Meu nome é ${nome} (CNPJ ${cnpj}).${whatsapp ? ` WhatsApp: ${whatsapp}.` : ''} Tenho interesse em: ${checked.join(', ')}.${contatoPreferido ? ` Prefiro ser contatado por: ${contatoPreferido}.` : ''}${mensagem ? ` Mensagem: ${mensagem}` : ''} Gostaria de solicitar um orçamento.`;
   const waUrl  = `https://wa.me/${LEAD_FORM_CONFIG.whatsapp}?text=${encodeURIComponent(waText)}`;
 
   if (waWindow) {
