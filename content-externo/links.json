@@ -345,5 +345,19 @@
     "substackUrl": "",
     "mediumUrl": "",
     "linkedinUrl": ""
+  },
+  {
+    "pautaId": 26,
+    "tema": "Como controlar a entrada de prestadores de serviço",
+    "categoriaSlug": "portaria",
+    "slug": "como-controlar-a-entrada-de-prestadores-de-servico",
+    "blogUrl": "https://psprotecao.com.br/blog/como-controlar-a-entrada-de-prestadores-de-servico.html",
+    "longformFile": "content-externo/como-controlar-a-entrada-de-prestadores-de-servico.txt",
+    "driveUrl": "https://docs.google.com/document/d/1oskAHdvux_bVobFB1UHtxUh_fOh6FXMNYJkc_1tKHXc/edit?usp=drivesdk",
+    "geradoEm": "2026-07-21",
+    "status": "gerado",
+    "substackUrl": "",
+    "mediumUrl": "",
+    "linkedinUrl": ""
   }
 ]
