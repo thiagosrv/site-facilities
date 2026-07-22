@@ -359,5 +359,19 @@
     "substackUrl": "",
     "mediumUrl": "",
     "linkedinUrl": ""
+  },
+  {
+    "pautaId": 27,
+    "tema": "Procedimento de portaria para entregadores e fornecedores",
+    "categoriaSlug": "portaria",
+    "slug": "procedimento-de-portaria-para-entregadores-e-fornecedores",
+    "blogUrl": "https://psprotecao.com.br/blog/procedimento-de-portaria-para-entregadores-e-fornecedores.html",
+    "longformFile": "content-externo/procedimento-de-portaria-para-entregadores-e-fornecedores.txt",
+    "driveUrl": "https://docs.google.com/document/d/1Am7ny1LANo7IVXjCOiQPw8o4Z-nPXSy45QFgBRII2dc/edit?usp=drivesdk",
+    "geradoEm": "2026-07-22",
+    "status": "gerado",
+    "substackUrl": "",
+    "mediumUrl": "",
+    "linkedinUrl": ""
   }
 ]
