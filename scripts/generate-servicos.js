@@ -15,7 +15,7 @@ const { NICHOS } = require('./data/nichos');
 const { SERVICE_VARIANTS } = require('./data/service-variants');
 const { FAQ_GENERICO } = require('./data/faq-generico');
 
-const SITE = 'https://psprotecao.com.br';
+const SITE = 'https://protecaoeseguranca.com.br';
 const ROOT_DIR = path.join(__dirname, '..');
 
 const TEL_DISPLAY = '(19) 3478-7799';

@@ -2,7 +2,7 @@
 const fs = require('fs');
 const { CITIES } = require('./data/cities.js');
 
-const SITE = 'https://psprotecao.com.br';
+const SITE = 'https://protecaoeseguranca.com.br';
 const REGION_ORDER = ['rmc', 'piracicaba', 'aguas'];
 const REGION_INTRO = {
   rmc: 'Cobertura consolidada na Região Metropolitana de Campinas, do polo industrial de Americana e Sumaré aos centros empresariais de Campinas, Valinhos e Indaiatuba.',

@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://psprotecao.com.br/sitemap.xml
+Sitemap: https://protecaoeseguranca.com.br/sitemap.xml
 
 # Permitir crawlers de IA (GPT, Gemini, Copilot, Perplexity)
 User-agent: GPTBot

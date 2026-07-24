@@ -10,7 +10,7 @@ const { SERVICES } = require('./data/services');
 const { NICHOS } = require('./data/nichos');
 const { SERVICE_VARIANTS } = require('./data/service-variants');
 
-const SITE = 'https://psprotecao.com.br';
+const SITE = 'https://protecaoeseguranca.com.br';
 const OUT_FILE = path.join(__dirname, '..', 'sitemap.xml');
 const TODAY = new Date().toISOString().slice(0, 10);
 
