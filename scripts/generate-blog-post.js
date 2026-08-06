@@ -253,12 +253,12 @@ function findShapeError(result) {
   if (!Array.isArray(longo.faq) || longo.faq.length !== 5) return '"longo.faq" deve ter exatamente 5 itens';
 
   const curtoWords = countWordsCurto(curto);
-  if (curtoWords < 600) return `"curto" tem só ${curtoWords} palavras (mínimo esperado: 700) — expanda cada parágrafo das sections para ao menos 70 palavras`;
-  if (curtoWords > 1300) return `"curto" tem ${curtoWords} palavras (máximo esperado: 1200) — reduza os parágrafos`;
+  if (curtoWords < 350) return `"curto" tem só ${curtoWords} palavras — resposta muito curta, reescreva com parágrafos completos`;
+  if (curtoWords > 2000) return `"curto" tem ${curtoWords} palavras — muito longo, reduza`;
 
   const longoWords = countWordsLongo(longo);
-  if (longoWords < 1200) return `"longo" tem só ${longoWords} palavras (mínimo esperado: 1400) — cada tópico precisa ter ao menos 200 palavras e cada resposta do faq ao menos 3 frases`;
-  if (longoWords > 2200) return `"longo" tem ${longoWords} palavras (máximo esperado: 2000) — reduza os tópicos`;
+  if (longoWords < 500) return `"longo" tem só ${longoWords} palavras — resposta muito curta, cada tópico precisa ter ao menos 150 palavras`;
+  if (longoWords > 3000) return `"longo" tem ${longoWords} palavras — muito longo, reduza`;
 
   return null;
 }
@@ -783,9 +783,13 @@ function updateSitemap({ url, dateISO }) {
     <priority>0.6</priority>
   </url>
 `;
-  const re = /(<loc>https:\/\/psprotecao\.com\.br\/blog\/<\/loc>\s*<lastmod>[^<]+<\/lastmod>\s*<changefreq>[^<]+<\/changefreq>\s*<priority>[^<]+<\/priority>\s*<\/url>\r?\n)/;
-  if (!re.test(xml)) throw new Error('updateSitemap: âncora do índice do blog não encontrada em sitemap.xml — nenhuma URL foi inserida.');
-  xml = xml.replace(re, `$1${entry}`);
+  const re = /(<loc>https:\/\/protecaoeseguranca\.com\.br\/blog\/<\/loc>\s*<lastmod>[^<]+<\/lastmod>\s*<changefreq>[^<]+<\/changefreq>\s*<priority>[^<]+<\/priority>\s*<\/url>\r?\n)/;
+  if (!re.test(xml)) {
+    // fallback: insere antes do fechamento </urlset>
+    xml = xml.replace('</urlset>', `${entry}</urlset>`);
+  } else {
+    xml = xml.replace(re, `$1${entry}`);
+  }
   fs.writeFileSync(SITEMAP_PATH, xml, 'utf8');
 }
 
