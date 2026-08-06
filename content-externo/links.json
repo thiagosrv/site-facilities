@@ -387,5 +387,19 @@
     "substackUrl": "",
     "mediumUrl": "",
     "linkedinUrl": ""
+  },
+  {
+    "pautaId": 29,
+    "tema": "Como a supervisão melhora o desempenho da portaria",
+    "categoriaSlug": "portaria",
+    "slug": "como-a-supervisao-melhora-o-desempenho-da-portaria",
+    "blogUrl": "https://protecaoeseguranca.com.br/blog/como-a-supervisao-melhora-o-desempenho-da-portaria.html",
+    "longformFile": "content-externo/como-a-supervisao-melhora-o-desempenho-da-portaria.txt",
+    "driveUrl": "https://docs.google.com/document/d/1Hp40gHoL8rFKrmfLy492kd-CJC4Vd-Z7BPGRMNAX_SI/edit?usp=drivesdk",
+    "geradoEm": "2026-08-06",
+    "status": "gerado",
+    "substackUrl": "",
+    "mediumUrl": "",
+    "linkedinUrl": ""
   }
 ]
