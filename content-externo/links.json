@@ -401,5 +401,19 @@
     "substackUrl": "",
     "mediumUrl": "",
     "linkedinUrl": ""
+  },
+  {
+    "pautaId": 30,
+    "tema": "POP de portaria: por que procedimento evita erros",
+    "categoriaSlug": "portaria",
+    "slug": "pop-de-portaria-como-o-procedimento-operacional-padrao-evita-erros",
+    "blogUrl": "https://protecaoeseguranca.com.br/blog/pop-de-portaria-como-o-procedimento-operacional-padrao-evita-erros.html",
+    "longformFile": "content-externo/pop-de-portaria-como-o-procedimento-operacional-padrao-evita-erros.txt",
+    "driveUrl": "https://docs.google.com/document/d/1cxv0M-n3uCp03z-FCw1Z67vUuWYR6Umv_tNP0jc2oZk/edit?usp=drivesdk",
+    "geradoEm": "2026-08-06",
+    "status": "gerado",
+    "substackUrl": "",
+    "mediumUrl": "",
+    "linkedinUrl": ""
   }
 ]
