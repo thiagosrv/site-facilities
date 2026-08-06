@@ -2,8 +2,8 @@ name: Post automático do blog
 
 on:
   schedule:
-    # 09:00 America/Sao_Paulo (UTC-3) = 12:00 UTC
-    - cron: '0 12 * * *'
+    # 09:00 America/Sao_Paulo (UTC-3) = 12:00 UTC — segunda, quarta e sexta
+    - cron: '0 12 * * 1,3,5'
   workflow_dispatch: {}
 
 permissions:
@@ -24,6 +24,7 @@ jobs:
       - name: Gerar novo post do blog
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: gpt-4o
           GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
           GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
           GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}

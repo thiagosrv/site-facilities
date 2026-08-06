@@ -1,6 +1,6 @@
 // Gera 1 novo post de blog (a partir da pauta do dia) usando a API da OpenAI.
-// Atualiza blog/index.html + sitemap.xml com a versão curta (700-1200 palavras + FAQ de 4 perguntas
-// com schema FAQPage) do blog do site, e gera a versão longa (1400-2000 palavras + FAQ de 5
+// Atualiza blog/index.html + sitemap.xml com a versão curta (1200-1500 palavras + FAQ de 4 perguntas
+// com schema FAQPage) do blog do site, e gera a versão longa (2500-3000 palavras + FAQ de 5
 // perguntas), que aprofunda e complementa a versão curta, em content-externo/{slug}.txt (texto
 // puro, sem markdown) para publicação manual em Substack/Medium/LinkedIn e upload ao Google Drive.
 // Uso: OPENAI_API_KEY=... node scripts/generate-blog-post.js
@@ -108,8 +108,8 @@ Não repita nenhum destes títulos já publicados: ${existingTitles.length ? exi
 
 Você vai escrever DUAS versões do mesmo tema:
 
-1) "curto": versão para o blog institucional do site (protecaoeseguranca.com.br/blog), no formato JSON abaixo. IMPORTANTE: o texto total do "curto" (intro + sections + closing, somando todos os parágrafos e listas) tem que ficar ENTRE 700 E 1200 PALAVRAS — nunca menos que 700, nunca mais que 1200. Para bater essa meta, siga o tamanho de cada bloco: "intro" com 2 parágrafos de 60 a 80 palavras cada; EXATAMENTE 4 objetos em "sections", cada um com 2 parágrafos de 70 a 90 palavras cada (parágrafos de verdade, desenvolvidos com exemplo ou explicação — nunca frases soltas de 1-2 linhas, e nunca repetindo entre si o mesmo ponto com outras palavras: cada parágrafo da seção precisa cobrir um ângulo diferente do subtema); "closing" com 1 parágrafo de 70 a 90 palavras. Além disso, o "curto" também leva um "faq" próprio com EXATAMENTE 4 perguntas frequentes sobre o tema (diferentes das perguntas do "longo"), cada uma respondida de forma direta e objetiva em 30 a 50 palavras — essas perguntas viram uma seção de FAQ com schema no site, então a resposta tem que ser autossuficiente (não depende do resto do artigo para fazer sentido). Sempre que fizer sentido para o tema, cite dentro do corpo de alguma seção (não só no "closing") algum dos números reais da empresa (28 anos de experiência, +3.000 colaboradores treinados, +1.000 clientes atendidos) como reforço de credibilidade — nunca invente números novos.
-2) "longo": versão densa e aprofundada para publicação externa (Substack, Medium, LinkedIn) e upload ao Google Drive, em uma estrutura FIXA e simples de copiar: título (H1), subtítulo (H2), um parágrafo de abertura ("subtexto"), EXATAMENTE 5 tópicos (nunca mais, nunca menos) e um bloco de FAQ final. Cada tópico é um parágrafo corrido (sem listas, sem markdown de negrito/itálico dentro do texto), com 200 a 280 palavras cada. IMPORTANTE: o artigo completo (subtexto + 5 tópicos + fechamento + FAQ) tem que ficar ENTRE 1400 E 2000 PALAVRAS — nunca menos que 1400, nunca mais que 2000. No parágrafo de "fechamento", inclua uma frase natural citando e linkando o artigo original do blog da PS Proteção usando exatamente este placeholder de link markdown: [artigo original no blog da PS Proteção]({{URL_INTERNA}}) — não troque o placeholder por outra URL. Depois do fechamento, inclua "faq": um rodapé com EXATAMENTE 5 perguntas sobre o tema do artigo, cada uma com sua resposta objetiva (3 a 5 frases), no estilo de uma seção de Perguntas Frequentes ao final de um artigo.
+1) "curto": versão para o blog institucional do site (protecaoeseguranca.com.br/blog), no formato JSON abaixo. IMPORTANTE: o texto total do "curto" (intro + sections + closing, somando todos os parágrafos e listas) tem que ficar ENTRE 1200 E 1500 PALAVRAS — nunca menos que 1200, nunca mais que 1500. Para bater essa meta com consistência, siga à risca o tamanho de cada bloco: "intro" com 2 parágrafos de 90 a 110 palavras cada; EXATAMENTE 4 objetos em "sections", cada um com 3 parágrafos de 90 a 110 palavras cada (parágrafos de verdade, desenvolvidos com dado concreto, exemplo prático ou explicação detalhada — nunca frases soltas de 1-2 linhas, e nunca repetindo entre parágrafos da mesma seção o mesmo argumento com outras palavras: cada parágrafo cobre um ângulo diferente do subtema); "closing" com 1 parágrafo de 100 a 130 palavras. Além disso, o "curto" leva um "faq" próprio com EXATAMENTE 4 perguntas frequentes sobre o tema (diferentes das perguntas do "longo"), cada uma respondida de forma direta e objetiva em 40 a 60 palavras — essas perguntas viram uma seção de FAQ com schema no site, então a resposta tem que ser autossuficiente. Sempre que fizer sentido, cite dentro do corpo de alguma seção algum dos números reais da empresa (28 anos de experiência, +3.000 colaboradores treinados, +1.000 clientes atendidos) como reforço de credibilidade — nunca invente números novos.
+2) "longo": versão densa, aprofundada e consultiva para publicação externa (Substack, Medium, LinkedIn) e upload ao Google Drive. Estrutura FIXA: título (H1), subtítulo (H2), parágrafo de abertura ("subtexto"), EXATAMENTE 6 tópicos (nunca mais, nunca menos) e um bloco de FAQ final. Cada tópico é um parágrafo corrido rico em detalhes, exemplos e nuances (sem listas, sem markdown de ênfase dentro do texto), com 280 a 350 palavras cada. IMPORTANTE: o artigo completo (subtexto + 6 tópicos + fechamento + FAQ) tem que ficar ENTRE 2500 E 3000 PALAVRAS — nunca menos que 2500. O "longo" deve parecer um artigo profissional de revista setorial: cada tópico aprofunda um ângulo que o "curto" só menciona de passagem, traz casos de uso, consequências práticas e raciocínio consultivo. No parágrafo de "fechamento" (80 a 120 palavras), inclua uma frase natural citando e linkando o artigo original do blog da PS Proteção usando exatamente este placeholder: [artigo original no blog da PS Proteção]({{URL_INTERNA}}). Depois do fechamento, inclua "faq": EXATAMENTE 5 perguntas sobre o tema, cada uma com resposta completa de 4 a 6 frases (não bullet points — parágrafos corridos).
 
 REGRA CENTRAL — o "longo" SEMPRE complementa o "curto", nunca é só uma versão mais longa do mesmo texto: não repita os mesmos parágrafos ou argumentos do "curto" com outras palavras. O "longo" deve aprofundar pontos que o "curto" só menciona de passagem, trazer exemplos práticos, nuances, dados ou sub-temas que NÃO aparecem no "curto", e cobrir o assunto com mais camadas. Pense no "curto" como a introdução ao tema (o que o leitor vê no site) e no "longo" como o material completo para quem clica para se aprofundar — o maior sempre soma informação nova ao menor, nunca apenas repete com mais palavras.
 
@@ -144,13 +144,14 @@ Responda no seguinte formato JSON exato:
     "subtitulo": "subtítulo (H2) que expande o título em uma linha",
     "subtexto": "parágrafo de abertura (80 a 120 palavras) contextualizando o tema e o problema",
     "topicos": [
-      { "titulo": "título do tópico 1 (h2)", "texto": "parágrafo corrido de 150 a 220 palavras, sem listas nem markdown de ênfase" },
-      { "titulo": "título do tópico 2 (h2)", "texto": "parágrafo corrido de 150 a 220 palavras, sem listas nem markdown de ênfase" },
-      { "titulo": "título do tópico 3 (h2)", "texto": "parágrafo corrido de 150 a 220 palavras, sem listas nem markdown de ênfase" },
-      { "titulo": "título do tópico 4 (h2)", "texto": "parágrafo corrido de 150 a 220 palavras, sem listas nem markdown de ênfase" },
-      { "titulo": "título do tópico 5 (h2)", "texto": "parágrafo corrido de 150 a 220 palavras, sem listas nem markdown de ênfase" }
+      { "titulo": "título do tópico 1 (h2)", "texto": "parágrafo corrido de 280 a 350 palavras, sem listas nem markdown de ênfase, rico em exemplos e raciocínio consultivo" },
+      { "titulo": "título do tópico 2 (h2)", "texto": "parágrafo corrido de 280 a 350 palavras, sem listas nem markdown de ênfase, rico em exemplos e raciocínio consultivo" },
+      { "titulo": "título do tópico 3 (h2)", "texto": "parágrafo corrido de 280 a 350 palavras, sem listas nem markdown de ênfase, rico em exemplos e raciocínio consultivo" },
+      { "titulo": "título do tópico 4 (h2)", "texto": "parágrafo corrido de 280 a 350 palavras, sem listas nem markdown de ênfase, rico em exemplos e raciocínio consultivo" },
+      { "titulo": "título do tópico 5 (h2)", "texto": "parágrafo corrido de 280 a 350 palavras, sem listas nem markdown de ênfase, rico em exemplos e raciocínio consultivo" },
+      { "titulo": "título do tópico 6 (h2)", "texto": "parágrafo corrido de 280 a 350 palavras, sem listas nem markdown de ênfase, rico em exemplos e raciocínio consultivo" }
     ],
-    "fechamento": "parágrafo final (60 a 100 palavras) com o placeholder de link descrito acima",
+    "fechamento": "parágrafo final (80 a 120 palavras) com o placeholder de link descrito acima",
     "faq": [
       { "pergunta": "pergunta 1 sobre o tema do artigo", "resposta": "resposta objetiva (2 a 4 frases)" },
       { "pergunta": "pergunta 2 sobre o tema do artigo", "resposta": "resposta objetiva (2 a 4 frases)" },
@@ -160,8 +161,8 @@ Responda no seguinte formato JSON exato:
     ]
   }
 }
-No "curto", inclua EXATAMENTE 4 objetos em "sections", cada um com 2 parágrafos completos de 70 a 90 palavras (não use frases únicas e curtas, e não repita o mesmo argumento entre os parágrafos de uma seção — cada um cobre um ângulo/exemplo diferente). "list" e "subsections" são opcionais — omita quando não fizer sentido para o tema. Siga os tamanhos de parágrafo indicados acima (intro, sections, closing) à risca — é assim que o texto total do "curto" fica entre 700 e 1200 palavras. O "curto.faq" deve ter EXATAMENTE 4 itens, nem mais nem menos.
-No "longo", "topicos" deve ter exatamente 5 itens (cada um com 200 a 280 palavras) e "faq" deve ter exatamente 5 itens (cada resposta com 3 a 5 frases), nem mais nem menos. O texto total do "longo" (subtexto + topicos + fechamento + faq) precisa ficar entre 1400 e 2000 palavras. Lembre-se: "longo" complementa "curto" com conteúdo novo, não repete o mesmo texto com mais palavras.`;
+No "curto", inclua EXATAMENTE 4 objetos em "sections", cada um com 3 parágrafos completos de 90 a 110 palavras (nunca frases únicas curtas, nunca repetir o mesmo argumento entre parágrafos da mesma seção). "list" e "subsections" são opcionais — omita quando não fizer sentido. Siga os tamanhos de bloco indicados acima à risca para bater 1200–1500 palavras. O "curto.faq" deve ter EXATAMENTE 4 itens.
+No "longo", "topicos" deve ter EXATAMENTE 6 itens (cada um com 280 a 350 palavras, parágrafo corrido sem listas) e "faq" deve ter EXATAMENTE 5 itens (cada resposta com 4 a 6 frases corridas). O total do "longo" precisa ficar entre 2500 e 3000 palavras. O "longo" deve aprofundar o que o "curto" menciona de passagem — conteúdo novo, não repetição.`;
 
   const messages = [
     { role: 'system', content: system },
@@ -182,7 +183,7 @@ No "longo", "topicos" deve ter exatamente 5 itens (cada um com 200 a 280 palavra
         messages,
         response_format: { type: 'json_object' },
         temperature: 0.8,
-        max_tokens: 4096,
+        max_tokens: 6000,
       }),
     });
 
@@ -249,16 +250,16 @@ function findShapeError(result) {
   if (!longo || typeof longo !== 'object') return '"longo" ausente ou inválido';
   if (typeof longo.subtexto !== 'string' || !longo.subtexto.trim()) return '"longo.subtexto" ausente';
   if (typeof longo.fechamento !== 'string' || !longo.fechamento.trim()) return '"longo.fechamento" ausente';
-  if (!Array.isArray(longo.topicos) || longo.topicos.length !== 5) return '"longo.topicos" deve ter exatamente 5 itens';
+  if (!Array.isArray(longo.topicos) || longo.topicos.length !== 6) return '"longo.topicos" deve ter exatamente 6 itens';
   if (!Array.isArray(longo.faq) || longo.faq.length !== 5) return '"longo.faq" deve ter exatamente 5 itens';
 
   const curtoWords = countWordsCurto(curto);
-  if (curtoWords < 350) return `"curto" tem só ${curtoWords} palavras — resposta muito curta, reescreva com parágrafos completos`;
-  if (curtoWords > 2000) return `"curto" tem ${curtoWords} palavras — muito longo, reduza`;
+  if (curtoWords < 900) return `"curto" tem só ${curtoWords} palavras (mínimo: 1200) — cada parágrafo das sections precisa ter 90 a 110 palavras; expanda todos os 3 parágrafos de cada seção`;
+  if (curtoWords > 1800) return `"curto" tem ${curtoWords} palavras — muito longo, reduza os parágrafos`;
 
   const longoWords = countWordsLongo(longo);
-  if (longoWords < 500) return `"longo" tem só ${longoWords} palavras — resposta muito curta, cada tópico precisa ter ao menos 150 palavras`;
-  if (longoWords > 3000) return `"longo" tem ${longoWords} palavras — muito longo, reduza`;
+  if (longoWords < 1800) return `"longo" tem só ${longoWords} palavras (mínimo: 2500) — cada tópico precisa ter 280 a 350 palavras; expanda todos os 6 tópicos e as respostas do faq`;
+  if (longoWords > 3500) return `"longo" tem ${longoWords} palavras — muito longo, reduza`;
 
   return null;
 }
@@ -799,7 +800,7 @@ function saveLongform({ longo, pauta, category, slug, dateISO, url }) {
   const clean = (s) => (s || '').replace(/\{\{URL_INTERNA\}\}/g, url).replace(/\[([^\]]*)\]\([^)]*\)/g, (_, label) => `${label} (${url})`);
   const subtexto = clean(longo.subtexto);
   const fechamento = clean(longo.fechamento);
-  const topicos = (longo.topicos || []).slice(0, 5);
+  const topicos = (longo.topicos || []).slice(0, 6);
   const topicosTxt = topicos.map(t => `${t.titulo}\n${clean(t.texto)}`).join('\n\n');
   const faq = (longo.faq || []).slice(0, 5);
   const faqTxt = faq.length
