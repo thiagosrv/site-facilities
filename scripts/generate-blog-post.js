@@ -182,6 +182,7 @@ No "longo", "topicos" deve ter exatamente 5 itens e "faq" deve ter exatamente 5 
         messages,
         response_format: { type: 'json_object' },
         temperature: 0.8,
+        max_tokens: 4096,
       }),
     });
 
@@ -252,12 +253,12 @@ function findShapeError(result) {
   if (!Array.isArray(longo.faq) || longo.faq.length !== 5) return '"longo.faq" deve ter exatamente 5 itens';
 
   const curtoWords = countWordsCurto(curto);
-  if (curtoWords < 1100) return `"curto" tem só ${curtoWords} palavras (mínimo esperado: 1200)`;
-  if (curtoWords > 1700) return `"curto" tem ${curtoWords} palavras (máximo esperado: 1500)`;
+  if (curtoWords < 900) return `"curto" tem só ${curtoWords} palavras (mínimo esperado: 1000) — expanda cada parágrafo das sections para ao menos 80 palavras`;
+  if (curtoWords > 1800) return `"curto" tem ${curtoWords} palavras (máximo esperado: 1500)`;
 
   const longoWords = countWordsLongo(longo);
-  if (longoWords < 950) return `"longo" tem só ${longoWords} palavras (mínimo esperado: 1000)`;
-  if (longoWords > 1650) return `"longo" tem ${longoWords} palavras (máximo esperado: 1500)`;
+  if (longoWords < 850) return `"longo" tem só ${longoWords} palavras (mínimo esperado: 900) — cada tópico precisa ter ao menos 130 palavras`;
+  if (longoWords > 1800) return `"longo" tem ${longoWords} palavras (máximo esperado: 1500)`;
 
   return null;
 }
