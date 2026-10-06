@@ -22,6 +22,7 @@ function initAll() {
   // isolated from any failure in the GSAP-dependent inits below (GSAP is
   // loaded via async CDN <script> tags with no ordering guarantee against
   // this deferred script, so it may not be ready yet when DOMContentLoaded fires).
+  safeInit('initGclidCapture', initGclidCapture);
   safeInit('initLeadModal', initLeadModal);
   safeInit('initCTAIntercept', initCTAIntercept);
   safeInit('initContactFormPage', initContactFormPage);
@@ -637,21 +638,351 @@ function initBlogFilters() {
 }
 
 /* =============================================
-   LEAD MODAL — popup em 3 etapas (Dados -> Serviços -> Conectando) + GTM + e-mail + WhatsApp
+   LEAD MODAL — formulário único (Nome, WhatsApp, Cidade, Serviço, CNPJ)
+   Fluxo: valida -> CRM (protocolo) + e-mail -> GTM -> WhatsApp
    ============================================= */
 const LEAD_FORM_CONFIG = {
   accessKey: '31cbc197-cb46-4864-b9d1-0d1d31a0a52d',
   whatsapp: '5519982892037',
+  crmUrl: 'https://crm-thiago-steel.vercel.app/api/leads/site',
+  crmTimeoutMs: 3000,
+  cnpjTimeoutMs: 6000,
 };
 
+// O CRM guarda exatamente esta frase como prova do consentimento (LGPD): o que
+// aparece na tela e o que é enviado precisam ser a mesma constante.
+const LEAD_CONSENT_TEXT = 'Ao enviar, você autoriza a PS Proteção a usar seu nome e WhatsApp para retornar este contato e enviar o orçamento.';
+
 const LEAD_MODAL_SERVICES = [
-  'Portaria e Controle de Acesso',
-  'Limpeza e Conservação',
-  'Zeladoria',
-  'Auxiliar Administrativo',
-  'Recepção',
-  'Auxiliar Contábil',
+  { value: 'portaria', label: 'Portaria e Controle de Acesso' },
+  { value: 'limpeza', label: 'Limpeza e Conservação' },
+  { value: 'zeladoria', label: 'Zeladoria' },
+  { value: 'recepcao', label: 'Recepção' },
+  { value: 'administrativo', label: 'Auxiliar Administrativo' },
+  { value: 'contabil', label: 'Auxiliar Contábil' },
+  { value: 'outros', label: 'Outro' },
 ];
+
+// Mesmas cidades atendidas das páginas por cidade (scripts/data/cities.js), em ordem alfabética.
+const LEAD_CITY_NAMES = ["Águas de Lindóia","Águas de São Pedro","Americana","Amparo","Analândia","Araras","Artur Nogueira","Brotas","Campinas","Capivari","Cerquilho","Charqueada","Conchal","Cordeirópolis","Corumbataí","Cosmópolis","Descalvado","Elias Fausto","Engenheiro Coelho","Estiva Gerbi","Holambra","Hortolândia","Indaiatuba","Ipeúna","Iracemápolis","Itatiba","Itirapina","Jaguariúna","Jumirim","Leme","Limeira","Lindóia","Louveira","Mogi Guaçu","Mogi Mirim","Mombuca","Monte Alegre do Sul","Monte Mor","Morungaba","Nova Odessa","Paulínia","Pedreira","Piracicaba","Pirassununga","Porto Ferreira","Rafard","Rio Claro","Rio das Pedras","Saltinho","Santa Bárbara d'Oeste","Santa Cruz da Conceição","Santa Gertrudes","Santa Rita do Passa Quatro","São Pedro","Serra Negra","Socorro","Sumaré","Tietê","Valinhos","Vinhedo"];
+
+/* ---- CNPJ ----
+   Desde jul/2026 a Receita emite CNPJ alfanumérico (12 primeiras posições A-Z/0-9,
+   2 dígitos verificadores numéricos). O DV usa (código ASCII - 48) como valor. */
+const LEAD_CNPJ_W1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+const LEAD_CNPJ_W2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+
+function leadCleanCnpj(value) {
+  return String(value).toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 14);
+}
+
+function leadMaskCnpj(value) {
+  const c = leadCleanCnpj(value);
+  const len = c.length;
+  if (len <= 2) return c;
+  if (len <= 5) return `${c.slice(0, 2)}.${c.slice(2)}`;
+  if (len <= 8) return `${c.slice(0, 2)}.${c.slice(2, 5)}.${c.slice(5)}`;
+  if (len <= 12) return `${c.slice(0, 2)}.${c.slice(2, 5)}.${c.slice(5, 8)}/${c.slice(8)}`;
+  return `${c.slice(0, 2)}.${c.slice(2, 5)}.${c.slice(5, 8)}/${c.slice(8, 12)}-${c.slice(12)}`;
+}
+
+function leadCnpjCheckDigit(chars, weights) {
+  let sum = 0;
+  for (let i = 0; i < weights.length; i++) sum += (chars.charCodeAt(i) - 48) * weights[i];
+  const rest = sum % 11;
+  return rest < 2 ? 0 : 11 - rest;
+}
+
+function leadIsValidCnpj(value) {
+  const c = leadCleanCnpj(value);
+  if (c.length !== 14) return false;
+  if (!/^[0-9A-Z]{12}[0-9]{2}$/.test(c)) return false;
+  // Sequências repetidas passam no cálculo, mas não existem.
+  if (/^(.)\1{13}$/.test(c)) return false;
+  const dv1 = leadCnpjCheckDigit(c, LEAD_CNPJ_W1);
+  const dv2 = leadCnpjCheckDigit(c.slice(0, 12) + dv1, LEAD_CNPJ_W2);
+  return c[12] === String(dv1) && c[13] === String(dv2);
+}
+
+// Consulta pública (dados da Receita) via BrasilAPI. É um "extra": qualquer
+// falha/demora devolve { status: 'error' } e NUNCA bloqueia o envio.
+async function leadLookupCnpj(cnpj, signal) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), LEAD_FORM_CONFIG.cnpjTimeoutMs);
+  const onAbort = () => controller.abort();
+  if (signal) signal.addEventListener('abort', onAbort);
+  try {
+    const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`, { signal: controller.signal });
+    // 400/404 = base não conhece esse CNPJ (empresa muito nova, ou alfanumérico ainda não indexado).
+    if (res.status === 404 || res.status === 400) return { status: 'not_found' };
+    if (!res.ok) return { status: 'error' };
+    const data = await res.json();
+    if (!data.razao_social) return { status: 'not_found' };
+    return {
+      status: 'found',
+      razaoSocial: data.razao_social,
+      situacao: data.descricao_situacao_cadastral || '',
+    };
+  } catch (err) {
+    return { status: 'error' };
+  } finally {
+    clearTimeout(timer);
+    if (signal) signal.removeEventListener('abort', onAbort);
+  }
+}
+
+/* ---- Telefone, gclid, CRM ---- */
+function leadMaskPhone(value) {
+  const digits = String(value).replace(/\D/g, '').slice(0, 11);
+  const len = digits.length;
+  if (len === 0) return '';
+  if (len <= 2) return `(${digits}`;
+  if (len <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
+function leadIsValidPhone(value) {
+  return String(value).replace(/\D/g, '').length === 11;
+}
+
+const LEAD_GCLID_KEY = 'ps_gclid';
+const LEAD_GCLID_TTL_MS = 90 * 24 * 60 * 60 * 1000;
+
+// Guarda o gclid da URL de entrada (anúncio) para que ele sobreviva à navegação
+// até o envio do formulário em outra página.
+function initGclidCapture() {
+  try {
+    const gclid = new URLSearchParams(window.location.search).get('gclid');
+    if (gclid) localStorage.setItem(LEAD_GCLID_KEY, JSON.stringify({ v: gclid, t: Date.now() }));
+  } catch (err) { /* storage indisponível (modo privado etc.) */ }
+}
+
+function getLeadGclid() {
+  try {
+    const raw = localStorage.getItem(LEAD_GCLID_KEY);
+    if (!raw) return null;
+    const stored = JSON.parse(raw);
+    if (!stored.v || Date.now() - stored.t > LEAD_GCLID_TTL_MS) return null;
+    return stored.v;
+  } catch (err) {
+    return null;
+  }
+}
+
+// Avisa o CRM comercial. Roda no navegador (o CRM só aceita as origens listadas
+// em LEADS_SITE_ORIGENS) e NUNCA trava o contato: qualquer falha/demora devolve
+// null e o fluxo segue para o WhatsApp sem protocolo.
+async function registerLeadInCrm(lead) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), LEAD_FORM_CONFIG.crmTimeoutMs);
+  try {
+    const res = await fetch(LEAD_FORM_CONFIG.crmUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nome: lead.nome,
+        telefone: lead.telefone,
+        empresa: lead.empresa ? lead.empresa.slice(0, 160) : undefined,
+        consentimento_texto: LEAD_CONSENT_TEXT,
+        gclid: lead.gclid || undefined,
+        pagina_origem: lead.pagina,
+        referrer: document.referrer || undefined,
+        website: lead.honeypot,
+      }),
+      signal: controller.signal,
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.ok && data.protocolo ? String(data.protocolo) : null;
+  } catch (err) {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function leadServiceLabel(value) {
+  const found = LEAD_MODAL_SERVICES.find((s) => s.value === value);
+  return found ? found.label : value;
+}
+
+function leadNormalize(value) {
+  return String(value).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+}
+
+function leadEscape(value) {
+  return String(value).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+
+/* ---- Estado do popup ---- */
+const leadState = {
+  touched: {},
+  submitting: false,
+  lookup: null,      // { cnpj, result } — resultado amarrado ao CNPJ consultado
+  lookupAbort: null,
+};
+
+function leadErrors(values) {
+  const errors = {};
+  if (values.nome.trim().length < 2) errors.nome = 'Informe seu nome completo.';
+  if (!leadIsValidPhone(values.whatsapp)) errors.whatsapp = 'Informe um WhatsApp válido com DDD.';
+  if (values.cidade.trim().length < 2) errors.cidade = 'Informe sua cidade.';
+  if (!values.servico) errors.servico = 'Selecione o serviço desejado.';
+  // CNPJ obrigatório (barra currículos/contatos de pessoa física) e com DV válido.
+  if (!values.cnpj.trim()) errors.cnpj = 'Informe o CNPJ da empresa.';
+  else if (!leadIsValidCnpj(values.cnpj)) errors.cnpj = 'CNPJ inválido. Confira os números.';
+  return errors;
+}
+
+function leadValues(form) {
+  return {
+    nome: form.querySelector('#lead-nome').value,
+    whatsapp: form.querySelector('#lead-whatsapp').value,
+    cidade: form.querySelector('#lead-cidade').value,
+    servico: form.querySelector('#lead-servico').value,
+    cnpj: form.querySelector('#lead-cnpj').value,
+    honeypot: form.querySelector('#lead-website').value,
+  };
+}
+
+const LEAD_FIELDS = ['nome', 'whatsapp', 'cidade', 'servico', 'cnpj'];
+
+function renderLeadErrors(form) {
+  const values = leadValues(form);
+  const errors = leadErrors(values);
+  LEAD_FIELDS.forEach((field) => {
+    const input = form.querySelector(`#lead-${field}`);
+    const errorEl = form.querySelector(`#lead-${field}-error`);
+    // O CNPJ também mostra o erro assim que fecha 14 caracteres, mesmo antes do blur.
+    const show = !!errors[field] && (leadState.touched[field] || (field === 'cnpj' && leadCleanCnpj(values.cnpj).length === 14));
+    errorEl.textContent = show ? errors[field] : '';
+    errorEl.hidden = !show;
+    input.classList.toggle('is-invalid', show);
+    input.setAttribute('aria-invalid', show ? 'true' : 'false');
+  });
+  return errors;
+}
+
+function renderLeadCnpjStatus(form) {
+  const statusEl = form.querySelector('#lead-cnpj-status');
+  const cnpjRaw = form.querySelector('#lead-cnpj').value;
+  statusEl.textContent = '';
+  if (!leadIsValidCnpj(cnpjRaw)) return;
+
+  const cnpj = leadCleanCnpj(cnpjRaw);
+  const done = leadState.lookup && leadState.lookup.cnpj === cnpj ? leadState.lookup.result : null;
+
+  const line = (className, text) => {
+    const p = document.createElement('p');
+    p.className = className;
+    p.textContent = text;
+    statusEl.appendChild(p);
+  };
+
+  if (!done) {
+    line('lead-cnpj-line is-muted', 'Consultando CNPJ na Receita Federal...');
+  } else if (done.status === 'found') {
+    line('lead-cnpj-line is-found', '✓ ' + done.razaoSocial);
+    if (done.situacao && done.situacao.toUpperCase() !== 'ATIVA') {
+      line('lead-cnpj-line is-warn', `Situação cadastral: ${done.situacao.toLowerCase()}. Confira se o CNPJ está correto.`);
+    }
+  } else if (done.status === 'not_found') {
+    line('lead-cnpj-line is-muted', 'Não encontramos esse CNPJ na base da Receita, mas você pode enviar normalmente.');
+  }
+}
+
+function startLeadCnpjLookup(form) {
+  const cnpjRaw = form.querySelector('#lead-cnpj').value;
+  if (leadState.lookupAbort) leadState.lookupAbort.abort();
+  leadState.lookupAbort = null;
+  renderLeadCnpjStatus(form);
+  if (!leadIsValidCnpj(cnpjRaw)) return;
+
+  const cnpj = leadCleanCnpj(cnpjRaw);
+  if (leadState.lookup && leadState.lookup.cnpj === cnpj) return;
+
+  const controller = new AbortController();
+  leadState.lookupAbort = controller;
+  leadLookupCnpj(cnpj, controller.signal).then((result) => {
+    if (controller.signal.aborted) return;
+    leadState.lookup = { cnpj, result };
+    renderLeadCnpjStatus(form);
+  });
+}
+
+function setupLeadCityCombobox(form) {
+  const input = form.querySelector('#lead-cidade');
+  const list = form.querySelector('#lead-cidade-list');
+  let activeIndex = -1;
+  let suggestions = [];
+
+  function render() {
+    const query = leadNormalize(input.value);
+    suggestions = (query ? LEAD_CITY_NAMES.filter((name) => leadNormalize(name).includes(query)) : LEAD_CITY_NAMES).slice(0, 8);
+    list.innerHTML = suggestions
+      .map((name, i) => `<li role="option" id="lead-cidade-opt-${i}" data-index="${i}" aria-selected="${i === activeIndex}" class="lead-combo-option${i === activeIndex ? ' is-active' : ''}">${leadEscape(name)}</li>`)
+      .join('');
+  }
+
+  function open() {
+    render();
+    const isOpen = suggestions.length > 0;
+    list.hidden = !isOpen;
+    input.setAttribute('aria-expanded', String(isOpen));
+  }
+
+  function close() {
+    list.hidden = true;
+    input.setAttribute('aria-expanded', 'false');
+    activeIndex = -1;
+  }
+
+  function select(name) {
+    input.value = name;
+    close();
+    leadState.touched.cidade = true;
+    renderLeadErrors(form);
+  }
+
+  input.addEventListener('input', () => { activeIndex = -1; open(); renderLeadErrors(form); });
+  input.addEventListener('focus', open);
+  input.addEventListener('blur', () => {
+    // Atraso para o clique na sugestão (mousedown) registrar antes do fechamento.
+    setTimeout(close, 120);
+    leadState.touched.cidade = true;
+    renderLeadErrors(form);
+  });
+  input.addEventListener('keydown', (e) => {
+    if (list.hidden) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') open();
+      return;
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeIndex = Math.min(activeIndex + 1, suggestions.length - 1);
+      render();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeIndex = Math.max(activeIndex - 1, 0);
+      render();
+    } else if (e.key === 'Enter') {
+      if (activeIndex >= 0 && suggestions[activeIndex]) {
+        e.preventDefault();
+        select(suggestions[activeIndex]);
+      }
+    } else if (e.key === 'Escape') {
+      // Fecha só a lista, sem fechar o popup inteiro.
+      e.stopPropagation();
+      close();
+    }
+  });
+  list.addEventListener('mousedown', (e) => {
+    const option = e.target.closest('.lead-combo-option');
+    if (!option) return;
+    e.preventDefault();
+    select(suggestions[Number(option.dataset.index)]);
+  });
+}
 
 function buildLeadModal() {
   if (document.getElementById('lead-modal-overlay')) return;
@@ -664,66 +995,57 @@ function buildLeadModal() {
       <button type="button" class="lead-modal-close" aria-label="Fechar">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
-      <div class="lead-modal-progress">
-        <span class="lead-modal-step-dot is-active" data-step-dot="1"></span>
-        <span class="lead-modal-step-dot" data-step-dot="2"></span>
-      </div>
       <form id="lead-modal-form" novalidate>
         <div class="lead-modal-step is-active" data-step="1">
-          <h3 id="lead-modal-title" class="lead-modal-title">Solicite seu orçamento</h3>
-          <p class="lead-modal-subtitle">Preencha seus dados para começar.</p>
+          <h3 id="lead-modal-title" class="lead-modal-title">Formulário de Contato</h3>
+          <p class="lead-modal-subtitle">Retornamos em até 2h úteis. Sem compromisso.</p>
+
           <div class="form-group">
             <label class="form-label" for="lead-nome">Nome</label>
-            <input class="form-input" type="text" id="lead-nome" name="nome" placeholder="Seu nome" required>
+            <input class="form-input" type="text" id="lead-nome" name="nome" autocomplete="name" placeholder="Seu nome completo" aria-describedby="lead-nome-error">
+            <p class="lead-field-error" id="lead-nome-error" hidden></p>
           </div>
+
           <div class="form-group">
-            <label class="form-label" for="lead-email">E-mail</label>
-            <input class="form-input" type="email" id="lead-email" name="email" placeholder="seu@email.com.br" required>
+            <label class="form-label" for="lead-whatsapp">WhatsApp</label>
+            <input class="form-input" type="tel" id="lead-whatsapp" name="whatsapp" inputmode="numeric" autocomplete="tel" placeholder="(00) 00000-0000" aria-describedby="lead-whatsapp-error">
+            <p class="lead-field-error" id="lead-whatsapp-error" hidden></p>
           </div>
-          <div class="form-group">
-            <label class="form-label" for="lead-cnpj">CNPJ</label>
-            <input class="form-input" type="text" id="lead-cnpj" name="cnpj" placeholder="00.000.000/0001-00" required>
+
+          <div class="form-group lead-combo">
+            <label class="form-label" for="lead-cidade">Cidade</label>
+            <input class="form-input" type="text" id="lead-cidade" name="cidade" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="lead-cidade-list" autocomplete="off" placeholder="Digite sua cidade" aria-describedby="lead-cidade-error">
+            <ul class="lead-combo-list" id="lead-cidade-list" role="listbox" hidden></ul>
+            <p class="lead-field-error" id="lead-cidade-error" hidden></p>
           </div>
+
           <div class="form-group">
-            <label class="form-label" for="lead-whatsapp">WhatsApp <span class="form-label-optional">(opcional)</span></label>
-            <input class="form-input" type="tel" id="lead-whatsapp" name="whatsapp" placeholder="(19) 99999-9999">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="lead-contato-preferido">Por onde prefere ser contatado? <span class="form-label-optional">(opcional)</span></label>
-            <select class="form-select" id="lead-contato-preferido" name="contato_preferido">
-              <option value="">Selecione uma opção</option>
-              <option value="WhatsApp">WhatsApp</option>
-              <option value="E-mail">E-mail</option>
+            <label class="form-label" for="lead-servico">Serviço</label>
+            <select class="form-select" id="lead-servico" name="servico" aria-describedby="lead-servico-error">
+              <option value="" disabled selected>Selecione o serviço</option>
+              ${LEAD_MODAL_SERVICES.map((s) => `<option value="${s.value}">${s.label}</option>`).join('')}
             </select>
+            <p class="lead-field-error" id="lead-servico-error" hidden></p>
           </div>
-          <p class="lead-modal-error" data-error-for="1"></p>
-          <button type="button" class="btn btn-gold form-submit" data-step-next>Avançar</button>
+
+          <div class="form-group">
+            <label class="form-label" for="lead-cnpj">CNPJ da empresa</label>
+            <input class="form-input" type="text" id="lead-cnpj" name="cnpj" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="18" placeholder="00.000.000/0000-00" aria-describedby="lead-cnpj-error lead-cnpj-status">
+            <div class="lead-cnpj-status" id="lead-cnpj-status" aria-live="polite"></div>
+            <p class="lead-field-error" id="lead-cnpj-error" hidden></p>
+          </div>
+
+          <div class="lead-hp" aria-hidden="true">
+            <label for="lead-website">Não preencha este campo</label>
+            <input type="text" id="lead-website" name="website" tabindex="-1" autocomplete="off">
+          </div>
+
+          <button type="submit" class="btn btn-gold form-submit">Solicitar cotação</button>
+          <p class="lead-modal-consent">${LEAD_CONSENT_TEXT}</p>
         </div>
 
         <div class="lead-modal-step" data-step="2">
-          <h3 class="lead-modal-title">Quais serviços você precisa?</h3>
-          <p class="lead-modal-subtitle">Selecione uma ou mais opções.</p>
-          <div class="lead-modal-services">
-            ${LEAD_MODAL_SERVICES.map((servico, i) => `
-              <label class="lead-modal-service-item">
-                <input type="checkbox" name="servicos" value="${servico}" id="lead-servico-${i}">
-                <span>${servico}</span>
-              </label>
-            `).join('')}
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="lead-mensagem">Mensagem <span class="form-label-optional">(opcional)</span></label>
-            <textarea class="form-textarea" id="lead-mensagem" name="mensagem" placeholder="Conte um pouco sobre o serviço que você precisa..."></textarea>
-          </div>
-          <p class="lead-modal-error" data-error-for="2"></p>
-          <div class="lead-modal-nav">
-            <button type="button" class="lead-modal-back-btn" data-step-back>Voltar</button>
-            <button type="submit" class="btn btn-gold form-submit">Enviar e falar com especialista</button>
-          </div>
-        </div>
-
-        <div class="lead-modal-step" data-step="3">
-          <div class="lead-modal-loading">
+          <div class="lead-modal-loading" role="status">
             <span class="lead-modal-spinner"></span>
             <p class="lead-modal-loading-text">Estamos conectando você com um especialista...</p>
           </div>
@@ -738,23 +1060,46 @@ function buildLeadModal() {
   overlay.querySelector('.lead-modal-close').addEventListener('click', closeLeadModal);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) closeLeadModal(); });
 
-  overlay.querySelector('[data-step-next]').addEventListener('click', () => {
-    const nome  = form.querySelector('#lead-nome');
-    const email = form.querySelector('#lead-email');
-    const cnpj  = form.querySelector('#lead-cnpj');
-    const errorEl = form.querySelector('[data-error-for="1"]');
-    if (!nome.value.trim() || !email.value.trim() || !cnpj.value.trim() || !email.checkValidity()) {
-      errorEl.textContent = 'Preencha nome, e-mail e CNPJ corretamente.';
-      errorEl.classList.add('is-visible');
-      return;
-    }
-    errorEl.classList.remove('is-visible');
-    goToLeadStep(2);
+  form.querySelector('#lead-whatsapp').addEventListener('input', (e) => {
+    e.target.value = leadMaskPhone(e.target.value);
+    renderLeadErrors(form);
   });
+  form.querySelector('#lead-cnpj').addEventListener('input', (e) => {
+    e.target.value = leadMaskCnpj(e.target.value);
+    startLeadCnpjLookup(form);
+    renderLeadErrors(form);
+  });
+  ['nome', 'whatsapp', 'servico', 'cnpj'].forEach((field) => {
+    const input = form.querySelector(`#lead-${field}`);
+    input.addEventListener('blur', () => { leadState.touched[field] = true; renderLeadErrors(form); });
+    input.addEventListener('input', () => renderLeadErrors(form));
+  });
+  form.querySelector('#lead-servico').addEventListener('change', () => renderLeadErrors(form));
 
-  overlay.querySelector('[data-step-back]').addEventListener('click', () => goToLeadStep(1));
+  setupLeadCityCombobox(form);
+  setupLeadFocusTrap(overlay);
 
-  form.addEventListener('submit', (e) => handleLeadWizardSubmit(e));
+  form.addEventListener('submit', handleLeadModalSubmit);
+}
+
+// Mantém o Tab dentro do popup enquanto ele está aberto.
+function setupLeadFocusTrap(overlay) {
+  overlay.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+    const active = overlay.querySelector('.lead-modal-step.is-active');
+    const focusables = [overlay.querySelector('.lead-modal-close'), ...(active ? active.querySelectorAll('input:not([tabindex="-1"]), select, button') : [])]
+      .filter((el) => el && !el.disabled);
+    if (focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
 }
 
 function goToLeadStep(step) {
@@ -762,9 +1107,6 @@ function goToLeadStep(step) {
   if (!overlay) return;
   overlay.querySelectorAll('.lead-modal-step').forEach((el) => {
     el.classList.toggle('is-active', Number(el.dataset.step) === step);
-  });
-  overlay.querySelectorAll('.lead-modal-step-dot').forEach((el) => {
-    el.classList.toggle('is-active', Number(el.dataset.stepDot) <= step);
   });
 }
 
@@ -781,74 +1123,101 @@ function openLeadModal() {
 
 function closeLeadModal() {
   const overlay = document.getElementById('lead-modal-overlay');
-  if (!overlay) return;
+  if (!overlay || leadState.submitting) return;
   overlay.classList.remove('is-open');
   document.body.style.overflow = '';
   setTimeout(() => {
     const form = overlay.querySelector('#lead-modal-form');
-    if (form) form.reset();
+    if (form) {
+      form.reset();
+      leadState.touched = {};
+      leadState.lookup = null;
+      if (leadState.lookupAbort) leadState.lookupAbort.abort();
+      leadState.lookupAbort = null;
+      renderLeadErrors(form);
+      renderLeadCnpjStatus(form);
+    }
     goToLeadStep(1);
-    overlay.querySelectorAll('.lead-modal-error').forEach((el) => el.classList.remove('is-visible'));
   }, 300);
 }
 
-async function handleLeadWizardSubmit(e) {
+async function handleLeadModalSubmit(e) {
   e.preventDefault();
+  if (leadState.submitting) return;
   const form = e.target;
-  const errorEl = form.querySelector('[data-error-for="2"]');
-  const checked = Array.from(form.querySelectorAll('input[name="servicos"]:checked')).map((el) => el.value);
 
-  if (checked.length === 0) {
-    errorEl.textContent = 'Selecione ao menos um serviço.';
-    errorEl.classList.add('is-visible');
+  LEAD_FIELDS.forEach((field) => { leadState.touched[field] = true; });
+  const errors = renderLeadErrors(form);
+  const firstInvalid = LEAD_FIELDS.find((field) => errors[field]);
+  if (firstInvalid) {
+    form.querySelector(`#lead-${firstInvalid}`).focus();
     return;
   }
-  errorEl.classList.remove('is-visible');
+
+  const values = leadValues(form);
+
+  // Honeypot preenchido = bot: responde como se tivesse dado certo, sem enviar nada.
+  if (values.honeypot.trim()) {
+    closeLeadModal();
+    return;
+  }
 
   // Abre a aba do WhatsApp já dentro do clique do usuário, para o navegador
-  // não bloquear o popup quando ela for navegada depois do fetch assíncrono.
+  // não bloquear o popup quando ela for navegada depois das chamadas assíncronas.
   const waWindow = window.open('', '_blank');
 
-  goToLeadStep(3);
+  leadState.submitting = true;
+  goToLeadStep(2);
 
-  const nome     = form.querySelector('#lead-nome').value.trim();
-  const email    = form.querySelector('#lead-email').value.trim();
-  const cnpj     = form.querySelector('#lead-cnpj').value.trim();
-  const whatsapp = form.querySelector('#lead-whatsapp').value.trim();
-  const contatoPreferido = form.querySelector('#lead-contato-preferido').value.trim();
-  const mensagem = form.querySelector('#lead-mensagem').value.trim();
+  const nome = values.nome.trim();
+  const telefone = values.whatsapp.replace(/\D/g, '');
+  const cidade = values.cidade.trim();
+  const servico = leadServiceLabel(values.servico);
+  const cnpj = leadCleanCnpj(values.cnpj);
+  const lookup = leadState.lookup && leadState.lookup.cnpj === cnpj ? leadState.lookup.result : null;
+  const razaoSocial = lookup && lookup.status === 'found' ? lookup.razaoSocial : '';
+  const gclid = getLeadGclid();
+  const pagina = window.location.pathname;
 
+  // E-mail de aviso (Web3Forms) em paralelo ao CRM; falha em qualquer um não bloqueia o contato.
   const data = new FormData();
   data.append('access_key', LEAD_FORM_CONFIG.accessKey);
   data.append('subject', 'Novo lead — Site PS Proteção');
   data.append('from_name', 'Site PS Proteção');
   data.append('nome', nome);
-  data.append('email', email);
-  data.append('cnpj', cnpj);
-  if (whatsapp) data.append('whatsapp', whatsapp);
-  data.append('servicos', checked.join(', '));
-  if (contatoPreferido) data.append('contato_preferido', contatoPreferido);
-  if (mensagem) data.append('mensagem', mensagem);
+  data.append('whatsapp', values.whatsapp);
+  data.append('cidade', cidade);
+  data.append('servico', servico);
+  data.append('cnpj', values.cnpj);
+  if (razaoSocial) data.append('razao_social', razaoSocial);
+  data.append('pagina', pagina);
+  if (gclid) data.append('gclid', gclid);
 
   const sendEmail = fetch('https://api.web3forms.com/submit', { method: 'POST', body: data }).catch(() => null);
-  const minDelay  = new Promise((resolve) => setTimeout(resolve, 1600));
-  await Promise.all([sendEmail, minDelay]);
+  const sendCrm = registerLeadInCrm({ nome, telefone, empresa: razaoSocial, gclid, pagina, honeypot: values.honeypot });
+  const minDelay = new Promise((resolve) => setTimeout(resolve, 800));
+  const [, protocol] = await Promise.all([sendEmail, sendCrm, minDelay]);
 
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
     event: 'form_submit_lead',
     form_location: 'popup',
     lead_name: nome,
-    lead_email: email,
-    lead_cnpj: cnpj,
-    lead_whatsapp: whatsapp,
-    lead_services: checked.join(', '),
-    lead_preferred_contact: contatoPreferido,
-    lead_message: mensagem,
+    lead_whatsapp: values.whatsapp,
+    lead_city: cidade,
+    lead_cnpj: values.cnpj,
+    lead_services: servico,
+    lead_protocol: protocol || null,
+    gclid: gclid || null,
   });
 
-  const waText = `Olá! Meu nome é ${nome} (CNPJ ${cnpj}).${whatsapp ? ` WhatsApp: ${whatsapp}.` : ''} Tenho interesse em: ${checked.join(', ')}.${contatoPreferido ? ` Prefiro ser contatado por: ${contatoPreferido}.` : ''}${mensagem ? ` Mensagem: ${mensagem}` : ''} Gostaria de solicitar um orçamento.`;
-  const waUrl  = `https://wa.me/${LEAD_FORM_CONFIG.whatsapp}?text=${encodeURIComponent(waText)}`;
+  // O protocolo liga a conversa do WhatsApp ao lead que já está no CRM.
+  const base = `Olá, me chamo ${nome} e preciso de uma cotação de ${servico} em ${cidade}. Obrigado(a)!`;
+  const waText = protocol ? `${base} (Protocolo ${protocol})` : base;
+  const waUrl = `https://wa.me/${LEAD_FORM_CONFIG.whatsapp}?text=${encodeURIComponent(waText)}`;
+
+  // Dá tempo do GTM processar o evento antes de a página perder o foco.
+  await new Promise((resolve) => setTimeout(resolve, 300));
 
   if (waWindow) {
     waWindow.location.href = waUrl;
@@ -856,6 +1225,7 @@ async function handleLeadWizardSubmit(e) {
     window.open(waUrl, '_blank', 'noopener');
   }
 
+  leadState.submitting = false;
   closeLeadModal();
 }
 

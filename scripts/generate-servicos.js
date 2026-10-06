@@ -20,9 +20,9 @@ const ROOT_DIR = path.join(__dirname, '..');
 
 const TEL_DISPLAY = '(19) 3478-7799';
 const TEL_HREF = 'tel:+551934787799';
-// WhatsApp exclusivo do SEO Programático (organic) — diferente do (19) 98289-2037 usado na Home/site comum (ads)
-const WPP_DISPLAY = '(19) 97821-0246';
-const WPP_HREF = 'https://wa.me/5519978210246';
+// WhatsApp comercial único (mesmo número da Home e do formulário)
+const WPP_DISPLAY = '(19) 98289-2037';
+const WPP_HREF = 'https://wa.me/5519982892037';
 const EMAIL = 'empresas@psprotecao.com.br';
 const EMAIL_HREF = `mailto:${EMAIL}`;
 const GOOGLE_REVIEW_URL = 'https://share.google/ooNJXAY0U2mRvWnU1';
