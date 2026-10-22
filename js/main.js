@@ -647,7 +647,7 @@ const LEAD_FORM_CONFIG = {
   whatsapp: '5519982892037',
   crmUrl: '/api/lead',
   crmTimeoutMs: 6000,
-  cnpjTimeoutMs: 6000,
+  cnpjTimeoutMs: 4000,
 };
 
 // O CRM guarda exatamente esta frase como prova do consentimento (LGPD): o que
@@ -713,32 +713,48 @@ function leadIsValidCnpj(value) {
   return c[12] === String(dv1) && c[13] === String(dv2);
 }
 
-// Consulta pública (dados da Receita) via BrasilAPI. É um "extra": qualquer
-// falha/demora devolve { status: 'error' } e NUNCA bloqueia o envio.
-// Uma falha de rede/5xx costuma ser passageira: tenta de novo uma vez antes de desistir.
+// Consulta pública (dados da Receita). É um "extra": qualquer falha/demora devolve
+// { status: 'error' } e NUNCA bloqueia o envio. Cada fonte pode estar fora do ar ou limitando
+// requisições, então tenta uma após a outra e só desiste se todas falharem.
+const LEAD_CNPJ_SOURCES = [
+  {
+    url: (c) => `https://brasilapi.com.br/api/cnpj/v1/${c}`,
+    parse: (d) => ({ razaoSocial: d.razao_social, situacao: d.descricao_situacao_cadastral }),
+  },
+  {
+    url: (c) => `https://open.cnpja.com/office/${c}`,
+    parse: (d) => ({ razaoSocial: d.company && d.company.name, situacao: d.status && d.status.text }),
+  },
+  {
+    url: (c) => `https://publica.cnpj.ws/cnpj/${c}`,
+    parse: (d) => ({ razaoSocial: d.razao_social, situacao: d.estabelecimento && d.estabelecimento.situacao_cadastral }),
+  },
+];
+
 async function leadLookupCnpj(cnpj, signal) {
-  const first = await leadLookupCnpjOnce(cnpj, signal);
-  if (first.status !== 'error' || (signal && signal.aborted)) return first;
-  return leadLookupCnpjOnce(cnpj, signal);
+  let sawNotFound = false;
+  for (const source of LEAD_CNPJ_SOURCES) {
+    if (signal && signal.aborted) return { status: 'error' };
+    const result = await leadLookupCnpjOnce(source, cnpj, signal);
+    if (result.status === 'found') return result;
+    if (result.status === 'not_found') sawNotFound = true;
+  }
+  return { status: sawNotFound ? 'not_found' : 'error' };
 }
 
-async function leadLookupCnpjOnce(cnpj, signal) {
+async function leadLookupCnpjOnce(source, cnpj, signal) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), LEAD_FORM_CONFIG.cnpjTimeoutMs);
   const onAbort = () => controller.abort();
   if (signal) signal.addEventListener('abort', onAbort);
   try {
-    const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`, { signal: controller.signal });
+    const res = await fetch(source.url(cnpj), { signal: controller.signal });
     // 400/404 = base não conhece esse CNPJ (empresa muito nova, ou alfanumérico ainda não indexado).
     if (res.status === 404 || res.status === 400) return { status: 'not_found' };
     if (!res.ok) return { status: 'error' };
-    const data = await res.json();
-    if (!data.razao_social) return { status: 'not_found' };
-    return {
-      status: 'found',
-      razaoSocial: data.razao_social,
-      situacao: data.descricao_situacao_cadastral || '',
-    };
+    const parsed = source.parse(await res.json());
+    if (!parsed.razaoSocial) return { status: 'not_found' };
+    return { status: 'found', razaoSocial: parsed.razaoSocial, situacao: String(parsed.situacao || '') };
   } catch (err) {
     return { status: 'error' };
   } finally {
@@ -924,7 +940,7 @@ function startLeadCnpjLookup(form) {
 
   const controller = new AbortController();
   leadState.lookupAbort = controller;
-  leadLookupCnpj(cnpj, controller.signal).then((result) => {
+  leadState.lookupPromise = leadLookupCnpj(cnpj, controller.signal).then((result) => {
     if (controller.signal.aborted) return;
     leadState.lookup = { cnpj, result };
     renderLeadCnpjStatus(form);
@@ -1239,6 +1255,10 @@ async function handleLeadModalSubmit(e) {
   const cidade = values.cidade.trim();
   const servico = leadServiceLabel(values.servico);
   const cnpj = leadCleanCnpj(values.cnpj);
+  // Busca ainda em andamento: espera um pouco para a razão social entrar no lead.
+  if (!(leadState.lookup && leadState.lookup.cnpj === cnpj) && leadState.lookupPromise) {
+    await Promise.race([leadState.lookupPromise, new Promise((resolve) => setTimeout(resolve, 3000))]);
+  }
   const lookup = leadState.lookup && leadState.lookup.cnpj === cnpj ? leadState.lookup.result : null;
   const razaoSocial = lookup && lookup.status === 'found' ? lookup.razaoSocial : '';
   const gclid = getLeadGclid();
