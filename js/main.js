@@ -25,6 +25,7 @@ function initAll() {
   safeInit('initGclidCapture', initGclidCapture);
   safeInit('initLeadModal', initLeadModal);
   safeInit('initCTAIntercept', initCTAIntercept);
+  safeInit('initWhatsappFloat', initWhatsappFloat);
   safeInit('initContactFormPage', initContactFormPage);
 
   safeInit('gsap.registerPlugin', () => gsap.registerPlugin(ScrollTrigger));
@@ -653,6 +654,14 @@ const LEAD_FORM_CONFIG = {
 // aparece na tela e o que é enviado precisam ser a mesma constante.
 const LEAD_CONSENT_TEXT = 'Ao enviar, você autoriza a PS Proteção a usar seu nome e WhatsApp para retornar este contato e enviar o orçamento.';
 
+const LEAD_STORAGE_KEY = 'ps_lead';
+// Página de obrigado por serviço (caminho absoluto: o popup roda em páginas de qualquer pasta).
+const LEAD_THANKS_PAGES = {
+  limpeza: '/obrigado-limpeza.html',
+  portaria: '/obrigado-portaria.html',
+  default: '/obrigado.html',
+};
+
 const LEAD_MODAL_SERVICES = [
   { value: 'portaria', label: 'Portaria e Controle de Acesso' },
   { value: 'limpeza', label: 'Limpeza e Conservação' },
@@ -706,7 +715,14 @@ function leadIsValidCnpj(value) {
 
 // Consulta pública (dados da Receita) via BrasilAPI. É um "extra": qualquer
 // falha/demora devolve { status: 'error' } e NUNCA bloqueia o envio.
+// Uma falha de rede/5xx costuma ser passageira: tenta de novo uma vez antes de desistir.
 async function leadLookupCnpj(cnpj, signal) {
+  const first = await leadLookupCnpjOnce(cnpj, signal);
+  if (first.status !== 'error' || (signal && signal.aborted)) return first;
+  return leadLookupCnpjOnce(cnpj, signal);
+}
+
+async function leadLookupCnpjOnce(cnpj, signal) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), LEAD_FORM_CONFIG.cnpjTimeoutMs);
   const onAbort = () => controller.abort();
@@ -783,6 +799,10 @@ async function registerLeadInCrm(lead) {
         nome: lead.nome,
         telefone: lead.telefone,
         empresa: lead.empresa ? lead.empresa.slice(0, 160) : undefined,
+        cnpj: lead.cnpj || undefined,
+        cidade: lead.cidade || undefined,
+        servico: lead.servico || undefined,
+        servico_rotulo: lead.servicoRotulo || undefined,
         consentimento_texto: LEAD_CONSENT_TEXT,
         gclid: lead.gclid || undefined,
         pagina_origem: lead.pagina,
@@ -846,6 +866,7 @@ function leadValues(form) {
 }
 
 const LEAD_FIELDS = ['nome', 'whatsapp', 'cidade', 'servico', 'cnpj'];
+const LEAD_STEP_FIELDS = { 1: ['nome', 'whatsapp', 'cidade'], 2: ['servico', 'cnpj'] };
 
 function renderLeadErrors(form) {
   const values = leadValues(form);
@@ -995,11 +1016,21 @@ function buildLeadModal() {
       <button type="button" class="lead-modal-close" aria-label="Fechar">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
-      <form id="lead-modal-form" novalidate>
-        <div class="lead-modal-step is-active" data-step="1">
-          <h3 id="lead-modal-title" class="lead-modal-title">Formulário de Contato</h3>
-          <p class="lead-modal-subtitle">Retornamos em até 2h úteis. Sem compromisso.</p>
+      <form id="lead-modal-form" class="lead-modal-form" data-step="1" novalidate>
+        <div class="lead-modal-head">
+          <h3 id="lead-modal-title" class="lead-modal-title">Solicitar Proposta</h3>
+          <p class="lead-online"><span class="lead-online-dot" aria-hidden="true"></span><span><strong>Estamos online agora</strong> · Espera média: 5 minutos</span></p>
+        </div>
 
+        <div class="lead-progress" role="progressbar" aria-valuemin="1" aria-valuemax="2" aria-valuenow="1" aria-label="Progresso do formulário">
+          <div class="lead-progress-top">
+            <span class="lead-progress-label">Etapa 1 de 2</span>
+            <span class="lead-progress-hint">Leva menos de 1 minuto</span>
+          </div>
+          <div class="lead-progress-bar"><span class="lead-progress-fill"></span></div>
+        </div>
+
+        <div class="lead-modal-step is-active" data-step="1">
           <div class="form-group">
             <label class="form-label" for="lead-nome">Nome</label>
             <input class="form-input" type="text" id="lead-nome" name="nome" autocomplete="name" placeholder="Seu nome completo" aria-describedby="lead-nome-error">
@@ -1019,6 +1050,10 @@ function buildLeadModal() {
             <p class="lead-field-error" id="lead-cidade-error" hidden></p>
           </div>
 
+          <button type="button" class="btn btn-gold form-submit" id="lead-next">Continuar</button>
+        </div>
+
+        <div class="lead-modal-step" data-step="2">
           <div class="form-group">
             <label class="form-label" for="lead-servico">Serviço</label>
             <select class="form-select" id="lead-servico" name="servico" aria-describedby="lead-servico-error">
@@ -1041,10 +1076,11 @@ function buildLeadModal() {
           </div>
 
           <button type="submit" class="btn btn-gold form-submit">Solicitar cotação</button>
+          <button type="button" class="lead-back" id="lead-back">← Voltar</button>
           <p class="lead-modal-consent">${LEAD_CONSENT_TEXT}</p>
         </div>
 
-        <div class="lead-modal-step" data-step="2">
+        <div class="lead-modal-step" data-step="3">
           <div class="lead-modal-loading" role="status">
             <span class="lead-modal-spinner"></span>
             <p class="lead-modal-loading-text">Estamos conectando você com um especialista...</p>
@@ -1079,6 +1115,12 @@ function buildLeadModal() {
   setupLeadCityCombobox(form);
   setupLeadFocusTrap(overlay);
 
+  form.querySelector('#lead-next').addEventListener('click', () => advanceLeadStep(form));
+  form.querySelector('#lead-back').addEventListener('click', () => {
+    goToLeadStep(1);
+    form.querySelector('#lead-nome').focus();
+  });
+
   form.addEventListener('submit', handleLeadModalSubmit);
 }
 
@@ -1108,6 +1150,26 @@ function goToLeadStep(step) {
   overlay.querySelectorAll('.lead-modal-step').forEach((el) => {
     el.classList.toggle('is-active', Number(el.dataset.step) === step);
   });
+  const form = overlay.querySelector('#lead-modal-form');
+  form.dataset.step = String(step);
+  if (step <= 2) {
+    form.querySelector('.lead-progress-label').textContent = `Etapa ${step} de 2`;
+    form.querySelector('.lead-progress-fill').style.width = `${step * 50}%`;
+    form.querySelector('.lead-progress').setAttribute('aria-valuenow', String(step));
+  }
+}
+
+// Etapa 1 -> 2: valida só Nome, WhatsApp e Cidade antes de avançar.
+function advanceLeadStep(form) {
+  LEAD_STEP_FIELDS[1].forEach((field) => { leadState.touched[field] = true; });
+  const errors = renderLeadErrors(form);
+  const firstInvalid = LEAD_STEP_FIELDS[1].find((field) => errors[field]);
+  if (firstInvalid) {
+    form.querySelector(`#lead-${firstInvalid}`).focus();
+    return;
+  }
+  goToLeadStep(2);
+  if (!window.matchMedia('(pointer: coarse)').matches) form.querySelector('#lead-servico').focus();
 }
 
 function openLeadModal() {
@@ -1146,10 +1208,17 @@ async function handleLeadModalSubmit(e) {
   if (leadState.submitting) return;
   const form = e.target;
 
+  // Enter na etapa 1 avança em vez de enviar.
+  if (form.dataset.step === '1') {
+    advanceLeadStep(form);
+    return;
+  }
+
   LEAD_FIELDS.forEach((field) => { leadState.touched[field] = true; });
   const errors = renderLeadErrors(form);
   const firstInvalid = LEAD_FIELDS.find((field) => errors[field]);
   if (firstInvalid) {
+    if (LEAD_STEP_FIELDS[1].includes(firstInvalid)) goToLeadStep(1);
     form.querySelector(`#lead-${firstInvalid}`).focus();
     return;
   }
@@ -1162,12 +1231,8 @@ async function handleLeadModalSubmit(e) {
     return;
   }
 
-  // Abre a aba do WhatsApp já dentro do clique do usuário, para o navegador
-  // não bloquear o popup quando ela for navegada depois das chamadas assíncronas.
-  const waWindow = window.open('', '_blank');
-
   leadState.submitting = true;
-  goToLeadStep(2);
+  goToLeadStep(3);
 
   const nome = values.nome.trim();
   const telefone = values.whatsapp.replace(/\D/g, '');
@@ -1194,7 +1259,7 @@ async function handleLeadModalSubmit(e) {
   if (gclid) data.append('gclid', gclid);
 
   const sendEmail = fetch('https://api.web3forms.com/submit', { method: 'POST', body: data }).catch(() => null);
-  const sendCrm = registerLeadInCrm({ nome, telefone, empresa: razaoSocial, gclid, pagina, honeypot: values.honeypot });
+  const sendCrm = registerLeadInCrm({ nome, telefone, empresa: razaoSocial, cnpj, cidade, servico: values.servico, servicoRotulo: servico, gclid, pagina, honeypot: values.honeypot });
   const minDelay = new Promise((resolve) => setTimeout(resolve, 800));
   const [, protocol] = await Promise.all([sendEmail, sendCrm, minDelay]);
 
@@ -1211,22 +1276,18 @@ async function handleLeadModalSubmit(e) {
     gclid: gclid || null,
   });
 
-  // O protocolo liga a conversa do WhatsApp ao lead que já está no CRM.
-  const base = `Olá, me chamo ${nome} e preciso de uma cotação de ${servico} em ${cidade}. Obrigado(a)!`;
-  const waText = protocol ? `${base} (Protocolo ${protocol})` : base;
-  const waUrl = `https://wa.me/${LEAD_FORM_CONFIG.whatsapp}?text=${encodeURIComponent(waText)}`;
+  // A página de obrigado monta a mensagem do WhatsApp e redireciona em 3s.
+  // O protocolo liga a conversa ao lead que já está no CRM.
+  try {
+    sessionStorage.setItem(LEAD_STORAGE_KEY, JSON.stringify({
+      nome, empresa: razaoSocial, cidade, servico, servicoValue: values.servico, protocolo: protocol || null,
+    }));
+  } catch (err) { /* sem storage: a página de obrigado cai no botão manual */ }
 
-  // Dá tempo do GTM processar o evento antes de a página perder o foco.
+  // Dá tempo do GTM processar o evento antes de a página ser trocada.
   await new Promise((resolve) => setTimeout(resolve, 300));
 
-  if (waWindow) {
-    waWindow.location.href = waUrl;
-  } else {
-    window.open(waUrl, '_blank', 'noopener');
-  }
-
-  leadState.submitting = false;
-  closeLeadModal();
+  window.location.href = LEAD_THANKS_PAGES[values.servico] || LEAD_THANKS_PAGES.default;
 }
 
 async function handleLeadSubmit(e, origin) {
@@ -1298,11 +1359,106 @@ function initLeadModal() {
 
 function initCTAIntercept() {
   document.addEventListener('click', (e) => {
-    const trigger = e.target.closest('a[href^="https://wa.me/"], a[href^="wa.me/"], a[href^="mailto:"], .whatsapp-float');
-    if (!trigger) return;
+    // O botão flutuante abre o menu (proposta / vagas), não o formulário direto.
+    if (e.target.closest('.whatsapp-float')) {
+      e.preventDefault();
+      toggleWaMenu();
+      return;
+    }
+    const trigger = e.target.closest('a[href^="https://wa.me/"], a[href^="wa.me/"], a[href^="mailto:"]');
+    if (!trigger || trigger.hasAttribute('data-wa-direct')) return;
     e.preventDefault();
+    closeWaMenu();
     openLeadModal();
   });
+}
+
+/* =============================================
+   BOTÃO FLUTUANTE DO WHATSAPP — balão "Estamos online" + menu
+   ============================================= */
+// Ícone oficial do WhatsApp (glifo Simple Icons).
+const WA_ICON = '<svg class="wa-official" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>';
+
+function buildWaWidget() {
+  if (document.getElementById('wa-menu')) return;
+
+  const bubble = document.createElement('div');
+  bubble.id = 'wa-bubble';
+  bubble.className = 'wa-bubble';
+  bubble.setAttribute('aria-hidden', 'true');
+  bubble.innerHTML = '<span class="wa-online-dot"></span>Estamos online';
+  document.body.appendChild(bubble);
+
+  const menu = document.createElement('div');
+  menu.id = 'wa-menu';
+  menu.className = 'wa-menu';
+  menu.setAttribute('role', 'dialog');
+  menu.setAttribute('aria-label', 'Fale com a PS Proteção');
+  menu.hidden = true;
+  menu.innerHTML = `
+    <p class="wa-menu-head"><span class="wa-online-dot"></span>Estamos online agora</p>
+    <button type="button" class="wa-menu-item" data-wa-action="proposta">
+      <span class="wa-menu-icon">${WA_ICON}</span>
+      <span class="wa-menu-text"><strong>Solicitar Proposta</strong><small>Contato Comercial</small></span>
+    </button>
+    <a class="wa-menu-item" href="https://protecaotalentos.online" target="_blank" rel="noopener" data-wa-direct>
+      <span class="wa-menu-icon is-alt"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span>
+      <span class="wa-menu-text"><strong>Trabalhe Conosco</strong><small>Vagas Abertas</small></span>
+    </a>
+  `;
+  document.body.appendChild(menu);
+
+  menu.querySelector('[data-wa-action="proposta"]').addEventListener('click', () => {
+    closeWaMenu();
+    openLeadModal();
+  });
+  document.addEventListener('click', (e) => {
+    if (!menu.hidden && !e.target.closest('#wa-menu, .whatsapp-float')) closeWaMenu();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !menu.hidden) closeWaMenu();
+  });
+}
+
+function toggleWaMenu() {
+  buildWaWidget();
+  const menu = document.getElementById('wa-menu');
+  if (menu.hidden) {
+    menu.hidden = false;
+    requestAnimationFrame(() => menu.classList.add('is-open'));
+    document.getElementById('wa-bubble').classList.remove('is-visible');
+    document.querySelector('.whatsapp-float')?.setAttribute('aria-expanded', 'true');
+  } else {
+    closeWaMenu();
+  }
+}
+
+function closeWaMenu() {
+  const menu = document.getElementById('wa-menu');
+  if (!menu || menu.hidden) return;
+  menu.classList.remove('is-open');
+  menu.hidden = true;
+  document.querySelector('.whatsapp-float')?.setAttribute('aria-expanded', 'false');
+}
+
+// Balão "Estamos online": aparece pouco depois da chegada e volta de tempos em tempos.
+function initWhatsappFloat() {
+  const float = document.querySelector('.whatsapp-float');
+  if (!float) return;
+  buildWaWidget();
+  float.innerHTML = WA_ICON;
+  float.setAttribute('aria-haspopup', 'dialog');
+  float.setAttribute('aria-expanded', 'false');
+
+  const bubble = document.getElementById('wa-bubble');
+  const menu = document.getElementById('wa-menu');
+  const show = () => {
+    if (!menu.hidden || document.getElementById('lead-modal-overlay')?.classList.contains('is-open')) return;
+    bubble.classList.add('is-visible');
+    setTimeout(() => bubble.classList.remove('is-visible'), 6000);
+  };
+  setTimeout(show, 2500);
+  setInterval(show, 30000);
 }
 
 function initContactFormPage() {
