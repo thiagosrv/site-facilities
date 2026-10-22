@@ -645,8 +645,8 @@ function initBlogFilters() {
 const LEAD_FORM_CONFIG = {
   accessKey: '31cbc197-cb46-4864-b9d1-0d1d31a0a52d',
   whatsapp: '5519982892037',
-  crmUrl: 'https://crm-thiago-steel.vercel.app/api/leads/site',
-  crmTimeoutMs: 3000,
+  crmUrl: '/api/lead',
+  crmTimeoutMs: 6000,
   cnpjTimeoutMs: 6000,
 };
 
