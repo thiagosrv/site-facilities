@@ -485,5 +485,19 @@
     "substackUrl": "",
     "mediumUrl": "",
     "linkedinUrl": ""
+  },
+  {
+    "pautaId": 36,
+    "tema": "Treinamento de recepcionistas: o que deve ser cobrado",
+    "categoriaSlug": "recepcao",
+    "slug": "treinamento-de-recepcionistas-o-que-deve-ser-cobrado",
+    "blogUrl": "https://protecaoeseguranca.com.br/blog/treinamento-de-recepcionistas-o-que-deve-ser-cobrado.html",
+    "longformFile": "content-externo/treinamento-de-recepcionistas-o-que-deve-ser-cobrado.txt",
+    "driveUrl": "https://docs.google.com/document/d/1vAZYbzvyn1ViJfs6lBQbudiZQEOM2AMt2jOGpWWfTuw/edit?usp=drivesdk",
+    "geradoEm": "2026-10-23",
+    "status": "gerado",
+    "substackUrl": "",
+    "mediumUrl": "",
+    "linkedinUrl": ""
   }
 ]
