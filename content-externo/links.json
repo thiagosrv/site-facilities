@@ -541,5 +541,19 @@
     "substackUrl": "",
     "mediumUrl": "",
     "linkedinUrl": ""
+  },
+  {
+    "pautaId": 40,
+    "tema": "Como padronizar scripts de atendimento na recepção",
+    "categoriaSlug": "recepcao",
+    "slug": "como-padronizar-scripts-de-atendimento-na-recepcao",
+    "blogUrl": "https://protecaoeseguranca.com.br/blog/como-padronizar-scripts-de-atendimento-na-recepcao.html",
+    "longformFile": "content-externo/como-padronizar-scripts-de-atendimento-na-recepcao.txt",
+    "driveUrl": "https://docs.google.com/document/d/1P-eFepXfP2E300cSvsMcGBrUm27Lk6ei-bKIqNj0XjQ/edit?usp=drivesdk",
+    "geradoEm": "2026-11-04",
+    "status": "gerado",
+    "substackUrl": "",
+    "mediumUrl": "",
+    "linkedinUrl": ""
   }
 ]
